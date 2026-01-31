@@ -6,6 +6,7 @@ import { ConvexHttpClient } from "convex/browser";
 import { api } from '../../convex/_generated/api';
 
 const convex = new ConvexHttpClient(import.meta.env.VITE_CONVEX_URL || "");
+let postAuthLoadingTimeout: ReturnType<typeof setTimeout> | null = null;
 
 interface AuthState {
   user: User | null;
@@ -13,11 +14,13 @@ interface AuthState {
   profile: Profile | null;
   loading: boolean;
   initialized: boolean;
+  postAuthLoading: boolean;
   setUser: (user: User | null) => void;
   setSession: (session: Session | null) => void;
   setProfile: (profile: Profile | null) => void;
   setLoading: (loading: boolean) => void;
   setInitialized: (initialized: boolean) => void;
+  triggerPostAuthLoading: () => void;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signUp: (email: string, password: string, username: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
@@ -32,12 +35,22 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   profile: null,
   loading: true,
   initialized: false,
+  postAuthLoading: false,
 
   setUser: (user) => set({ user }),
   setSession: (session) => set({ session }),
   setProfile: (profile) => set({ profile }),
   setLoading: (loading) => set({ loading }),
   setInitialized: (initialized) => set({ initialized }),
+  triggerPostAuthLoading: () => {
+    if (postAuthLoadingTimeout) {
+      clearTimeout(postAuthLoadingTimeout);
+    }
+    set({ postAuthLoading: true });
+    postAuthLoadingTimeout = setTimeout(() => {
+      set({ postAuthLoading: false });
+    }, 2000);
+  },
 
   signIn: async (email, password) => {
     try {
@@ -46,8 +59,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         password,
       });
       if (error) throw error;
-      set({ user: data.user, session: data.session });
-      await get().fetchProfile();
+      if (postAuthLoadingTimeout) {
+        clearTimeout(postAuthLoadingTimeout);
+      }
+      set({ user: data.user, session: data.session, postAuthLoading: true });
+      postAuthLoadingTimeout = setTimeout(() => {
+        set({ postAuthLoading: false });
+      }, 2000);
+      void get().fetchProfile();
       return { error: null };
     } catch (error) {
       return { error: error as Error };
@@ -82,7 +101,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   signOut: async () => {
     await supabase.auth.signOut();
-    set({ user: null, session: null, profile: null });
+    if (postAuthLoadingTimeout) {
+      clearTimeout(postAuthLoadingTimeout);
+      postAuthLoadingTimeout = null;
+    }
+    set({ user: null, session: null, profile: null, postAuthLoading: false });
   },
 
   fetchProfile: async () => {
@@ -130,6 +153,16 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
       // Listen for auth changes
       supabase.auth.onAuthStateChange(async (event, session) => {
+        if (event === 'SIGNED_IN') {
+          if (postAuthLoadingTimeout) {
+            clearTimeout(postAuthLoadingTimeout);
+          }
+          set({ postAuthLoading: true });
+          postAuthLoadingTimeout = setTimeout(() => {
+            set({ postAuthLoading: false });
+          }, 2000);
+        }
+        
         set({ user: session?.user ?? null, session });
         if (session?.user) {
           await get().fetchProfile();

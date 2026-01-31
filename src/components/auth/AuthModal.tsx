@@ -10,7 +10,7 @@ type AuthView = 'login' | 'register' | 'forgot';
 
 export function AuthModal() {
   const { activeModal, closeModal, addToast, modalData } = useUIStore();
-  const { signIn, signUp, setUser, setSession, setProfile } = useAuthStore();
+  const { signIn, signUp, setUser, setSession, setProfile, triggerPostAuthLoading, postAuthLoading } = useAuthStore();
   const [view, setView] = useState<AuthView>('login');
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -21,7 +21,7 @@ export function AuthModal() {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const isOpen = activeModal === 'auth';
+  const isOpen = activeModal === 'auth' && !postAuthLoading;
 
   useEffect(() => {
     if (!isOpen) return;
@@ -40,6 +40,14 @@ export function AuthModal() {
       document.body.style.overflow = 'unset';
     };
   }, [isOpen]);
+
+  useEffect(() => {
+    if (!postAuthLoading || activeModal !== 'auth') return;
+    closeModal();
+    setView('login');
+    setFormData({ email: '', password: '', username: '', confirmPassword: '' });
+    setErrors({});
+  }, [postAuthLoading, activeModal, closeModal]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -125,6 +133,7 @@ export function AuthModal() {
     setUser(guestUser);
     setSession(guestSession);
     setProfile(guestProfile);
+    triggerPostAuthLoading();
 
     addToast({
       type: 'info',
@@ -148,14 +157,14 @@ export function AuthModal() {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+            exit={{ opacity: 0, transition: { duration: 0 } }}
             className="absolute inset-0 bg-black/50 backdrop-blur-sm"
             onClick={handleClose}
           />
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            exit={{ opacity: 0, scale: 0.95, y: 20, transition: { duration: 0 } }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
             className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden"
           >

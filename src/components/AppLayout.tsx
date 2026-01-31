@@ -27,7 +27,7 @@ const pageVariants = {
 };
 
 const AppLayout: React.FC = () => {
-  const { user, loading, initialized, initialize } = useAuthStore();
+  const { user, loading, initialized, initialize, postAuthLoading } = useAuthStore();
   const { currentView, sidebarCollapsed } = useUIStore();
   const isMobile = useIsMobile();
 
@@ -45,6 +45,23 @@ const AppLayout: React.FC = () => {
             <Loader2 className="w-8 h-8 text-white animate-spin" />
           </div>
           <p className="text-gray-500 font-medium">Loading Vibe Vault...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (postAuthLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center mx-auto mb-4 animate-pulse">
+            <img
+              src="/Vibe%20Vault%20logo-white.png"
+              alt="Vibe Vault Logo"
+              className="w-10 h-10 object-contain animate-float"
+            />
+          </div>
+          <p className="text-gray-500 font-medium">Preparing your vault...</p>
         </div>
       </div>
     );
