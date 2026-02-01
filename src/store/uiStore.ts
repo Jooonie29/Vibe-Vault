@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-type View = 'dashboard' | 'code' | 'prompts' | 'files' | 'projects' | 'settings';
+type View = 'dashboard' | 'code' | 'prompts' | 'files' | 'projects' | 'settings' | 'documentation' | 'chat' | 'community' | 'referral' | 'help' | 'favorites' | 'video-tutorial';
 type ModalType = 'auth' | 'item' | 'project' | 'project-note' | 'project-view' | 'project-updates' | 'team-onboarding' | 'command' | null;
 
 interface UIState {

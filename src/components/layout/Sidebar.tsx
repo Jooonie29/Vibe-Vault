@@ -12,11 +12,11 @@ import {
   ChevronDown,
   Plus,
   Search,
-  HelpCircle,
   LogOut,
   Check,
   Sun,
   Moon,
+  Star,
 } from 'lucide-react';
 import { useUIStore } from '@/store/uiStore';
 import { useAuthStore } from '@/store/authStore';
@@ -33,8 +33,9 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { PricingModal } from '@/components/pricing/PricingModal';
 
-const navItems = [
-  { id: 'dashboard', label: 'Overview', icon: LayoutDashboard },
+const applicationItems = [
+  { id: 'dashboard', label: 'All workspaces', icon: LayoutDashboard },
+  { id: 'favorites', label: 'Favorites', icon: Star },
   { id: 'code', label: 'Code Library', icon: Code2 },
   { id: 'prompts', label: 'AI Prompts', icon: MessageSquare },
   { id: 'files', label: 'File Assets', icon: FolderOpen },
@@ -58,6 +59,51 @@ export function Sidebar() {
     await signOut();
     window.location.reload();
   };
+
+  const renderNavGroup = (title: string, items: typeof applicationItems) => (
+    <div className="mb-4">
+      {!sidebarCollapsed && (
+        <h3 className="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 mt-2">
+          {title}
+        </h3>
+      )}
+      <div className="space-y-0.5">
+        {items.map((item) => {
+          const Icon = item.icon;
+          const isActive = currentView === item.id;
+
+          return (
+            <motion.button
+              key={item.id}
+              onClick={() => setCurrentView(item.id as any)}
+              whileHover={{ x: 4 }}
+              whileTap={{ scale: 0.98 }}
+              className={`
+                w-full flex items-center rounded-xl transition-all
+                ${sidebarCollapsed ? 'justify-center px-0' : 'gap-3 px-3'}
+                py-2
+                ${isActive
+                  ? 'bg-gray-900 text-white shadow-md font-medium'
+                  : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900'
+                }
+              `}
+            >
+              <Icon className={`w-5 h-5 flex-shrink-0 ${isActive ? 'text-white' : 'text-gray-500 group-hover:text-gray-900'}`} />
+              {!sidebarCollapsed && (
+                <motion.span
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="text-sm"
+                >
+                  {item.label}
+                </motion.span>
+              )}
+            </motion.button>
+          );
+        })}
+      </div>
+    </div>
+  );
 
   return (
     <motion.aside
@@ -167,39 +213,7 @@ export function Sidebar() {
 
       {/* Navigation */}
       <nav className="flex-1 px-3 space-y-0.5 overflow-y-auto py-2">
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = currentView === item.id;
-
-          return (
-            <motion.button
-              key={item.id}
-              onClick={() => setCurrentView(item.id as any)}
-              whileHover={{ x: 4 }}
-              whileTap={{ scale: 0.98 }}
-              className={`
-                w-full flex items-center rounded-xl transition-all
-                ${sidebarCollapsed ? 'justify-center px-0' : 'gap-3 px-3'}
-                py-2
-                ${isActive
-                  ? 'bg-gray-900 text-white shadow-md font-medium'
-                  : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900'
-                }
-              `}
-            >
-              <Icon className={`w-5 h-5 flex-shrink-0 ${isActive ? 'text-white' : 'text-gray-500 group-hover:text-gray-900'}`} />
-              {!sidebarCollapsed && (
-                <motion.span
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="text-sm"
-                >
-                  {item.label}
-                </motion.span>
-              )}
-            </motion.button>
-          );
-        })}
+        {renderNavGroup('Applications', applicationItems)}
         
         {/* Divider if needed */}
         {!sidebarCollapsed && <div className="h-px bg-dashed bg-gray-200 my-4 mx-2" />}

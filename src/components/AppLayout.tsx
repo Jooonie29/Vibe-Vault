@@ -21,6 +21,13 @@ import { CommandPalette } from '@/components/command/CommandPalette';
 import { ToastContainer } from '@/components/ui/Toast';
 import { Loader2 } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { Documentation } from '@/components/learn/Documentation';
+import { VideoTutorial } from '@/components/learn/VideoTutorial';
+import { ChatSupport } from '@/components/support/ChatSupport';
+import { Community } from '@/components/support/Community';
+import { Referral } from '@/components/support/Referral';
+import { HelpCenter } from '@/components/support/HelpCenter';
+import { Favorites } from '@/components/favorites/Favorites';
 
 const pageVariants = {
   initial: { opacity: 0, y: 20 },
@@ -120,6 +127,20 @@ const AppLayout: React.FC = () => {
         return <FileManager />;
       case 'projects':
         return <KanbanBoard />;
+      case 'favorites':
+        return <Favorites />;
+      case 'documentation':
+        return <Documentation />;
+      case 'video-tutorial':
+        return <VideoTutorial />;
+      case 'chat':
+        return <ChatSupport />;
+      case 'community':
+        return <Community />;
+      case 'referral':
+        return <Referral />;
+      case 'help':
+        return <HelpCenter />;
       case 'settings':
         return <Settings />;
       default:

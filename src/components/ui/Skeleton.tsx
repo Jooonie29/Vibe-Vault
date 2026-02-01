@@ -1,6 +1,6 @@
 import React from 'react';
 
-interface SkeletonProps {
+interface SkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
   className?: string;
   variant?: 'text' | 'circular' | 'rectangular';
   width?: string | number;
@@ -11,7 +11,9 @@ export function Skeleton({
   className = '', 
   variant = 'rectangular',
   width,
-  height 
+  height,
+  style: propStyle,
+  ...props
 }: SkeletonProps) {
   const baseClasses = 'animate-pulse bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 bg-[length:200%_100%]';
   
@@ -21,7 +23,7 @@ export function Skeleton({
     rectangular: 'rounded-xl',
   };
 
-  const style: React.CSSProperties = {};
+  const style: React.CSSProperties = { ...propStyle };
   if (width) style.width = typeof width === 'number' ? `${width}px` : width;
   if (height) style.height = typeof height === 'number' ? `${height}px` : height;
 
@@ -29,6 +31,7 @@ export function Skeleton({
     <div 
       className={`${baseClasses} ${variantClasses[variant]} ${className}`}
       style={style}
+      {...props}
     />
   );
 }
