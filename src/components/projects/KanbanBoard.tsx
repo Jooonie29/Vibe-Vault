@@ -1,61 +1,27 @@
-import React, { useMemo } from 'react';
-import { motion } from 'framer-motion';
-import {
-  DragDropContext,
-  Droppable,
-  Draggable,
-  DropResult
-} from '@hello-pangea/dnd';
-import {
-  Plus,
-  Lightbulb,
-  ClipboardList,
-  PlayCircle,
-  CheckCircle2,
-  Calendar,
-  Flag,
-  FileText
-} from 'lucide-react';
+import React, { useState, useMemo } from 'react';
 import { useProjects, useUpdateProjectStatus } from '@/hooks/useProjects';
 import { useUIStore } from '@/store/uiStore';
-import { Project, ProjectStatus } from '@/types';
-import { Card } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
-import { Badge } from '@/components/ui/Badge';
-import { format, isPast, isToday } from 'date-fns';
-
-const columns: { id: ProjectStatus; title: string; icon: React.ElementType; color: string }[] = [
-  { id: 'ideation', title: 'Ideation', icon: Lightbulb, color: 'bg-amber-500' },
-  { id: 'planning', title: 'Planning', icon: ClipboardList, color: 'bg-blue-500' },
-  { id: 'in_progress', title: 'In Progress', icon: PlayCircle, color: 'bg-violet-500' },
-  { id: 'completed', title: 'Completed', icon: CheckCircle2, color: 'bg-green-500' },
-];
-
-const priorityColors = {
-  low: 'bg-gray-100 text-gray-600',
-  medium: 'bg-amber-100 text-amber-700',
-  high: 'bg-red-100 text-red-700',
-};
+import { useAuthStore } from '@/store/authStore';
+import { KanbanBoardUI } from './KanbanBoardUI';
+import { DropResult } from '@hello-pangea/dnd';
+import { ProjectStatus } from '@/types';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { useMutation, useQuery } from "convex/react";
+import { api } from "../../../convex/_generated/api";
+import { toast } from "sonner";
+import { Copy, RefreshCw, Loader2 } from "lucide-react";
 
 export function KanbanBoard() {
   const { data: projects, isLoading } = useProjects();
   const updateStatus = useUpdateProjectStatus();
   const { openModal } = useUIStore();
-
-  const projectsByStatus = useMemo(() => {
-    const grouped: Record<ProjectStatus, Project[]> = {
-      ideation: [],
-      planning: [],
-      in_progress: [],
-      completed: [],
-    };
-
-    projects?.forEach((project) => {
-      grouped[project.status].push(project);
-    });
-
-    return grouped;
-  }, [projects]);
+  const { user } = useAuthStore();
+  
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
   const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return;
@@ -67,174 +33,132 @@ export function KanbanBoard() {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Project Tracker</h1>
-          <p className="text-gray-500">Track your project ideas from concept to completion</p>
-        </div>
-        <Button onClick={() => openModal('project')} icon={<Plus className="w-4 h-4" />}>
-          New Project
-        </Button>
-      </div>
-
-      {/* Kanban Board */}
-      <DragDropContext onDragEnd={handleDragEnd}>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {columns.map((column) => {
-            const Icon = column.icon;
-            const columnProjects = projectsByStatus[column.id];
-
-            return (
-              <div key={column.id} className="flex flex-col border-r border-gray-100 last:border-r-0 pr-4 last:pr-0">
-                {/* Column Header */}
-                <div className="flex items-center gap-2 mb-3 px-1">
-                  <div className={`w-8 h-8 rounded-lg ${column.color} flex items-center justify-center`}>
-                    <Icon className="w-4 h-4 text-white" />
-                  </div>
-                  <h3 className="font-semibold text-gray-900">{column.title}</h3>
-                  <span className="ml-auto text-sm text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
-                    {columnProjects.length}
-                  </span>
-                </div>
-
-                {/* Droppable Area */}
-                <Droppable droppableId={column.id}>
-                  {(provided, snapshot) => (
-                    <div
-                      ref={provided.innerRef}
-                      {...provided.droppableProps}
-                      className={`flex-1 min-h-[500px] p-2 rounded-2xl transition-colors ${snapshot.isDraggingOver ? 'bg-violet-50/50' : 'bg-gray-50/50'
-                        }`}
-                    >
-                      <div className="space-y-4">
-                        {columnProjects.map((project, index) => (
-                          <Draggable key={project.id} draggableId={project.id} index={index}>
-                            {(provided, snapshot) => (
-                              <div
-                                ref={provided.innerRef}
-                                {...provided.draggableProps}
-                                {...provided.dragHandleProps}
-                              >
-                                <ProjectCard
-                                  project={project}
-                                  isDragging={snapshot.isDragging}
-                                />
-                              </div>
-                            )}
-                          </Draggable>
-                        ))}
-                        {provided.placeholder}
-                      </div>
-                    </div>
-                  )}
-                </Droppable>
-              </div>
-            );
-          })}
-        </div>
-      </DragDropContext>
-    </div>
+    <>
+      <KanbanBoardUI 
+        projects={projects || []}
+        onDragEnd={handleDragEnd}
+        onAddProject={() => openModal('project')}
+        onAddNote={(p) => openModal('project-note', p)}
+        onOpenProject={(p) => openModal('project-view', p)}
+        onOpenUpdates={() => openModal('project-updates')}
+        onShareBoard={() => setIsShareModalOpen(true)}
+      />
+      
+      {user && (
+        <BoardShareModal 
+            open={isShareModalOpen} 
+            onOpenChange={setIsShareModalOpen} 
+            userId={user.id}
+        />
+      )}
+    </>
   );
 }
 
-function ProjectCard({
-  project,
-  isDragging,
-}: {
-  project: Project;
-  isDragging: boolean;
-}) {
-  const { openModal } = useUIStore();
+function BoardShareModal({ open, onOpenChange, userId }: { open: boolean; onOpenChange: (open: boolean) => void; userId: string }) {
+  const share = useQuery(api.boardShares.getBoardShare, { userId });
+  const createShare = useMutation(api.boardShares.createBoardShare);
+  const updateShare = useMutation(api.boardShares.updateBoardShare);
+  
+  const [isGenerating, setIsGenerating] = useState(false);
 
-  const dueDateStatus = project.dueDate
-    ? isPast(new Date(project.dueDate)) && !isToday(new Date(project.dueDate))
-      ? 'overdue'
-      : isToday(new Date(project.dueDate))
-        ? 'today'
-        : 'upcoming'
-    : null;
+  const handleToggleShare = async (enabled: boolean) => {
+    if (!share) {
+      // Create new share
+      setIsGenerating(true);
+      try {
+        await createShare({ userId });
+        toast.success("Board sharing enabled");
+      } catch (error) {
+        toast.error("Failed to enable sharing");
+        console.error(error);
+      } finally {
+        setIsGenerating(false);
+      }
+    } else {
+      // Update existing
+      try {
+        await updateShare({ userId, shareId: share._id, enabled });
+        toast.success(enabled ? "Board sharing enabled" : "Board sharing disabled");
+      } catch (error) {
+        toast.error("Failed to update sharing");
+        console.error(error);
+      }
+    }
+  };
+
+  const copyLink = () => {
+    if (!share?.token) return;
+    const url = `${window.location.origin}/share/board/${share.token}`;
+    navigator.clipboard.writeText(url);
+    toast.success("Link copied to clipboard");
+  };
+
+  const regenerateLink = async () => {
+    if (!share) return;
+    if (confirm("This will invalidate the old link. Are you sure?")) {
+        // Technically I didn't implement regenerate in backend, but creating a new one with same userId logic in createBoardShare 
+        // checks for existing. To regenerate, I'd need to delete old or update token.
+        // For now, let's skip regenerate or implement it later if needed.
+        // I'll just show a toast "Not implemented yet" or remove the button.
+        // Actually, let's remove it for simplicity as per instructions "don't create files unless necessary", 
+        // I want to keep backend simple.
+        toast.info("Regenerate link not available yet");
+    }
+  };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{
-        opacity: 1,
-        y: 0,
-        scale: isDragging ? 1.02 : 1,
-        rotate: isDragging ? 1.5 : 0,
-      }}
-      whileHover={!isDragging ? { y: -2 } : undefined}
-      onClick={() => openModal('project-view', project)}
-      className={`bg-white rounded-xl p-4 cursor-pointer select-none transition-[shadow,border-color,background-color] ${isDragging ? 'shadow-2xl ring-1 ring-violet-200 z-50' : 'shadow-sm border border-gray-100 hover:shadow-md hover:border-gray-200'
-        }`}
-    >
-      {/* Header */}
-      <div className="flex items-start justify-between mb-2">
-        <h4 className="font-semibold text-gray-900 line-clamp-2">{project.title}</h4>
-      </div>
-
-      {/* Description */}
-      {project.description && (
-        <p className="text-sm text-gray-500 mb-3 line-clamp-2">{project.description}</p>
-      )}
-
-      {/* Notes / Daily Progress */}
-      {project.notes && (
-        <div
-          onClick={(e) => {
-            e.stopPropagation();
-            openModal('project-note', project);
-          }}
-          className="mb-4 p-2.5 bg-gray-50 rounded-lg border border-gray-100 hover:border-violet-200 hover:bg-violet-50/30 cursor-pointer transition-all group/note"
-        >
-          <div className="flex items-center gap-1.5 mb-1.5 text-[10px] font-bold text-gray-400 group-hover/note:text-violet-400 uppercase tracking-wider transition-colors">
-            <FileText className="w-3 h-3" />
-            <span>Progress Note</span>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-md bg-white rounded-[32px] p-0 overflow-hidden shadow-2xl border-0">
+        <DialogHeader className="p-8 pb-4">
+          <DialogTitle className="text-2xl font-bold text-gray-900 tracking-tight">Share Project Board</DialogTitle>
+          <DialogDescription className="text-base text-gray-500 mt-2">
+            Anyone with the link can view this board and all its projects.
+          </DialogDescription>
+        </DialogHeader>
+        
+        <div className="space-y-8 p-8 pt-2">
+          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100">
+            <div className="space-y-0.5">
+              <Label className="text-base font-semibold text-gray-900">Public Link</Label>
+              <p className="text-sm text-gray-500">
+                Allow access via a unique link
+              </p>
+            </div>
+            <Switch
+              checked={share?.enabled ?? false}
+              onCheckedChange={handleToggleShare}
+              disabled={isGenerating}
+              className="data-[state=checked]:bg-violet-600"
+            />
           </div>
-          <p className="text-xs text-gray-600 line-clamp-3 leading-relaxed italic">
-            "{project.notes}"
-          </p>
-        </div>
-      )}
 
-      {/* Footer */}
-      <div className="flex items-center justify-between pt-2 border-t border-gray-50 mt-2">
-        <Badge className={priorityColors[project.priority]} size="sm">
-          <Flag className="w-3 h-3 mr-1" />
-          {project.priority}
-        </Badge>
-
-        <div className="flex items-center gap-3">
-          {!project.notes && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                openModal('project-note', project);
-              }}
-              className="flex items-center gap-1 text-[10px] font-bold text-gray-400 hover:text-violet-500 uppercase tracking-tight transition-colors"
-            >
-              <Plus className="w-3 h-3" />
-              Add Note
-            </button>
-          )}
-
-          {project.dueDate && (
-            <span
-              className={`text-xs font-medium flex items-center gap-1 ${dueDateStatus === 'overdue'
-                ? 'text-red-500'
-                : dueDateStatus === 'today'
-                  ? 'text-amber-500'
-                  : 'text-gray-400'
-                }`}
-            >
-              <Calendar className="w-3 h-3" />
-              {format(new Date(project.dueDate), 'MMM d')}
-            </span>
+          {share?.enabled && (
+            <div className="flex items-center space-x-3">
+              <div className="grid flex-1 gap-2">
+                <Label htmlFor="link" className="sr-only">
+                  Link
+                </Label>
+                <Input
+                  id="link"
+                  defaultValue={`${window.location.origin}/share/board/${share.token}`}
+                  readOnly
+                  className="h-12 rounded-xl bg-gray-50 border-gray-200 text-gray-600 font-medium"
+                />
+              </div>
+              <Button 
+                type="button" 
+                size="sm"
+                className="h-12 w-12 rounded-xl bg-violet-100 text-violet-600 hover:bg-violet-200 hover:text-violet-700 shadow-none p-0 flex items-center justify-center"
+                onClick={copyLink}
+              >
+                <span className="sr-only">Copy</span>
+                <Copy className="h-5 w-5" />
+              </Button>
+            </div>
           )}
         </div>
-      </div>
-    </motion.div>
+      </DialogContent>
+    </Dialog>
   );
 }

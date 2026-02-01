@@ -37,3 +37,15 @@ export const updateProfile = mutation({
         }
     },
 });
+
+export const getProfilesByUserIds = query({
+    args: { userIds: v.array(v.string()) },
+    handler: async (ctx, args) => {
+        if (args.userIds.length === 0) {
+            return [];
+        }
+        const profiles = await ctx.db.query("profiles").collect();
+        const lookup = new Set(args.userIds);
+        return profiles.filter((profile) => lookup.has(profile.userId));
+    },
+});

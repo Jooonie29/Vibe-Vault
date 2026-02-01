@@ -9,30 +9,35 @@ import {
   Palette,
   Bell,
   Trash2,
-  LogOut
+  LogOut,
+  Check
 } from 'lucide-react';
-import { useMutation } from 'convex/react';
+import { useMutation, useQuery } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
 import { useAuthStore } from '@/store/authStore';
 import { useUIStore } from '@/store/uiStore';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { Textarea } from '@/components/ui/Textarea';
 
 export function Settings() {
   const { user, profile, updateProfile, signOut } = useAuthStore();
   const { addToast } = useUIStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const userId = user?.id || "";
 
   const [loading, setLoading] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [formData, setFormData] = useState({
     username: profile?.username || '',
-    full_name: profile?.full_name || '',
+    fullName: profile?.fullName || '',
   });
 
   const generateUploadUrl = useMutation(api.files.generateUploadUrl);
+  const markNotificationRead = useMutation(api.notifications.markNotificationRead);
+  const markAllNotificationsRead = useMutation(api.notifications.markAllNotificationsRead);
+
+  const notifications = useQuery(api.notifications.getNotifications, { userId });
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -52,7 +57,7 @@ export function Settings() {
       const { storageId } = await result.json();
 
       // Step 3: Update profile in Convex
-      await updateProfile({ avatar_url: storageId }); // Assuming updateProfile handles storageId or we use a separate field
+      await updateProfile({ avatarUrl: storageId });
       addToast({ type: 'success', title: 'Avatar updated', message: 'Your profile picture has been updated.' });
     } catch (error: any) {
       addToast({ type: 'error', title: 'Upload failed', message: error.message });
@@ -71,6 +76,26 @@ export function Settings() {
       addToast({ type: 'error', title: 'Error', message: error.message });
     } finally {
       setLoading(false);
+    }
+  };
+
+
+  const handleMarkAllRead = async () => {
+    if (!user) return;
+    try {
+      await markAllNotificationsRead({ userId: user.id });
+      addToast({ type: 'success', title: 'Notifications cleared', message: 'All notifications marked as read.' });
+    } catch (error: any) {
+      addToast({ type: 'error', title: 'Unable to update notifications', message: error.message });
+    }
+  };
+
+  const handleMarkRead = async (id: string) => {
+    if (!user) return;
+    try {
+      await markNotificationRead({ id: id as any, userId: user.id });
+    } catch (error: any) {
+      addToast({ type: 'error', title: 'Unable to update notification', message: error.message });
     }
   };
 
@@ -93,8 +118,8 @@ export function Settings() {
         <div className="flex items-center gap-6 mb-6">
           <div className="relative">
             <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center overflow-hidden">
-              {profile?.avatar_url ? (
-                <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
+              {profile?.avatarUrl ? (
+                <img src={profile.avatarUrl} alt="" className="w-full h-full object-cover" />
               ) : (
                 <User className="w-10 h-10 text-white" />
               )}
@@ -131,8 +156,8 @@ export function Settings() {
           <Input
             label="Full Name"
             placeholder="John Doe"
-            value={formData.full_name}
-            onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
+            value={formData.fullName}
+            onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
           />
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
@@ -215,6 +240,42 @@ export function Settings() {
             </label>
           </div>
         </div>
+      </Card>
+
+      {/* Notifications Section */}
+      <Card>
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+            <Bell className="w-5 h-5 text-violet-600" />
+            Activity
+          </h2>
+          <Button variant="outline" size="sm" onClick={handleMarkAllRead}>
+            Mark all read
+          </Button>
+        </div>
+
+        {notifications && notifications.length > 0 ? (
+          <div className="space-y-3">
+            {notifications.map((notification: any) => (
+              <button
+                key={notification._id}
+                type="button"
+                onClick={() => handleMarkRead(notification._id)}
+                className={`w-full text-left p-4 rounded-xl border transition-colors ${notification.read ? 'bg-white border-gray-200' : 'bg-violet-50 border-violet-200'}`}
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-semibold text-gray-900">{notification.title}</p>
+                    <p className="text-sm text-gray-500">{notification.message}</p>
+                  </div>
+                  {!notification.read ? <Check className="w-4 h-4 text-violet-500" /> : null}
+                </div>
+              </button>
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-gray-500">No activity yet.</p>
+        )}
       </Card>
 
       {/* Danger Zone */}

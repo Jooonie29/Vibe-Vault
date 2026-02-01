@@ -1,4 +1,3 @@
-import React from 'react';
 import { motion } from 'framer-motion';
 import {
     Calendar,
@@ -7,10 +6,10 @@ import {
     Edit2,
     Clock,
     CheckCircle2,
-    Trash2,
-    Plus
+    Plus,
 } from 'lucide-react';
 import { useUIStore } from '@/store/uiStore';
+import { useAuthStore } from '@/store/authStore';
 import { Project } from '@/types';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
@@ -31,10 +30,13 @@ const statusConfig = {
 };
 
 export function ProjectViewModal() {
-    const { activeModal, modalData, closeModal, openModal } = useUIStore();
+    const { user } = useAuthStore();
+    const { activeModal, modalData, closeModal, openModal, addToast } = useUIStore();
 
     const isOpen = activeModal === 'project-view';
     const project = modalData as Project | null;
+    const projectId = project?.id;
+    const userId = user?.id || '';
 
     if (!project) return null;
 
@@ -110,11 +112,11 @@ export function ProjectViewModal() {
                                         <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Execution</span>
                                         <span className="text-xs font-bold text-gray-700">{progress}%</span>
                                     </div>
-                                    <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                                    <div className="relative h-2 w-full bg-white rounded-full overflow-hidden shadow-inner border border-gray-100">
                                         <motion.div
                                             initial={{ width: 0 }}
                                             animate={{ width: `${progress}%` }}
-                                            className="h-full rounded-full bg-violet-500"
+                                            className="absolute top-0 left-0 h-full bg-gradient-to-r from-violet-500 to-fuchsia-500 rounded-full"
                                         />
                                     </div>
                                 </div>

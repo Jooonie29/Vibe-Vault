@@ -62,7 +62,6 @@ export function ProjectNoteModal() {
                     rows={6}
                     value={note}
                     onChange={(e) => setNote(e.target.value)}
-                    className="resize-none border-gray-200 focus:border-violet-300 focus:ring-violet-100"
                     autoFocus
                 />
 

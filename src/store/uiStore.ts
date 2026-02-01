@@ -1,19 +1,21 @@
 import { create } from 'zustand';
 
 type View = 'dashboard' | 'code' | 'prompts' | 'files' | 'projects' | 'settings';
-type ModalType = 'auth' | 'item' | 'project' | 'project-note' | 'project-view' | 'command' | null;
+type ModalType = 'auth' | 'item' | 'project' | 'project-note' | 'project-view' | 'project-updates' | 'team-onboarding' | 'command' | null;
 
 interface UIState {
   currentView: View;
   sidebarCollapsed: boolean;
   activeModal: ModalType;
   modalData: any;
+  activeTeamId: string | null;
   searchQuery: string;
   toasts: Toast[];
   setCurrentView: (view: View) => void;
   toggleSidebar: () => void;
   openModal: (type: ModalType, data?: any) => void;
   closeModal: () => void;
+  setActiveTeamId: (teamId: string | null) => void;
   setSearchQuery: (query: string) => void;
   addToast: (toast: Omit<Toast, 'id'>) => void;
   removeToast: (id: string) => void;
@@ -31,6 +33,7 @@ export const useUIStore = create<UIState>((set, get) => ({
   sidebarCollapsed: false,
   activeModal: null,
   modalData: null,
+  activeTeamId: null,
   searchQuery: '',
   toasts: [],
 
@@ -41,6 +44,8 @@ export const useUIStore = create<UIState>((set, get) => ({
   openModal: (type, data = null) => set({ activeModal: type, modalData: data }),
 
   closeModal: () => set({ activeModal: null, modalData: null }),
+
+  setActiveTeamId: (teamId) => set({ activeTeamId: teamId }),
 
   setSearchQuery: (query) => set({ searchQuery: query }),
 

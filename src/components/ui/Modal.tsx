@@ -1,12 +1,14 @@
 import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { cn } from '@/lib/utils';
 
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
   title?: string;
   children: React.ReactNode;
-  size?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
+  size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full' | 'custom';
+  className?: string;
 }
 
 const sizes = {
@@ -14,10 +16,12 @@ const sizes = {
   md: 'max-w-lg',
   lg: 'max-w-2xl',
   xl: 'max-w-4xl',
-  full: 'max-w-6xl',
+  '2xl': 'max-w-7xl',
+  full: 'max-w-[95vw]',
+  custom: '',
 };
 
-export function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalProps) {
+export function Modal({ isOpen, onClose, title, children, size = 'md', className }: ModalProps) {
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
@@ -50,9 +54,13 @@ export function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalPr
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className={`relative w-full ${sizes[size]} bg-white rounded-3xl shadow-2xl max-h-[90vh] overflow-hidden`}
+            className={cn(
+              "relative w-full bg-white rounded-3xl shadow-2xl max-h-[90vh] overflow-hidden flex flex-col",
+              sizes[size],
+              className
+            )}
           >
-            <div className="overflow-y-auto max-h-[90vh]">
+            <div className="overflow-y-auto max-h-[90vh] h-full">
               {children}
             </div>
           </motion.div>

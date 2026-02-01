@@ -68,7 +68,7 @@ export function LandingPage() {
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 flex items-center justify-center">
-                <img src="/logo.png" alt="Vibe Vault Logo" className="w-full h-full object-contain" />
+                <img src="/logo-black.png" alt="Vibe Vault Logo" className="w-full h-full object-contain" />
               </div>
               <span className="font-bold text-xl text-gray-900">Vibe Vault</span>
             </div>

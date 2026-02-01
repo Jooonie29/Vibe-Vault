@@ -46,6 +46,7 @@ export interface ItemTag {
 export interface Project {
   id: string;
   userId: string;
+  teamId?: string;
   title: string;
   description?: string;
   status: 'ideation' | 'planning' | 'in_progress' | 'completed';
@@ -55,6 +56,17 @@ export interface Project {
   color: string;
   isArchived: boolean;
   notes?: string;
+  _creationTime: number;
+}
+
+export interface ProjectUpdate {
+  id: string;
+  projectId: string;
+  teamId?: string;
+  authorId: string;
+  type: 'created' | 'updated' | 'deleted' | 'note';
+  summary: string;
+  changes?: Record<string, any>;
   _creationTime: number;
 }
 

@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { useState, useEffect } from 'react';
 import {
   X,
   Copy,
@@ -10,7 +9,8 @@ import {
   Code2,
   MessageSquare,
   FolderOpen,
-  Save
+  Save,
+  Clock
 } from 'lucide-react';
 import { useUIStore } from '@/store/uiStore';
 import { useCreateItem, useUpdateItem, useDeleteItem, useToggleFavorite } from '@/hooks/useItems';
@@ -97,12 +97,6 @@ const typeIcons = {
   code: Code2,
   prompt: MessageSquare,
   file: FolderOpen,
-};
-
-const typeColors = {
-  code: 'from-blue-500 to-cyan-500',
-  prompt: 'from-purple-500 to-pink-500',
-  file: 'from-amber-500 to-orange-500',
 };
 
 export function ItemModal() {
@@ -215,46 +209,75 @@ export function ItemModal() {
 
   const Icon = typeIcons[itemType] || Code2;
 
+  const typeColorClasses = {
+    code: 'text-blue-600 bg-blue-50 border-blue-100',
+    prompt: 'text-purple-600 bg-purple-50 border-purple-100',
+    file: 'text-amber-600 bg-amber-50 border-amber-100',
+  };
+
+  const currentTypeStyle = typeColorClasses[itemType] || typeColorClasses.code;
+
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} size="xl" title={isEditing ? (existingItem ? 'Edit Item' : 'New Item') : ''}>
-      <div className={`bg-gradient-to-r ${typeColors[itemType]} px-6 py-5 text-white`}>
-        <div className="flex items-start justify-between gap-6">
-          <div className="flex items-center gap-4 min-w-0">
-            <div className="min-w-0">
-              <Badge variant="outline" className="bg-white/20 text-white border-white/30 mb-2">
-                {itemType === 'code' ? 'Code Snippet' : itemType === 'prompt' ? 'AI Prompt' : 'File'}
-              </Badge>
-              {!isEditing && (existingItem || formData.title) && (
-                <h2 className="text-2xl font-semibold leading-tight truncate max-w-[320px] md:max-w-lg">
+    <Modal isOpen={isOpen} onClose={handleClose} size="xl" title="">
+      <div className="flex flex-col h-full">
+        {/* Header */}
+        <div className="px-8 py-6 border-b border-gray-100 flex items-start justify-between bg-white/50 backdrop-blur-sm sticky top-0 z-10">
+          <div className="flex items-center gap-5">
+            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center border shadow-sm ${currentTypeStyle}`}>
+              <Icon className="w-7 h-7" />
+            </div>
+            <div>
+              <div className="flex items-center gap-3 mb-1">
+                <Badge variant="outline" className="uppercase tracking-wider text-[10px] font-bold bg-white">
+                  {itemType === 'code' ? 'Code Snippet' : itemType === 'prompt' ? 'AI Prompt' : 'File Asset'}
+                </Badge>
+                {existingItem && (
+                   <span className="text-xs text-gray-400 font-medium flex items-center gap-1">
+                     <Clock className="w-3 h-3" />
+                     Last edited recently
+                   </span>
+                )}
+              </div>
+              {!isEditing && (existingItem || formData.title) ? (
+                <h2 className="text-2xl font-bold text-gray-900 tracking-tight">
                   {formData.title || existingItem?.title}
+                </h2>
+              ) : (
+                <h2 className="text-2xl font-bold text-gray-900 tracking-tight">
+                  {existingItem ? 'Edit Item' : 'New Resource'}
                 </h2>
               )}
             </div>
           </div>
-          <div className="flex items-center gap-2 shrink-0">
+          
+          <div className="flex items-center gap-2">
             {existingItem && (
               <>
                 <button
                   onClick={handleToggleFavorite}
-                  className={`p-2 rounded-xl transition-colors ${formData.isFavorite ? 'bg-yellow-400 text-yellow-900' : 'bg-white/20 hover:bg-white/30'
-                    }`}
+                  className={`p-2.5 rounded-xl transition-all duration-200 border ${
+                    formData.isFavorite 
+                      ? 'bg-yellow-50 text-yellow-600 border-yellow-200 shadow-sm' 
+                      : 'bg-white text-gray-400 border-gray-200 hover:border-gray-300 hover:text-gray-600'
+                  }`}
+                  title={formData.isFavorite ? "Remove from favorites" : "Add to favorites"}
                 >
                   <Star className={`w-5 h-5 ${formData.isFavorite ? 'fill-current' : ''}`} />
                 </button>
                 {!isEditing && (
                   <>
                     {confirmDelete ? (
-                      <div className="flex items-center gap-1 bg-white/20 rounded-xl p-1">
+                      <div className="flex items-center gap-1 bg-red-50 p-1 rounded-xl border border-red-100">
                         <button
                           onClick={handleDelete}
-                          className="p-1.5 rounded-lg bg-red-500 hover:bg-red-600 text-white transition-colors"
+                          className="p-1.5 rounded-lg bg-red-500 hover:bg-red-600 text-white transition-colors shadow-sm"
                           title="Confirm Delete"
                         >
                           <Check className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => setConfirmDelete(false)}
-                          className="p-1.5 rounded-lg bg-white/20 hover:bg-white/30 text-white transition-colors"
+                          className="p-1.5 rounded-lg text-red-600 hover:bg-red-100 transition-colors"
                           title="Cancel"
                         >
                           <X className="w-4 h-4" />
@@ -263,7 +286,7 @@ export function ItemModal() {
                     ) : (
                       <button
                         onClick={() => setConfirmDelete(true)}
-                        className="p-2 rounded-xl bg-white/20 hover:bg-white/30 transition-colors text-white"
+                        className="p-2.5 rounded-xl bg-white border border-gray-200 text-gray-400 hover:text-red-500 hover:border-red-200 hover:bg-red-50 transition-all duration-200"
                         title="Delete Item"
                       >
                         <Trash2 className="w-5 h-5" />
@@ -271,7 +294,7 @@ export function ItemModal() {
                     )}
                     <button
                       onClick={() => setIsEditing(true)}
-                      className="p-2 rounded-xl bg-white/20 hover:bg-white/30 transition-colors"
+                      className="p-2.5 rounded-xl bg-white border border-gray-200 text-gray-400 hover:text-violet-600 hover:border-violet-200 hover:bg-violet-50 transition-all duration-200"
                       title="Edit Item"
                     >
                       <Edit2 className="w-5 h-5" />
@@ -282,15 +305,14 @@ export function ItemModal() {
             )}
             <button
               onClick={handleClose}
-              className="p-2 rounded-xl bg-white/20 hover:bg-white/30 transition-colors"
+              className="p-2.5 rounded-xl bg-white border border-gray-200 text-gray-400 hover:text-gray-900 hover:bg-gray-50 transition-all duration-200"
             >
               <X className="w-5 h-5" />
             </button>
           </div>
         </div>
-      </div>
 
-      <div className="px-6 pt-5 pb-6 space-y-5">
+      <div className="px-8 py-6 space-y-6 overflow-y-auto custom-scrollbar">
         {isEditing ? (
           <>
             <Input
@@ -335,7 +357,7 @@ export function ItemModal() {
                   onChange={(e) => setFormData({ ...formData, content: e.target.value })}
                   placeholder={itemType === 'code' ? 'Paste your code here...' : 'Enter your prompt or content...'}
                   rows={12}
-                  className="w-full px-4 py-3 rounded-2xl border border-gray-200 bg-gray-900 text-gray-100 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 resize-none"
+                  className="w-full px-4 py-3 rounded-2xl border border-gray-700 bg-gray-950 text-gray-100 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 resize-none placeholder-gray-500"
                 />
               </div>
             </div>
@@ -343,7 +365,9 @@ export function ItemModal() {
         ) : (
           <>
             {existingItem?.description && (
-              <p className="text-gray-600 text-sm leading-relaxed">{existingItem.description}</p>
+              <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100">
+                <p className="text-gray-600 text-sm leading-relaxed">{existingItem.description}</p>
+              </div>
             )}
 
             <div className="flex gap-2 flex-wrap">
@@ -378,19 +402,21 @@ export function ItemModal() {
 
       {/* Footer */}
       {(isEditing || !existingItem) && (
-        <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-end gap-3">
-          <Button variant="ghost" onClick={handleClose}>
+        <div className="px-8 py-5 border-t border-gray-100 bg-gray-50 flex items-center justify-end gap-3 mt-auto">
+          <Button variant="ghost" onClick={handleClose} className="text-gray-500 hover:text-gray-900">
             {existingItem ? 'Cancel' : 'Discard'}
           </Button>
           <Button
             onClick={handleSave}
             loading={createItem.isPending || updateItem.isPending}
             icon={<Save className="w-4 h-4" />}
+            className="shadow-lg shadow-violet-500/20"
           >
-            {existingItem ? 'Save Changes' : 'Create Item'}
+            {existingItem ? 'Save Changes' : 'Create Resource'}
           </Button>
         </div>
       )}
+      </div>
     </Modal>
   );
 }

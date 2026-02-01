@@ -139,112 +139,115 @@ export function FileManager() {
   ) || [];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center">
-              <FolderOpen className="w-5 h-5 text-amber-600" />
+          <h1 className="text-3xl font-bold text-gray-900 tracking-tight flex items-center gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-amber-100 flex items-center justify-center shadow-sm">
+              <FolderOpen className="w-6 h-6 text-amber-600" />
             </div>
             File Assets
           </h1>
-          <p className="text-gray-500 mt-1">Upload and manage your design files, icons, and documents</p>
+          <p className="text-gray-500 mt-2 text-lg">Upload and manage your design files, icons, and documents</p>
         </div>
       </div>
 
       {/* Upload Zone */}
-      <Card padding="none">
+      <div className="bg-white rounded-[32px] p-2 shadow-sm border border-gray-100">
         <div
           {...getRootProps()}
-          className={`p-8 border-2 border-dashed rounded-2xl transition-colors cursor-pointer ${isDragActive
-            ? 'border-violet-500 bg-violet-50'
-            : 'border-gray-200 hover:border-violet-300 hover:bg-gray-50'
+          className={`p-12 border-2 border-dashed rounded-[24px] transition-all duration-300 cursor-pointer group ${isDragActive
+            ? 'border-violet-500 bg-violet-50/50'
+            : 'border-gray-200 hover:border-violet-400 hover:bg-gray-50/80'
             }`}
         >
           <input {...getInputProps()} />
           <div className="text-center">
-            <div className="w-16 h-16 rounded-2xl bg-violet-100 flex items-center justify-center mx-auto mb-4">
-              <Upload className={`w-8 h-8 ${isDragActive ? 'text-violet-600' : 'text-violet-500'}`} />
+            <div className={`w-24 h-24 rounded-[32px] mx-auto mb-6 flex items-center justify-center transition-all duration-300 shadow-sm ${isDragActive ? 'bg-violet-100 scale-110' : 'bg-gray-50 group-hover:bg-violet-50 group-hover:scale-105'}`}>
+              <Upload className={`w-10 h-10 transition-colors duration-300 ${isDragActive ? 'text-violet-600' : 'text-gray-400 group-hover:text-violet-500'}`} />
             </div>
             {uploading ? (
               <>
-                <p className="text-lg font-medium text-gray-900 mb-2">Uploading...</p>
-                <div className="w-64 h-2 bg-gray-200 rounded-full mx-auto overflow-hidden">
+                <p className="text-xl font-bold text-gray-900 mb-4">Uploading files...</p>
+                <div className="w-72 h-3 bg-gray-100 rounded-full mx-auto overflow-hidden ring-1 ring-gray-200">
                   <motion.div
                     initial={{ width: 0 }}
                     animate={{ width: `${uploadProgress}%` }}
-                    className="h-full bg-violet-500 rounded-full"
+                    className="h-full bg-gradient-to-r from-violet-500 to-fuchsia-500 rounded-full"
                   />
                 </div>
               </>
             ) : (
               <>
-                <p className="text-lg font-medium text-gray-900 mb-1">
-                  {isDragActive ? 'Drop files here' : 'Drag & drop files here'}
+                <h3 className="text-2xl font-bold text-gray-900 mb-3 tracking-tight">
+                  {isDragActive ? 'Drop files to upload' : 'Drag & drop files here'}
+                </h3>
+                <p className="text-gray-500 mb-8 max-w-sm mx-auto text-base">
+                  Support for images, documents, archives and code files up to 10MB
                 </p>
-                <p className="text-sm text-gray-500">
-                  or click to browse (max 10MB per file)
-                </p>
-                <p className="text-xs text-gray-400 mt-2">
-                  Supports: Images, PDFs, ZIP, Text files
-                </p>
+                <Button variant="secondary" className="pointer-events-none rounded-xl px-8 py-6 text-base font-medium bg-gray-900 text-white hover:bg-gray-800 shadow-lg shadow-gray-900/20 border-0">
+                  Browse Files
+                </Button>
               </>
             )}
           </div>
         </div>
-      </Card>
+      </div>
 
       {/* Filters */}
-      <Card padding="sm">
-        <div className="flex items-center gap-4">
-          <div className="flex-1">
-            <Input
-              isSearch
-              placeholder="Search files..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-          <div className="flex bg-gray-100 rounded-xl p-1">
-            <button
-              onClick={() => setViewMode('grid')}
-              className={`p-2 rounded-lg transition-colors ${viewMode === 'grid' ? 'bg-white shadow-sm' : 'text-gray-500'
-                }`}
-            >
-              <Grid3X3 className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => setViewMode('list')}
-              className={`p-2 rounded-lg transition-colors ${viewMode === 'list' ? 'bg-white shadow-sm' : 'text-gray-500'
-                }`}
-            >
-              <List className="w-4 h-4" />
-            </button>
-          </div>
+      <div className="flex flex-col md:flex-row gap-4 items-center bg-white p-2.5 rounded-[24px] shadow-sm border border-gray-100">
+        <div className="flex-1 w-full md:w-auto relative group">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-violet-500 transition-colors" />
+          <input
+            type="text"
+            placeholder="Search files..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-12 pr-4 py-3 bg-gray-50 border-transparent rounded-2xl text-base focus:bg-white focus:border-violet-200 focus:ring-4 focus:ring-violet-500/10 transition-all outline-none placeholder:text-gray-400"
+          />
         </div>
-      </Card>
+        <div className="flex bg-gray-100/80 p-1.5 rounded-2xl">
+          <button
+            onClick={() => setViewMode('grid')}
+            className={`p-2.5 rounded-xl transition-all duration-300 ${viewMode === 'grid' ? 'bg-white shadow-md text-violet-600 scale-100' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200/50'
+              }`}
+          >
+            <Grid3X3 className="w-5 h-5" />
+          </button>
+          <button
+            onClick={() => setViewMode('list')}
+            className={`p-2.5 rounded-xl transition-all duration-300 ${viewMode === 'list' ? 'bg-white shadow-md text-violet-600 scale-100' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200/50'
+              }`}
+          >
+            <List className="w-5 h-5" />
+          </button>
+        </div>
+      </div>
 
       {/* Files Grid/List */}
       {isLoading ? (
-        <div className="text-center py-12 text-gray-500">Loading files...</div>
+        <div className="text-center py-32">
+          <div className="w-16 h-16 border-4 border-violet-100 border-t-violet-600 rounded-full animate-spin mx-auto mb-6" />
+          <p className="text-gray-500 text-lg font-medium">Loading your assets...</p>
+        </div>
       ) : filteredFiles.length === 0 ? (
-        <Card className="text-center py-12">
-          <div className="w-16 h-16 rounded-2xl bg-amber-100 flex items-center justify-center mx-auto mb-4">
-            <FolderOpen className="w-8 h-8 text-amber-600" />
+        <div className="text-center py-32 bg-white rounded-[32px] border border-dashed border-gray-200">
+          <div className="w-24 h-24 rounded-[32px] bg-gray-50 flex items-center justify-center mx-auto mb-6">
+            <FolderOpen className="w-12 h-12 text-gray-300" />
           </div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">
-            {searchQuery ? 'No matching files' : 'No files yet'}
+          <h3 className="text-2xl font-bold text-gray-900 mb-3">
+            {searchQuery ? 'No matching files found' : 'No files uploaded yet'}
           </h3>
-          <p className="text-gray-500">
-            {searchQuery ? 'Try a different search term' : 'Upload your first file to get started'}
+          <p className="text-gray-500 max-w-sm mx-auto text-lg">
+            {searchQuery ? 'Try adjusting your search terms' : 'Upload your first file to get started with your collection'}
           </p>
-        </Card>
+        </div>
       ) : (
         <AnimatePresence mode="popLayout">
           <motion.div
             layout
-            className={viewMode === 'grid' ? 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4' : 'space-y-3'}
+            className={viewMode === 'grid' ? 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6' : 'space-y-4'}
           >
             {filteredFiles.map((file, index) => {
               const FileIcon = getFileIcon(file.fileType);
@@ -260,84 +263,94 @@ export function FileManager() {
                   transition={{ delay: index * 0.05 }}
                 >
                   {viewMode === 'grid' ? (
-                    <Card hover className="group relative overflow-hidden">
+                    <motion.div
+                      whileHover={{ y: -8, scale: 1.02 }}
+                      className="group relative bg-white rounded-[24px] p-4 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_20px_40px_-12px_rgba(0,0,0,0.12)] transition-all duration-300 border border-gray-100 h-full flex flex-col z-0 hover:z-10"
+                    >
                       {/* Preview */}
-                      <div className="aspect-square bg-gray-100 rounded-xl mb-3 flex items-center justify-center overflow-hidden">
+                      <div className="aspect-square bg-gray-50 rounded-2xl mb-5 flex items-center justify-center overflow-hidden relative group-hover:shadow-inner transition-shadow">
                         {isImage && file.fileUrl ? (
                           <img
                             src={file.fileUrl}
                             alt={file.title}
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                           />
                         ) : (
-                          <FileIcon className="w-12 h-12 text-gray-400" />
+                          <FileIcon className="w-20 h-20 text-gray-300 group-hover:text-violet-400 transition-colors duration-300" />
                         )}
+                        
+                        {/* Hover Overlay */}
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3 backdrop-blur-[2px]">
+                          {isImage && (
+                            <button
+                              onClick={(e) => { e.stopPropagation(); setPreviewFile(file); }}
+                              className="p-3 bg-white/90 rounded-2xl hover:bg-white hover:scale-110 transition-all shadow-lg text-gray-700 hover:text-violet-600"
+                              title="Preview"
+                            >
+                              <Eye className="w-5 h-5" />
+                            </button>
+                          )}
+                          <button
+                            onClick={(e) => { e.stopPropagation(); handleDownload(file); }}
+                            className="p-3 bg-white/90 rounded-2xl hover:bg-white hover:scale-110 transition-all shadow-lg text-gray-700 hover:text-violet-600"
+                            title="Download"
+                          >
+                            <Download className="w-5 h-5" />
+                          </button>
+                        </div>
                       </div>
 
                       {/* Info */}
-                      <h4 className="font-medium text-gray-900 truncate mb-1">{file.title}</h4>
-                      <p className="text-xs text-gray-500">{formatFileSize(file.fileSize)}</p>
-
-                      {/* Hover Actions */}
-                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 rounded-2xl">
-                        {isImage && (
-                          <button
-                            onClick={() => setPreviewFile(file)}
-                            className="p-2 bg-white rounded-xl hover:bg-gray-100 transition-colors"
-                          >
-                            <Eye className="w-5 h-5 text-gray-700" />
-                          </button>
-                        )}
+                      <div className="flex items-start justify-between gap-3 mt-auto">
+                        <div className="min-w-0">
+                          <h4 className="font-bold text-gray-900 truncate text-sm mb-1.5" title={file.title}>{file.title}</h4>
+                          <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider">{formatFileSize(file.fileSize)}</p>
+                        </div>
                         <button
-                          onClick={() => handleDownload(file)}
-                          className="p-2 bg-white rounded-xl hover:bg-gray-100 transition-colors"
+                          onClick={(e) => { e.stopPropagation(); setConfirmDelete(file.id); }}
+                          className="text-gray-300 hover:text-red-500 transition-colors p-1.5 hover:bg-red-50 rounded-lg -mr-2 opacity-0 group-hover:opacity-100"
                         >
-                          <Download className="w-5 h-5 text-gray-700" />
-                        </button>
-                        <button
-                          onClick={() => setConfirmDelete(file.id)}
-                          className="p-2 bg-white rounded-xl hover:bg-red-50 transition-colors"
-                        >
-                          <Trash2 className="w-5 h-5 text-red-600" />
+                          <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
-                    </Card>
+                    </motion.div>
                   ) : (
-                    <Card hover padding="sm">
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center flex-shrink-0 overflow-hidden">
-                          {isImage && file.fileUrl ? (
-                            <img src={file.fileUrl} alt="" className="w-full h-full object-cover" />
-                          ) : (
-                            <FileIcon className="w-6 h-6 text-gray-400" />
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h4 className="font-medium text-gray-900 truncate">{file.title}</h4>
-                          <p className="text-sm text-gray-500">
-                            {formatFileSize(file.fileSize)} • {format(new Date((file as any)._creationTime), 'MMM d, yyyy')}
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          {isImage && (
-                            <Button size="sm" variant="ghost" onClick={() => setPreviewFile(file)}>
-                              <Eye className="w-4 h-4" />
-                            </Button>
-                          )}
-                          <Button size="sm" variant="ghost" onClick={() => handleDownload(file)}>
-                            <Download className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => setConfirmDelete(file.id)}
-                            className="text-red-600 hover:bg-red-50"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
+                    <div className="group flex items-center gap-5 bg-white p-4 rounded-[20px] border border-gray-100 hover:border-violet-100 hover:shadow-xl hover:shadow-violet-500/5 transition-all duration-300">
+                      <div className="w-14 h-14 rounded-2xl bg-gray-50 flex items-center justify-center flex-shrink-0 overflow-hidden ring-1 ring-gray-100">
+                        {isImage && file.fileUrl ? (
+                          <img src={file.fileUrl} alt="" className="w-full h-full object-cover" />
+                        ) : (
+                          <FileIcon className="w-7 h-7 text-gray-400" />
+                        )}
                       </div>
-                    </Card>
+                      <div className="flex-1 min-w-0 grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+                        <h4 className="font-bold text-gray-900 truncate text-base">{file.title}</h4>
+                        <p className="text-sm text-gray-500 font-medium hidden md:block">
+                          {formatFileSize(file.fileSize)}
+                        </p>
+                        <p className="text-sm text-gray-400 hidden md:block text-right font-medium">
+                          {format(new Date((file as any)._creationTime), 'MMM d, yyyy')}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        {isImage && (
+                          <Button size="sm" variant="ghost" onClick={() => setPreviewFile(file)} className="rounded-xl hover:bg-violet-50 hover:text-violet-600">
+                            <Eye className="w-4 h-4" />
+                          </Button>
+                        )}
+                        <Button size="sm" variant="ghost" onClick={() => handleDownload(file)} className="rounded-xl hover:bg-violet-50 hover:text-violet-600">
+                          <Download className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => setConfirmDelete(file.id)}
+                          className="text-red-600 hover:bg-red-50 rounded-xl"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
                   )}
                 </motion.div>
               );

@@ -15,6 +15,8 @@ import { ItemModal } from '@/components/items/ItemModal';
 import { ProjectModal } from '@/components/projects/ProjectModal';
 import { ProjectNoteModal } from '@/components/projects/ProjectNoteModal';
 import { ProjectViewModal } from '@/components/projects/ProjectViewModal';
+import { ProjectUpdatesModal } from '@/components/projects/ProjectUpdatesModal';
+import { TeamOnboarding } from '@/components/teams/TeamOnboarding';
 import { CommandPalette } from '@/components/command/CommandPalette';
 import { ToastContainer } from '@/components/ui/Toast';
 import { Loader2 } from 'lucide-react';
@@ -28,13 +30,19 @@ const pageVariants = {
 
 const AppLayout: React.FC = () => {
   const { user, loading, initialized, initialize, postAuthLoading } = useAuthStore();
-  const { currentView, sidebarCollapsed } = useUIStore();
+  const { currentView, sidebarCollapsed, activeTeamId, setActiveTeamId } = useUIStore();
   const isMobile = useIsMobile();
 
 
   useEffect(() => {
     initialize();
   }, [initialize]);
+
+  useEffect(() => {
+    if (!user) {
+      setActiveTeamId(null);
+    }
+  }, [user, setActiveTeamId]);
 
   // Show loading screen while initializing
   if (!initialized || loading) {
@@ -56,7 +64,7 @@ const AppLayout: React.FC = () => {
         <div className="text-center">
           <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center mx-auto mb-4 animate-pulse">
             <img
-              src="/Vibe%20Vault%20logo-white.png"
+              src="/logo-white.png"
               alt="Vibe Vault Logo"
               className="w-10 h-10 object-contain animate-float"
             />
@@ -73,6 +81,15 @@ const AppLayout: React.FC = () => {
       <>
         <LandingPage />
         <AuthModal />
+        <ToastContainer />
+      </>
+    );
+  }
+
+  if (!activeTeamId) {
+    return (
+      <>
+        <TeamOnboarding />
         <ToastContainer />
       </>
     );
@@ -114,7 +131,7 @@ const AppLayout: React.FC = () => {
   const mainStyle = isMobile
     ? { marginLeft: 0, marginRight: 0 }
     : {
-      marginLeft: sidebarCollapsed ? 80 : 260,
+      marginLeft: sidebarCollapsed ? 80 : 250,
       marginRight: 0,
     };
 
@@ -153,6 +170,7 @@ const AppLayout: React.FC = () => {
       <ProjectModal />
       <ProjectNoteModal />
       <ProjectViewModal />
+      <ProjectUpdatesModal />
       <CommandPalette />
 
       {/* Toast Notifications */}

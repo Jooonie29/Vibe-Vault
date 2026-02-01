@@ -1,15 +1,20 @@
 import { useState } from 'react';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../convex/_generated/api';
+import { Id } from '../../convex/_generated/dataModel';
 import { Project, ProjectStatus } from '@/types';
 import { useAuthStore } from '@/store/authStore';
 import { useUIStore } from '@/store/uiStore';
 
 export function useProjects() {
   const { user } = useAuthStore();
+  const { activeTeamId } = useUIStore();
   const userId = user?.id || "";
 
-  const projects = useQuery(api.projects.getProjects, { userId });
+  const projects = useQuery(api.projects.getProjects, { 
+    userId,
+    teamId: (activeTeamId as Id<"teams">) || undefined 
+  });
 
   return {
     data: (projects as any[] | undefined)
@@ -23,7 +28,7 @@ export function useProjects() {
 export function useCreateProject() {
   const createProjectMutation = useMutation(api.projects.createProject);
   const { user } = useAuthStore();
-  const { addToast } = useUIStore();
+  const { addToast, activeTeamId } = useUIStore();
   const [isPending, setIsPending] = useState(false);
 
   const mutate = async (project: Partial<Project>) => {
@@ -33,6 +38,7 @@ export function useCreateProject() {
     try {
       const id = await createProjectMutation({
         userId: user.id,
+        teamId: (activeTeamId as Id<"teams">) || undefined,
         title: project.title || "Untitled Project",
         description: project.description || undefined,
         status: project.status || "ideation",
@@ -67,14 +73,21 @@ export function useCreateProject() {
 }
 
 export function useUpdateProject() {
+  const { activeTeamId } = useUIStore();
   const updateProjectMutation = useMutation(api.projects.updateProject).withOptimisticUpdate((localStore, args) => {
     const { id, updates, userId } = args;
-    const projects = localStore.getQuery(api.projects.getProjects, { userId });
+    const projects = localStore.getQuery(api.projects.getProjects, { 
+      userId,
+      teamId: (activeTeamId as Id<"teams">) || undefined
+    });
     if (projects !== undefined) {
       const newProjects = projects.map((p) =>
         p._id === id ? { ...p, ...updates } : p
       );
-      localStore.setQuery(api.projects.getProjects, { userId }, newProjects);
+      localStore.setQuery(api.projects.getProjects, { 
+        userId,
+        teamId: (activeTeamId as Id<"teams">) || undefined
+      }, newProjects);
     }
   });
   const { user } = useAuthStore();
@@ -123,14 +136,21 @@ export function useUpdateProject() {
 }
 
 export function useUpdateProjectStatus() {
+  const { activeTeamId } = useUIStore();
   const updateProjectMutation = useMutation(api.projects.updateProject).withOptimisticUpdate((localStore, args) => {
     const { id, updates, userId } = args;
-    const projects = localStore.getQuery(api.projects.getProjects, { userId });
+    const projects = localStore.getQuery(api.projects.getProjects, { 
+      userId,
+      teamId: (activeTeamId as Id<"teams">) || undefined
+    });
     if (projects !== undefined) {
       const newProjects = projects.map((p) =>
         p._id === id ? { ...p, ...updates } : p
       );
-      localStore.setQuery(api.projects.getProjects, { userId }, newProjects);
+      localStore.setQuery(api.projects.getProjects, { 
+        userId,
+        teamId: (activeTeamId as Id<"teams">) || undefined
+      }, newProjects);
     }
   });
   const { user } = useAuthStore();

@@ -23,21 +23,30 @@ export function Card({
   onClick,
   padding = 'md',
 }: CardProps) {
-  const Component = hover || onClick ? motion.div : 'div';
-  
-  return (
-    <Component
-      onClick={onClick}
-      whileHover={hover || onClick ? { scale: 1.02, y: -2 } : undefined}
-      whileTap={onClick ? { scale: 0.98 } : undefined}
-      className={`
-        bg-white rounded-2xl shadow-sm border border-gray-100
-        ${hover || onClick ? 'cursor-pointer transition-shadow hover:shadow-lg' : ''}
+  const isMotion = hover || onClick;
+  const classes = `
+        bg-white rounded-[2rem] shadow-[0_2px_12px_-4px_rgba(0,0,0,0.08)] border border-transparent
+        ${isMotion ? 'cursor-pointer transition-all duration-300 hover:shadow-[0_8px_24px_-8px_rgba(0,0,0,0.12)] hover:-translate-y-1' : ''}
         ${paddings[padding]}
         ${className}
-      `}
-    >
+      `;
+
+  if (isMotion) {
+    return (
+      <motion.div
+        onClick={onClick}
+        whileHover={{ scale: 1.02, y: -2 }}
+        whileTap={onClick ? { scale: 0.98 } : undefined}
+        className={classes}
+      >
+        {children}
+      </motion.div>
+    );
+  }
+
+  return (
+    <div className={classes}>
       {children}
-    </Component>
+    </div>
   );
 }

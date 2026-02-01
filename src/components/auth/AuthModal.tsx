@@ -166,33 +166,33 @@ export function AuthModal() {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20, transition: { duration: 0 } }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden"
+            className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
           >
             {/* Header */}
-            <div className="relative bg-gradient-to-br from-violet-600 to-indigo-600 p-8 text-white">
+            <div className="px-8 py-6 border-b border-gray-100 flex items-center justify-between bg-white/50 backdrop-blur-sm sticky top-0 z-10">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-violet-500/20">
+                  <img src="/Vibe%20Vault%20logo-white.png" alt="Logo" className="w-7 h-7 object-contain" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900 tracking-tight">Vibe Vault</h2>
+                  <p className="text-xs text-gray-500 font-medium">
+                    {view === 'login' && 'Sign in to continue'}
+                    {view === 'register' && 'Create your account'}
+                    {view === 'forgot' && 'Reset password'}
+                  </p>
+                </div>
+              </div>
               <button
                 onClick={handleClose}
-                className="absolute top-4 right-4 p-2 rounded-xl hover:bg-white/10 transition-colors"
+                className="p-2 rounded-xl hover:bg-gray-50 text-gray-400 hover:text-gray-900 transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-8 h-8 flex items-center justify-center">
-                  <img src="/Vibe%20Vault%20logo-white.png" alt="Vibe Vault Logo" className="w-full h-full object-contain" />
-                </div>
-                <div>
-                  <h2 className="text-2xl font-bold">Vibe Vault</h2>
-                </div>
-              </div>
-              <p className="text-white/80">
-                {view === 'login' && 'Welcome back! Sign in to access your vault.'}
-                {view === 'register' && 'Create an account to start building your vault.'}
-                {view === 'forgot' && 'Enter your email to reset your password.'}
-              </p>
             </div>
 
             {/* Form */}
-            <form onSubmit={handleSubmit} className="p-8 space-y-4">
+            <form onSubmit={handleSubmit} className="p-8 space-y-5 overflow-y-auto custom-scrollbar">
               {view === 'register' && (
                 <Input
                   label="Username"
@@ -261,14 +261,15 @@ export function AuthModal() {
               )}
 
               {view === 'login' && (
-                <button
+                <Button
                   type="button"
+                  variant="secondary"
                   onClick={handleGuestLogin}
-                  className="w-full py-2.5 px-4 bg-gray-50 hover:bg-gray-100 text-gray-700 font-medium rounded-xl border border-gray-200 transition-colors flex items-center justify-center gap-2"
+                  className="w-full bg-gray-50 hover:bg-gray-100 border border-gray-200"
+                  icon={<User className="w-4 h-4" />}
                 >
-                  <User className="w-4 h-4" />
                   Continue as Guest
-                </button>
+                </Button>
               )}
 
               {/* Footer Links */}

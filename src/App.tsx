@@ -7,6 +7,8 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { ConvexProvider, ConvexReactClient } from "convex/react";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
+import PublicSharePage from "./pages/PublicShare";
+import PublicBoardPage from "./pages/PublicBoard";
 
 const convex = new ConvexReactClient(import.meta.env.VITE_CONVEX_URL || "");
 
@@ -29,6 +31,8 @@ const App = () => (
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />
+              <Route path="/share/:token" element={<PublicSharePage />} />
+              <Route path="/share/board/:token" element={<PublicBoardPage />} />
               <Route path="*" element={<OverrideNotFound />} />
               <Route path="*" element={<NotFound />} />
             </Routes>

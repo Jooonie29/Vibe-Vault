@@ -10,7 +10,9 @@ import {
   MessageSquare,
   FolderOpen,
   Filter,
-  SortAsc
+  SortAsc,
+  MoreVertical,
+  Clock
 } from 'lucide-react';
 import { useItems } from '@/hooks/useItems';
 import { useUIStore } from '@/store/uiStore';
@@ -19,6 +21,7 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Badge } from '@/components/ui/Badge';
+import { Select } from '@/components/ui/Select';
 import { CardSkeleton } from '@/components/ui/Skeleton';
 import { format } from 'date-fns';
 
@@ -35,9 +38,9 @@ const typeIcons = {
 };
 
 const typeColors = {
-  code: { bg: 'bg-blue-100', text: 'text-blue-600', gradient: 'from-blue-500 to-cyan-500' },
-  prompt: { bg: 'bg-purple-100', text: 'text-purple-600', gradient: 'from-purple-500 to-pink-500' },
-  file: { bg: 'bg-amber-100', text: 'text-amber-600', gradient: 'from-amber-500 to-orange-500' },
+  code: { bg: 'bg-blue-50', text: 'text-blue-600', gradient: 'from-blue-500 to-cyan-500', border: 'hover:border-blue-200' },
+  prompt: { bg: 'bg-purple-50', text: 'text-purple-600', gradient: 'from-purple-500 to-pink-500', border: 'hover:border-purple-200' },
+  file: { bg: 'bg-amber-50', text: 'text-amber-600', gradient: 'from-amber-500 to-orange-500', border: 'hover:border-amber-200' },
 };
 
 const codeCategories = ['All', 'utility', 'component', 'hook', 'api', 'algorithm', 'ui', 'backend', 'testing', 'other'];
@@ -111,128 +114,140 @@ export function ItemsGrid({ type, title, description }: ItemsGridProps) {
 
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
-            <div className={`w-10 h-10 rounded-xl ${colors.bg} flex items-center justify-center`}>
-              <Icon className={`w-5 h-5 ${colors.text}`} />
+          <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight flex items-center gap-4">
+            <div className={`w-12 h-12 rounded-2xl ${colors.bg} flex items-center justify-center shadow-sm`}>
+              <Icon className={`w-6 h-6 ${colors.text}`} />
             </div>
             {title}
           </h1>
-          <p className="text-gray-500 mt-1">{description}</p>
+          <p className="text-gray-500 mt-2 text-lg max-w-2xl">{description}</p>
         </div>
         <Button
           onClick={() => openModal('item', { type })}
-          icon={<Plus className="w-4 h-4" />}
+          icon={<Plus className="w-5 h-5" />}
+          className="shadow-lg shadow-violet-500/20 hover:shadow-violet-500/30 transition-all duration-300"
+          size="lg"
         >
           New {type === 'code' ? 'Snippet' : type === 'prompt' ? 'Prompt' : 'File'}
         </Button>
       </div>
 
       {/* Filters */}
-      <Card padding="sm">
-        <div className="flex flex-col lg:flex-row gap-4">
+      <div className="bg-white p-4 rounded-3xl shadow-sm border border-gray-100 space-y-4">
+        <div className="flex flex-col xl:flex-row gap-4">
           <div className="flex-1">
             <Input
               isSearch
               placeholder={`Search ${type === 'code' ? 'snippets' : type === 'prompt' ? 'prompts' : 'files'}...`}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              className="bg-gray-50 border-transparent focus:bg-white"
             />
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            {/* Category Pills */}
-            <div className="flex gap-1 overflow-x-auto pb-1 max-w-full">
-              {getCategoriesByType(type).map((cat) => (
-                <button
-                  key={cat}
-                  onClick={() => setSelectedCategory(cat)}
-                  className={`px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${selectedCategory === cat
-                    ? `bg-gradient-to-r ${colors.gradient} text-white`
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }`}
-                >
-                  {cat === 'All' ? 'All' : cat.charAt(0).toUpperCase() + cat.slice(1)}
-                </button>
-              ))}
-            </div>
-
-            {/* Favorites Toggle */}
-            <button
+          <div className="flex flex-wrap items-center gap-3">
+             {/* Favorites Toggle */}
+             <button
               onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
-              className={`p-2 rounded-xl transition-colors ${showFavoritesOnly
-                ? 'bg-yellow-100 text-yellow-600'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              className={`p-3 rounded-2xl transition-all duration-300 border ${showFavoritesOnly
+                ? 'bg-amber-50 text-amber-500 border-amber-200 shadow-sm'
+                : 'bg-white text-gray-400 border-gray-200 hover:bg-gray-50 hover:text-amber-400'
                 }`}
+              title="Show Favorites"
             >
               <Star className={`w-5 h-5 ${showFavoritesOnly ? 'fill-current' : ''}`} />
             </button>
 
             {/* Sort */}
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as any)}
-              className="px-3 py-2 rounded-xl bg-gray-100 text-gray-600 text-sm font-medium border-0 focus:ring-2 focus:ring-violet-500/20"
-            >
-              <option value="newest">Newest</option>
-              <option value="oldest">Oldest</option>
-              <option value="title">A-Z</option>
-            </select>
+            <div className="w-40">
+              <Select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as any)}
+                options={[
+                  { value: 'newest', label: 'Newest' },
+                  { value: 'oldest', label: 'Oldest' },
+                  { value: 'title', label: 'A-Z' },
+                ]}
+                className="py-3"
+              />
+            </div>
 
             {/* View Toggle */}
-            <div className="flex bg-gray-100 rounded-xl p-1">
+            <div className="flex bg-gray-100 p-1.5 rounded-2xl">
               <button
                 onClick={() => setViewMode('grid')}
-                className={`p-2 rounded-lg transition-colors ${viewMode === 'grid' ? 'bg-white shadow-sm' : 'text-gray-500'
+                className={`p-2.5 rounded-xl transition-all duration-300 ${viewMode === 'grid' ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-700'
                   }`}
               >
-                <Grid3X3 className="w-4 h-4" />
+                <Grid3X3 className="w-5 h-5" />
               </button>
               <button
                 onClick={() => setViewMode('list')}
-                className={`p-2 rounded-lg transition-colors ${viewMode === 'list' ? 'bg-white shadow-sm' : 'text-gray-500'
+                className={`p-2.5 rounded-xl transition-all duration-300 ${viewMode === 'list' ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-700'
                   }`}
               >
-                <List className="w-4 h-4" />
+                <List className="w-5 h-5" />
               </button>
             </div>
           </div>
         </div>
-      </Card>
+        
+        {/* Category Pills */}
+        <div className="flex gap-2 overflow-x-auto pb-2 pt-1 scrollbar-hide -mx-1 px-1">
+            {getCategoriesByType(type).map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={`px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition-all duration-300 ${selectedCategory === cat
+                  ? `bg-gradient-to-r ${colors.gradient} text-white shadow-lg shadow-violet-500/20`
+                  : 'bg-gray-50 text-gray-600 hover:bg-gray-100 hover:text-gray-900 border border-transparent hover:border-gray-200'
+                  }`}
+              >
+                {cat === 'All' ? 'All' : cat.charAt(0).toUpperCase() + cat.slice(1)}
+              </button>
+            ))}
+          </div>
+      </div>
 
       {/* Items Grid/List */}
       {isLoading ? (
-        <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4' : 'space-y-3'}>
+        <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6' : 'space-y-4'}>
           {[1, 2, 3, 4, 5, 6].map((i) => (
             <CardSkeleton key={i} />
           ))}
         </div>
       ) : filteredItems.length === 0 ? (
-        <Card className="text-center py-12">
-          <div className={`w-16 h-16 rounded-2xl ${colors.bg} flex items-center justify-center mx-auto mb-4`}>
-            <Icon className={`w-8 h-8 ${colors.text}`} />
+        <div className="text-center py-24 bg-white rounded-[2.5rem] border border-dashed border-gray-200 shadow-sm">
+          <div className={`w-24 h-24 rounded-[2rem] ${colors.bg} flex items-center justify-center mx-auto mb-8 shadow-sm`}>
+            <Icon className={`w-12 h-12 ${colors.text}`} />
           </div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">
-            {searchQuery || selectedCategory !== 'All' ? 'No matching items' : `No ${type === 'code' ? 'snippets' : type === 'prompt' ? 'prompts' : 'files'} yet`}
+          <h3 className="text-2xl font-bold text-gray-900 mb-3">
+            {searchQuery || selectedCategory !== 'All' ? 'No matching items found' : `No ${type === 'code' ? 'snippets' : type === 'prompt' ? 'prompts' : 'files'} yet`}
           </h3>
-          <p className="text-gray-500 mb-4">
+          <p className="text-gray-500 mb-8 max-w-md mx-auto text-lg">
             {searchQuery || selectedCategory !== 'All'
-              ? 'Try adjusting your filters'
+              ? 'Try adjusting your filters or search terms'
               : `Create your first ${type === 'code' ? 'code snippet' : type === 'prompt' ? 'AI prompt' : 'file'} to get started.`}
           </p>
           {!searchQuery && selectedCategory === 'All' && (
-            <Button onClick={() => openModal('item', { type })} icon={<Plus className="w-4 h-4" />}>
+            <Button 
+              onClick={() => openModal('item', { type })} 
+              icon={<Plus className="w-5 h-5" />}
+              size="lg"
+              className="shadow-xl shadow-violet-500/20"
+            >
               Create {type === 'code' ? 'Snippet' : type === 'prompt' ? 'Prompt' : 'File'}
             </Button>
           )}
-        </Card>
+        </div>
       ) : (
         <AnimatePresence mode="popLayout">
           <motion.div
             layout
-            className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4' : 'space-y-3'}
+            className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6' : 'space-y-4'}
           >
             {filteredItems.map((item, index) => (
               <motion.div
@@ -266,65 +281,98 @@ function ItemCard({
 }: {
   item: Item;
   viewMode: 'grid' | 'list';
-  colors: { bg: string; text: string; gradient: string };
+  colors: { bg: string; text: string; gradient: string; border: string };
   onOpen: (item: Item) => void;
 }) {
   const Icon = typeIcons[item.type];
 
   if (viewMode === 'list') {
     return (
-      <Card hover onClick={() => onOpen(item)} padding="sm">
-        <div className="flex items-center gap-4">
-          <div className={`w-10 h-10 rounded-xl ${colors.bg} flex items-center justify-center flex-shrink-0`}>
-            <Icon className={`w-5 h-5 ${colors.text}`} />
+      <div 
+        onClick={() => onOpen(item)}
+        className={`group flex items-center gap-5 bg-white p-4 rounded-3xl border border-gray-100 ${colors.border} hover:shadow-lg transition-all duration-300 cursor-pointer relative overflow-hidden`}
+      >
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-white/50 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+        
+        <div className={`w-14 h-14 rounded-2xl ${colors.bg} flex items-center justify-center flex-shrink-0 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3`}>
+          <Icon className={`w-7 h-7 ${colors.text}`} />
+        </div>
+        
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-3 mb-1.5">
+            <h3 className="text-lg font-bold text-gray-900 truncate group-hover:text-violet-600 transition-colors">{item.title}</h3>
+            {item.isFavorite && <Star className="w-4 h-4 text-yellow-400 fill-current flex-shrink-0 animate-pulse" />}
           </div>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              <h3 className="font-semibold text-gray-900 truncate">{item.title}</h3>
-              {item.isFavorite && <Star className="w-4 h-4 text-yellow-500 fill-current flex-shrink-0" />}
+          {item.description && (
+            <p className="text-sm text-gray-500 truncate font-medium">{item.description}</p>
+          )}
+        </div>
+        
+        <div className="flex items-center gap-4 flex-shrink-0">
+          <div className="flex gap-2">
+             {item.language && item.type !== 'prompt' && <Badge variant="primary" className="hidden md:flex bg-violet-50 text-violet-600 border-violet-100">{item.language}</Badge>}
+             {item.category && <Badge className="hidden sm:flex bg-gray-100 text-gray-600 border-gray-200">{item.category}</Badge>}
+          </div>
+          <div className="text-right pl-4 border-l border-gray-100 hidden sm:block">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Created</div>
+            <div className="text-xs font-bold text-gray-700">
+                {format(new Date((item as any)._creationTime), 'MMM d')}
             </div>
-            {item.description && (
-              <p className="text-sm text-gray-500 truncate">{item.description}</p>
-            )}
           </div>
-          <div className="flex items-center gap-2 flex-shrink-0">
-            {item.language && item.type !== 'prompt' && <Badge variant="primary">{item.language}</Badge>}
-            {item.category && <Badge>{item.category}</Badge>}
-            <span className="text-xs text-gray-400">
-              {format(new Date((item as any)._creationTime), 'MMM d')}
-            </span>
+          <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center group-hover:bg-violet-50 transition-colors">
+             <MoreVertical className="w-4 h-4 text-gray-400 group-hover:text-violet-500" />
           </div>
         </div>
-      </Card>
+      </div>
     );
   }
 
   return (
-    <Card hover onClick={() => onOpen(item)} className="h-full flex flex-col">
-      <div className="flex items-start justify-between mb-3">
-        <div className={`w-10 h-10 rounded-xl ${colors.bg} flex items-center justify-center`}>
-          <Icon className={`w-5 h-5 ${colors.text}`} />
+    <motion.div
+      whileHover={{ y: -8, scale: 1.02 }}
+      onClick={() => onOpen(item)}
+      className={`group h-full flex flex-col bg-white rounded-[2rem] p-6 shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 ${colors.border} cursor-pointer relative overflow-hidden`}
+    >
+       <div className={`absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r ${colors.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
+       
+      <div className="flex items-start justify-between mb-5">
+        <div className={`w-14 h-14 rounded-2xl ${colors.bg} flex items-center justify-center transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-6 shadow-sm`}>
+          <Icon className={`w-7 h-7 ${colors.text}`} />
         </div>
-        {item.isFavorite && <Star className="w-5 h-5 text-yellow-500 fill-current" />}
+        {item.isFavorite && (
+            <div className="bg-yellow-50 p-1.5 rounded-full">
+                <Star className="w-5 h-5 text-yellow-400 fill-current" />
+            </div>
+        )}
       </div>
-      <h3 className="font-semibold text-gray-900 mb-1 line-clamp-1">{item.title}</h3>
+      
+      <h3 className="text-xl font-bold text-gray-900 mb-3 line-clamp-1 group-hover:text-violet-600 transition-colors">{item.title}</h3>
+      
       {item.description && (
-        <p className="text-sm text-gray-500 mb-3 line-clamp-2 flex-1">{item.description}</p>
+        <p className="text-sm text-gray-500 mb-5 line-clamp-2 flex-1 leading-relaxed font-medium">{item.description}</p>
       )}
+      
       {item.content && (
-        <div className="bg-gray-900 rounded-lg p-3 mb-3 overflow-hidden">
-          <pre className="text-xs text-gray-300 font-mono line-clamp-3">{item.content}</pre>
+        <div className="bg-gray-50/80 rounded-2xl p-4 mb-5 overflow-hidden border border-gray-100 group-hover:border-violet-100 transition-colors relative">
+           <div className="absolute top-2 right-2 flex gap-1">
+               <div className="w-2 h-2 rounded-full bg-gray-200"></div>
+               <div className="w-2 h-2 rounded-full bg-gray-200"></div>
+               <div className="w-2 h-2 rounded-full bg-gray-200"></div>
+           </div>
+          <pre className="text-[10px] text-gray-600 font-mono line-clamp-3 leading-relaxed opacity-80 pt-2">{item.content}</pre>
         </div>
       )}
-      <div className="flex items-center justify-between mt-auto pt-3 border-t border-gray-100">
-        <div className="flex gap-1.5">
-          {item.language && item.type !== 'prompt' && <Badge variant="primary" size="sm">{item.language}</Badge>}
-          {item.category && <Badge size="sm">{item.category}</Badge>}
+      
+      <div className="flex items-center justify-between mt-auto pt-4 border-t border-gray-50">
+        <div className="flex gap-2">
+          {item.language && item.type !== 'prompt' && <Badge variant="primary" size="sm" className="bg-violet-50 text-violet-600 border-violet-100 shadow-none">{item.language}</Badge>}
+          {item.category && <Badge size="sm" className="bg-gray-100 text-gray-600 hover:bg-gray-200 border-gray-200 shadow-none">{item.category}</Badge>}
         </div>
-        <span className="text-xs text-gray-400">
+        <div className="flex items-center gap-1.5 text-xs text-gray-400 font-bold">
+          <Clock className="w-3.5 h-3.5" />
           {format(new Date((item as any)._creationTime), 'MMM d')}
-        </span>
+        </div>
       </div>
-    </Card>
+    </motion.div>
   );
 }

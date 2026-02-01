@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { X, Save, Trash2, Calendar, Flag } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { X, Save, Trash2, Calendar, Layout, FolderKanban, Check, Clock } from 'lucide-react';
 import { useUIStore } from '@/store/uiStore';
 import { useCreateProject, useUpdateProject, useDeleteProject } from '@/hooks/useProjects';
 import { Project, ProjectStatus, Priority } from '@/types';
@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
 import { Select } from '@/components/ui/Select';
+import { Badge } from '@/components/ui/Badge';
 
 const statusOptions = [
   { value: 'ideation', label: 'Ideation' },
@@ -109,110 +110,169 @@ export function ProjectModal() {
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} title={isEditing ? 'Edit Project' : 'New Project'} size="md">
-      <div className="p-6 space-y-4">
-        <Input
-          label="Project Title"
-          placeholder="My Awesome App"
-          value={formData.title}
-          onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-        />
-
-        <Textarea
-          label="Description"
-          placeholder="What's this project about?"
-          rows={3}
-          value={formData.description}
-          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-        />
-
-        <div className="grid grid-cols-2 gap-4">
-          <Select
-            label="Status"
-            options={statusOptions}
-            value={formData.status}
-            onChange={(e) => setFormData({ ...formData, status: e.target.value as ProjectStatus })}
-          />
-          <Select
-            label="Priority"
-            options={priorityOptions}
-            value={formData.priority}
-            onChange={(e) => setFormData({ ...formData, priority: e.target.value as Priority })}
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">
-            Progress: {formData.progress}%
-          </label>
-          <input
-            type="range"
-            min="0"
-            max="100"
-            value={formData.progress}
-            onChange={(e) => setFormData({ ...formData, progress: parseInt(e.target.value) })}
-            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-violet-600"
-          />
-        </div>
-
-        <Input
-          label="Due Date"
-          type="date"
-          value={formData.dueDate}
-          onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
-          icon={<Calendar className="w-5 h-5" />}
-        />
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">Color</label>
-          <div className="flex gap-2">
-            {colorOptions.map((color) => (
-              <button
-                key={color}
-                onClick={() => setFormData({ ...formData, color })}
-                className={`w-8 h-8 rounded-lg transition-transform ${formData.color === color ? 'ring-2 ring-offset-2 ring-violet-500 scale-110' : ''
-                  }`}
-                style={{ backgroundColor: color }}
-              />
-            ))}
+    <Modal isOpen={isOpen} onClose={handleClose} title="" size="lg">
+      <div className="flex flex-col h-full">
+        {/* Header */}
+        <div className="px-8 py-6 border-b border-gray-100 flex items-start justify-between bg-white/50 backdrop-blur-sm sticky top-0 z-10">
+          <div className="flex items-center gap-5">
+            <div className="w-14 h-14 rounded-2xl flex items-center justify-center border border-violet-100 bg-violet-50 text-violet-600 shadow-sm">
+              <FolderKanban className="w-7 h-7" />
+            </div>
+            <div>
+              <div className="flex items-center gap-3 mb-1">
+                <Badge variant="outline" className="uppercase tracking-wider text-[10px] font-bold bg-white">
+                  Project
+                </Badge>
+                {existingProject && (
+                   <span className="text-xs text-gray-400 font-medium flex items-center gap-1">
+                     <Clock className="w-3 h-3" />
+                     Tracking
+                   </span>
+                )}
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 tracking-tight">
+                {isEditing ? 'Edit Project' : 'New Project'}
+              </h2>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            {isEditing && existingProject && (
+              confirmDelete ? (
+                <div className="flex items-center gap-1 bg-red-50 p-1 rounded-xl border border-red-100">
+                  <button
+                    onClick={handleDelete}
+                    className="p-1.5 rounded-lg bg-red-500 hover:bg-red-600 text-white transition-colors shadow-sm"
+                    title="Confirm Delete"
+                  >
+                    <Check className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => setConfirmDelete(false)}
+                    className="p-1.5 rounded-lg text-red-600 hover:bg-red-100 transition-colors"
+                    title="Cancel"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => setConfirmDelete(true)}
+                  className="p-2.5 rounded-xl bg-white border border-gray-200 text-gray-400 hover:text-red-500 hover:border-red-200 hover:bg-red-50 transition-all duration-200"
+                  title="Delete Project"
+                >
+                  <Trash2 className="w-5 h-5" />
+                </button>
+              )
+            )}
+            <button
+              onClick={handleClose}
+              className="p-2.5 rounded-xl bg-white border border-gray-200 text-gray-400 hover:text-gray-900 hover:bg-gray-50 transition-all duration-200"
+            >
+              <X className="w-5 h-5" />
+            </button>
           </div>
         </div>
-      </div>
 
-      <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-between">
-        {isEditing && existingProject ? (
-          confirmDelete ? (
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600">Delete this project?</span>
-              <Button size="sm" variant="danger" onClick={handleDelete} loading={deleteProject.isPending}>
-                Confirm
-              </Button>
-              <Button size="sm" variant="ghost" onClick={() => setConfirmDelete(false)}>
-                Cancel
-              </Button>
+        <div className="px-8 py-6 space-y-6 overflow-y-auto custom-scrollbar">
+          <Input
+            label="Project Title"
+            placeholder="My Awesome App"
+            value={formData.title}
+            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+            autoFocus
+          />
+
+          <Textarea
+            label="Description"
+            placeholder="What's this project about? Goals, scope, etc."
+            rows={3}
+            value={formData.description}
+            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+          />
+
+          <div className="grid grid-cols-2 gap-6">
+            <Select
+              label="Status"
+              options={statusOptions}
+              value={formData.status}
+              onChange={(e) => setFormData({ ...formData, status: e.target.value as ProjectStatus })}
+            />
+            <Select
+              label="Priority"
+              options={priorityOptions}
+              value={formData.priority}
+              onChange={(e) => setFormData({ ...formData, priority: e.target.value as Priority })}
+            />
+          </div>
+
+          <div className="bg-gray-50 p-5 rounded-2xl border border-gray-100 space-y-4">
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-medium text-gray-700">Project Progress</label>
+              <span className="text-sm font-bold text-violet-600">{formData.progress}%</span>
             </div>
-          ) : (
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => setConfirmDelete(true)}
-              icon={<Trash2 className="w-4 h-4" />}
-              className="text-red-600 hover:bg-red-50"
-            >
-              Delete
-            </Button>
-          )
-        ) : (
-          <div />
-        )}
-        <div className="flex gap-2">
-          <Button variant="ghost" onClick={handleClose}>
+            <div className="relative h-4 w-full bg-white rounded-full overflow-hidden shadow-inner border border-gray-100">
+               <div 
+                 className="absolute top-0 left-0 h-full bg-gradient-to-r from-violet-500 to-fuchsia-500 rounded-full transition-all duration-300"
+                 style={{ width: `${formData.progress}%` }}
+               />
+               <input
+                type="range"
+                min="0"
+                max="100"
+                value={formData.progress}
+                onChange={(e) => setFormData({ ...formData, progress: parseInt(e.target.value) })}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              />
+            </div>
+            <div className="flex justify-between text-xs text-gray-400 font-medium">
+              <span>Not Started</span>
+              <span>Halfway</span>
+              <span>Complete</span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Input
+              label="Due Date"
+              type="date"
+              value={formData.dueDate}
+              onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
+              icon={<Calendar className="w-5 h-5" />}
+            />
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Color Theme</label>
+              <div className="flex gap-2 flex-wrap">
+                {colorOptions.map((color) => (
+                  <button
+                    key={color}
+                    onClick={() => setFormData({ ...formData, color })}
+                    className={`w-9 h-9 rounded-xl transition-all shadow-sm flex items-center justify-center ${
+                      formData.color === color 
+                        ? 'ring-2 ring-offset-2 ring-gray-300 scale-110 shadow-md' 
+                        : 'hover:scale-110 hover:shadow-md'
+                    }`}
+                    style={{ backgroundColor: color }}
+                  >
+                    {formData.color === color && <Check className="w-5 h-5 text-white stroke-[3]" />}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="px-8 py-5 border-t border-gray-100 bg-gray-50 flex items-center justify-end gap-3 mt-auto">
+          <Button variant="ghost" onClick={handleClose} className="text-gray-500 hover:text-gray-900">
             Cancel
           </Button>
           <Button
             onClick={handleSave}
             loading={createProject.isPending || updateProject.isPending}
             icon={<Save className="w-4 h-4" />}
+            className="shadow-lg shadow-violet-500/20"
           >
             {isEditing ? 'Save Changes' : 'Create Project'}
           </Button>
