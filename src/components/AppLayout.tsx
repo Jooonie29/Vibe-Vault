@@ -17,6 +17,7 @@ import { ProjectNoteModal } from '@/components/projects/ProjectNoteModal';
 import { ProjectViewModal } from '@/components/projects/ProjectViewModal';
 import { ProjectUpdatesModal } from '@/components/projects/ProjectUpdatesModal';
 import { TeamOnboarding } from '@/components/teams/TeamOnboarding';
+import { InviteModal } from '@/components/teams/InviteModal';
 import { CommandPalette } from '@/components/command/CommandPalette';
 import { ToastContainer } from '@/components/ui/Toast';
 import { Loader2 } from 'lucide-react';
@@ -157,7 +158,7 @@ const AppLayout: React.FC = () => {
     };
 
   return (
-    <div className="min-h-screen bg-[#F5F6FA]">
+    <div className="min-h-screen bg-background">
       {/* Mobile Navigation */}
       {isMobile && <MobileNav />}
 
@@ -192,6 +193,7 @@ const AppLayout: React.FC = () => {
       <ProjectNoteModal />
       <ProjectViewModal />
       <ProjectUpdatesModal />
+      <InviteModal />
       <CommandPalette />
 
       {/* Toast Notifications */}

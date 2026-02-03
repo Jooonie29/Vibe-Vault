@@ -98,7 +98,12 @@ export const updateProject = mutation({
             }
         }
 
-        await ctx.db.patch(args.id, args.updates);
+        const updatePayload: any = { ...args.updates };
+        if (args.updates.notes !== undefined) {
+            updatePayload.noteUpdatedAt = Date.now();
+        }
+
+        await ctx.db.patch(args.id, updatePayload);
 
         if (Object.keys(changes).length > 0) {
             const isNoteUpdate = Object.prototype.hasOwnProperty.call(changes, "notes");
@@ -108,7 +113,7 @@ export const updateProject = mutation({
                 authorId: args.userId,
                 type: isNoteUpdate ? "note" : "updated",
                 summary: isNoteUpdate
-                    ? `Updated progress note for "${project.title}"`
+                    ? args.updates.notes || ""
                     : `Updated project "${project.title}"`,
                 changes,
             });
@@ -200,31 +205,31 @@ export const getProjectUpdates = query({
         // Filter: Keep updates if the project is created by the user OR the update is authored by the user
         // Only apply this restriction if we are NOT in a team context (Personal view)
         if (!args.teamId) {
-            updates = updates.filter((update) => 
+            updates = updates.filter((update) =>
                 projectIds.has(update.projectId) || update.authorId === args.userId
             );
         }
 
         if (!args.teamId) {
-             // If no team specified (Personal view), filter out team updates? 
-             // Or keep logic consistent with "All Updates"?
-             // The previous implementation didn't filter teamId if not provided.
-             // But existing getProjects logic filters OUT team projects if teamId is not provided.
-             // To match "Personal" workspace behavior, we should probably filter out updates that HAVE a teamId.
-             // But let's stick to the previous behavior of "Global" unless specific instruction.
-             // However, passing teamId filter is safer for filtering.
-             
-             // Wait, if I use the code above, the `if (args.teamId)` block handles the fetching.
-             // The subsequent filter handles ownership.
-             
-             // What about the existing logic below?
-             /*
-             updates = updates.filter((update) => projectIds.has(update.projectId));
-             if (args.teamId) {
-                updates = updates.filter((update) => update.teamId === args.teamId);
-             }
-             */
-             // My new code replaces this.
+            // If no team specified (Personal view), filter out team updates? 
+            // Or keep logic consistent with "All Updates"?
+            // The previous implementation didn't filter teamId if not provided.
+            // But existing getProjects logic filters OUT team projects if teamId is not provided.
+            // To match "Personal" workspace behavior, we should probably filter out updates that HAVE a teamId.
+            // But let's stick to the previous behavior of "Global" unless specific instruction.
+            // However, passing teamId filter is safer for filtering.
+
+            // Wait, if I use the code above, the `if (args.teamId)` block handles the fetching.
+            // The subsequent filter handles ownership.
+
+            // What about the existing logic below?
+            /*
+            updates = updates.filter((update) => projectIds.has(update.projectId));
+            if (args.teamId) {
+               updates = updates.filter((update) => update.teamId === args.teamId);
+            }
+            */
+            // My new code replaces this.
         }
 
         if (args.authorId) {

@@ -94,6 +94,7 @@ export const ensurePersonalTeam = mutation({
       description: "Personal workspace",
       createdBy: args.userId,
       isPersonal: true,
+      inviteCode: createInviteCode(),
     });
 
     await ctx.db.insert("teamMembers", {
@@ -118,6 +119,7 @@ export const createTeam = mutation({
       description: args.description ? normalizeText(args.description) : undefined,
       createdBy: args.userId,
       isPersonal: false,
+      inviteCode: createInviteCode(),
     });
 
     await ctx.db.insert("teamMembers", {
@@ -302,13 +304,57 @@ export const acceptInviteByToken = mutation({
   },
 });
 
+export const getOrCreateInviteCode = mutation({
+  args: { userId: v.string(), teamId: v.id("teams") },
+  handler: async (ctx, args) => {
+    await ensureAdmin(ctx, args.teamId, args.userId);
+    const team = await ctx.db.get(args.teamId);
+    if (!team) throw new Error("Team not found");
+
+    if (team.inviteCode) {
+      return team.inviteCode;
+    }
+
+    const inviteCode = createInviteCode();
+    await ctx.db.patch(args.teamId, { inviteCode });
+    return inviteCode;
+  },
+});
+
 export const acceptInviteByCode = mutation({
   args: { userId: v.string(), code: v.string() },
   handler: async (ctx, args) => {
+    const code = args.code.toUpperCase();
+
+    // Check generic team invite code
+    const team = await ctx.db
+      .query("teams")
+      .withIndex("by_inviteCode", (q) => q.eq("inviteCode", code))
+      .first();
+
+    if (team) {
+       const existing = await ctx.db
+        .query("teamMembers")
+        .withIndex("by_teamId_userId", (q) => q.eq("teamId", team._id).eq("userId", args.userId))
+        .first();
+
+      if (!existing) {
+        await ctx.db.insert("teamMembers", {
+          teamId: team._id,
+          userId: args.userId,
+          role: "member", // Default role for code join
+          joinedAt: new Date().toISOString(),
+        });
+      }
+      return team._id;
+    }
+
+    // Check specific invite
     const invite = await ctx.db
       .query("teamInvites")
-      .withIndex("by_code", (q) => q.eq("code", args.code.toUpperCase()))
+      .withIndex("by_code", (q) => q.eq("code", code))
       .first();
+    
     if (!invite || invite.status !== "pending" || isExpired(invite.expiresAt)) {
       throw new Error("Invite not valid");
     }

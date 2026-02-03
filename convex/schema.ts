@@ -58,6 +58,7 @@ export default defineSchema({
         color: v.string(),
         isArchived: v.boolean(),
         notes: v.optional(v.string()),
+        noteUpdatedAt: v.optional(v.number()),
     })
         .index("by_userId", ["userId"])
         .index("by_teamId", ["teamId"]),
@@ -67,7 +68,10 @@ export default defineSchema({
         description: v.optional(v.string()),
         createdBy: v.string(),
         isPersonal: v.boolean(),
-    }).index("by_createdBy", ["createdBy"]),
+        inviteCode: v.optional(v.string()),
+    })
+        .index("by_createdBy", ["createdBy"])
+        .index("by_inviteCode", ["inviteCode"]),
 
     teamMembers: defineTable({
         teamId: v.id("teams"),

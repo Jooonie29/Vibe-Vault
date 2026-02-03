@@ -143,34 +143,34 @@ export function FileManager() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 tracking-tight flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-amber-100 flex items-center justify-center shadow-sm">
-              <FolderOpen className="w-6 h-6 text-amber-600" />
+          <h1 className="text-3xl font-bold text-foreground tracking-tight flex items-center gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-amber-500/10 flex items-center justify-center shadow-sm">
+              <FolderOpen className="w-6 h-6 text-amber-500" />
             </div>
             File Assets
           </h1>
-          <p className="text-gray-500 mt-2 text-lg">Upload and manage your design files, icons, and documents</p>
+          <p className="text-muted-foreground mt-2 text-lg">Upload and manage your design files, icons, and documents</p>
         </div>
       </div>
 
       {/* Upload Zone */}
-      <div className="bg-white rounded-[32px] p-2 shadow-sm border border-gray-100">
+      <div className="bg-card rounded-[32px] p-2 shadow-sm border border-border">
         <div
           {...getRootProps()}
-          className={`p-12 border-2 border-dashed rounded-[24px] transition-all duration-300 cursor-pointer group ${isDragActive
-            ? 'border-violet-500 bg-violet-50/50'
-            : 'border-gray-200 hover:border-violet-400 hover:bg-gray-50/80'
+          className={`p-8 border-2 border-dashed rounded-[24px] transition-all duration-300 cursor-pointer group ${isDragActive
+            ? 'border-primary bg-primary/5'
+            : 'border-border hover:border-primary hover:bg-secondary/50'
             }`}
         >
           <input {...getInputProps()} />
           <div className="text-center">
-            <div className={`w-24 h-24 rounded-[32px] mx-auto mb-6 flex items-center justify-center transition-all duration-300 shadow-sm ${isDragActive ? 'bg-violet-100 scale-110' : 'bg-gray-50 group-hover:bg-violet-50 group-hover:scale-105'}`}>
-              <Upload className={`w-10 h-10 transition-colors duration-300 ${isDragActive ? 'text-violet-600' : 'text-gray-400 group-hover:text-violet-500'}`} />
+            <div className={`w-16 h-16 rounded-[24px] mx-auto mb-4 flex items-center justify-center transition-all duration-300 shadow-sm ${isDragActive ? 'bg-primary/10 scale-110' : 'bg-secondary group-hover:bg-primary/10 group-hover:scale-105'}`}>
+              <Upload className={`w-8 h-8 transition-colors duration-300 ${isDragActive ? 'text-primary' : 'text-muted-foreground group-hover:text-primary'}`} />
             </div>
             {uploading ? (
               <>
-                <p className="text-xl font-bold text-gray-900 mb-4">Uploading files...</p>
-                <div className="w-72 h-3 bg-gray-100 rounded-full mx-auto overflow-hidden ring-1 ring-gray-200">
+                <p className="text-lg font-bold text-foreground mb-4">Uploading files...</p>
+                <div className="w-72 h-3 bg-secondary rounded-full mx-auto overflow-hidden ring-1 ring-border">
                   <motion.div
                     initial={{ width: 0 }}
                     animate={{ width: `${uploadProgress}%` }}
@@ -180,13 +180,13 @@ export function FileManager() {
               </>
             ) : (
               <>
-                <h3 className="text-2xl font-bold text-gray-900 mb-3 tracking-tight">
+                <h3 className="text-lg font-bold text-foreground mb-2 tracking-tight">
                   {isDragActive ? 'Drop files to upload' : 'Drag & drop files here'}
                 </h3>
-                <p className="text-gray-500 mb-8 max-w-sm mx-auto text-base">
+                <p className="text-muted-foreground mb-4 max-w-sm mx-auto text-sm">
                   Support for images, documents, archives and code files up to 10MB
                 </p>
-                <Button variant="secondary" className="pointer-events-none rounded-xl px-8 py-6 text-base font-medium bg-gray-900 text-white hover:bg-gray-800 shadow-lg shadow-gray-900/20 border-0">
+                <Button variant="secondary" className="pointer-events-none rounded-xl px-6 py-3 text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/20 border-0">
                   Browse Files
                 </Button>
               </>
@@ -196,28 +196,28 @@ export function FileManager() {
       </div>
 
       {/* Filters */}
-      <div className="flex flex-col md:flex-row gap-4 items-center bg-white p-2.5 rounded-[24px] shadow-sm border border-gray-100">
+      <div className="flex flex-col md:flex-row gap-4 items-center bg-card p-2.5 rounded-[24px] shadow-sm border border-border">
         <div className="flex-1 w-full md:w-auto relative group">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-violet-500 transition-colors" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
           <input
             type="text"
             placeholder="Search files..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-12 pr-4 py-3 bg-gray-50 border-transparent rounded-2xl text-base focus:bg-white focus:border-violet-200 focus:ring-4 focus:ring-violet-500/10 transition-all outline-none placeholder:text-gray-400"
+            className="w-full pl-12 pr-4 py-3 bg-secondary/50 border-transparent rounded-2xl text-base focus:bg-card focus:border-primary/20 focus:ring-4 focus:ring-primary/10 transition-all outline-none placeholder:text-muted-foreground/50 text-foreground"
           />
         </div>
-        <div className="flex bg-gray-100/80 p-1.5 rounded-2xl">
+        <div className="flex bg-secondary p-1.5 rounded-2xl">
           <button
             onClick={() => setViewMode('grid')}
-            className={`p-2.5 rounded-xl transition-all duration-300 ${viewMode === 'grid' ? 'bg-white shadow-md text-violet-600 scale-100' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200/50'
+            className={`p-2.5 rounded-xl transition-all duration-300 ${viewMode === 'grid' ? 'bg-card shadow-md text-primary scale-100' : 'text-muted-foreground hover:text-foreground hover:bg-muted'
               }`}
           >
             <Grid3X3 className="w-5 h-5" />
           </button>
           <button
             onClick={() => setViewMode('list')}
-            className={`p-2.5 rounded-xl transition-all duration-300 ${viewMode === 'list' ? 'bg-white shadow-md text-violet-600 scale-100' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200/50'
+            className={`p-2.5 rounded-xl transition-all duration-300 ${viewMode === 'list' ? 'bg-card shadow-md text-primary scale-100' : 'text-muted-foreground hover:text-foreground hover:bg-muted'
               }`}
           >
             <List className="w-5 h-5" />
@@ -228,18 +228,18 @@ export function FileManager() {
       {/* Files Grid/List */}
       {isLoading ? (
         <div className="text-center py-32">
-          <div className="w-16 h-16 border-4 border-violet-100 border-t-violet-600 rounded-full animate-spin mx-auto mb-6" />
-          <p className="text-gray-500 text-lg font-medium">Loading your assets...</p>
+          <div className="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin mx-auto mb-6" />
+          <p className="text-muted-foreground text-lg font-medium">Loading your assets...</p>
         </div>
       ) : filteredFiles.length === 0 ? (
-        <div className="text-center py-32 bg-white rounded-[32px] border border-dashed border-gray-200">
-          <div className="w-24 h-24 rounded-[32px] bg-gray-50 flex items-center justify-center mx-auto mb-6">
-            <FolderOpen className="w-12 h-12 text-gray-300" />
+        <div className="text-center py-32 bg-card rounded-[32px] border border-dashed border-border">
+          <div className="w-24 h-24 rounded-[32px] bg-muted/50 flex items-center justify-center mx-auto mb-6">
+            <FolderOpen className="w-12 h-12 text-muted-foreground/30" />
           </div>
-          <h3 className="text-2xl font-bold text-gray-900 mb-3">
+          <h3 className="text-2xl font-bold text-foreground mb-3">
             {searchQuery ? 'No matching files found' : 'No files uploaded yet'}
           </h3>
-          <p className="text-gray-500 max-w-sm mx-auto text-lg">
+          <p className="text-muted-foreground max-w-sm mx-auto text-lg">
             {searchQuery ? 'Try adjusting your search terms' : 'Upload your first file to get started with your collection'}
           </p>
         </div>
@@ -265,10 +265,10 @@ export function FileManager() {
                   {viewMode === 'grid' ? (
                     <motion.div
                       whileHover={{ y: -8, scale: 1.02 }}
-                      className="group relative bg-white rounded-[24px] p-4 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_20px_40px_-12px_rgba(0,0,0,0.12)] transition-all duration-300 border border-gray-100 h-full flex flex-col z-0 hover:z-10"
+                      className="group relative bg-card rounded-[24px] p-4 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_20px_40px_-12px_rgba(0,0,0,0.12)] transition-all duration-300 border border-border h-full flex flex-col z-0 hover:z-10"
                     >
                       {/* Preview */}
-                      <div className="aspect-square bg-gray-50 rounded-2xl mb-5 flex items-center justify-center overflow-hidden relative group-hover:shadow-inner transition-shadow">
+                      <div className="aspect-square bg-muted/50 rounded-2xl mb-5 flex items-center justify-center overflow-hidden relative group-hover:shadow-inner transition-shadow">
                         {isImage && file.fileUrl ? (
                           <img
                             src={file.fileUrl}
@@ -276,7 +276,7 @@ export function FileManager() {
                             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                           />
                         ) : (
-                          <FileIcon className="w-20 h-20 text-gray-300 group-hover:text-violet-400 transition-colors duration-300" />
+                          <FileIcon className="w-20 h-20 text-muted-foreground/30 group-hover:text-primary transition-colors duration-300" />
                         )}
                         
                         {/* Hover Overlay */}
@@ -284,7 +284,7 @@ export function FileManager() {
                           {isImage && (
                             <button
                               onClick={(e) => { e.stopPropagation(); setPreviewFile(file); }}
-                              className="p-3 bg-white/90 rounded-2xl hover:bg-white hover:scale-110 transition-all shadow-lg text-gray-700 hover:text-violet-600"
+                              className="p-3 bg-background/90 rounded-2xl hover:bg-background hover:scale-110 transition-all shadow-lg text-foreground hover:text-primary"
                               title="Preview"
                             >
                               <Eye className="w-5 h-5" />
@@ -292,7 +292,7 @@ export function FileManager() {
                           )}
                           <button
                             onClick={(e) => { e.stopPropagation(); handleDownload(file); }}
-                            className="p-3 bg-white/90 rounded-2xl hover:bg-white hover:scale-110 transition-all shadow-lg text-gray-700 hover:text-violet-600"
+                            className="p-3 bg-background/90 rounded-2xl hover:bg-background hover:scale-110 transition-all shadow-lg text-foreground hover:text-primary"
                             title="Download"
                           >
                             <Download className="w-5 h-5" />
@@ -303,49 +303,49 @@ export function FileManager() {
                       {/* Info */}
                       <div className="flex items-start justify-between gap-3 mt-auto">
                         <div className="min-w-0">
-                          <h4 className="font-bold text-gray-900 truncate text-sm mb-1.5" title={file.title}>{file.title}</h4>
-                          <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider">{formatFileSize(file.fileSize)}</p>
+                          <h4 className="font-bold text-foreground truncate text-sm mb-1.5" title={file.title}>{file.title}</h4>
+                          <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">{formatFileSize(file.fileSize)}</p>
                         </div>
                         <button
                           onClick={(e) => { e.stopPropagation(); setConfirmDelete(file.id); }}
-                          className="text-gray-300 hover:text-red-500 transition-colors p-1.5 hover:bg-red-50 rounded-lg -mr-2 opacity-0 group-hover:opacity-100"
+                          className="text-muted-foreground hover:text-destructive transition-colors p-1.5 hover:bg-destructive/10 rounded-lg -mr-2 opacity-0 group-hover:opacity-100"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
                     </motion.div>
                   ) : (
-                    <div className="group flex items-center gap-5 bg-white p-4 rounded-[20px] border border-gray-100 hover:border-violet-100 hover:shadow-xl hover:shadow-violet-500/5 transition-all duration-300">
-                      <div className="w-14 h-14 rounded-2xl bg-gray-50 flex items-center justify-center flex-shrink-0 overflow-hidden ring-1 ring-gray-100">
+                    <div className="group flex items-center gap-5 bg-card p-4 rounded-[20px] border border-border hover:border-primary/20 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300">
+                      <div className="w-14 h-14 rounded-2xl bg-muted/50 flex items-center justify-center flex-shrink-0 overflow-hidden ring-1 ring-border">
                         {isImage && file.fileUrl ? (
                           <img src={file.fileUrl} alt="" className="w-full h-full object-cover" />
                         ) : (
-                          <FileIcon className="w-7 h-7 text-gray-400" />
+                          <FileIcon className="w-7 h-7 text-muted-foreground/50" />
                         )}
                       </div>
                       <div className="flex-1 min-w-0 grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
-                        <h4 className="font-bold text-gray-900 truncate text-base">{file.title}</h4>
-                        <p className="text-sm text-gray-500 font-medium hidden md:block">
+                        <h4 className="font-bold text-foreground truncate text-base">{file.title}</h4>
+                        <p className="text-sm text-muted-foreground font-medium hidden md:block">
                           {formatFileSize(file.fileSize)}
                         </p>
-                        <p className="text-sm text-gray-400 hidden md:block text-right font-medium">
+                        <p className="text-sm text-muted-foreground/70 hidden md:block text-right font-medium">
                           {format(new Date((file as any)._creationTime), 'MMM d, yyyy')}
                         </p>
                       </div>
                       <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                         {isImage && (
-                          <Button size="sm" variant="ghost" onClick={() => setPreviewFile(file)} className="rounded-xl hover:bg-violet-50 hover:text-violet-600">
+                          <Button size="sm" variant="ghost" onClick={() => setPreviewFile(file)} className="rounded-xl hover:bg-primary/10 hover:text-primary">
                             <Eye className="w-4 h-4" />
                           </Button>
                         )}
-                        <Button size="sm" variant="ghost" onClick={() => handleDownload(file)} className="rounded-xl hover:bg-violet-50 hover:text-violet-600">
+                        <Button size="sm" variant="ghost" onClick={() => handleDownload(file)} className="rounded-xl hover:bg-primary/10 hover:text-primary">
                           <Download className="w-4 h-4" />
                         </Button>
                         <Button
                           size="sm"
                           variant="ghost"
                           onClick={() => setConfirmDelete(file.id)}
-                          className="text-red-600 hover:bg-red-50 rounded-xl"
+                          className="text-destructive hover:bg-destructive/10 rounded-xl"
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
@@ -370,8 +370,8 @@ export function FileManager() {
             />
             <div className="mt-4 flex items-center justify-between">
               <div>
-                <h3 className="font-semibold text-gray-900">{previewFile.title}</h3>
-                <p className="text-sm text-gray-500">{formatFileSize(previewFile.fileSize)}</p>
+                <h3 className="font-semibold text-foreground">{previewFile.title}</h3>
+                <p className="text-sm text-muted-foreground">{formatFileSize(previewFile.fileSize)}</p>
               </div>
               <Button onClick={() => handleDownload(previewFile)} icon={<Download className="w-4 h-4" />}>
                 Download
@@ -384,11 +384,11 @@ export function FileManager() {
       {/* Delete Confirmation */}
       <Modal isOpen={!!confirmDelete} onClose={() => setConfirmDelete(null)} size="sm">
         <div className="p-6 text-center">
-          <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
-            <Trash2 className="w-6 h-6 text-red-600" />
+          <div className="w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center mx-auto mb-4">
+            <Trash2 className="w-6 h-6 text-destructive" />
           </div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">Delete File?</h3>
-          <p className="text-gray-500 mb-6">This action cannot be undone.</p>
+          <h3 className="text-lg font-semibold text-foreground mb-2">Delete File?</h3>
+          <p className="text-muted-foreground mb-6">This action cannot be undone.</p>
           <div className="flex gap-3 justify-center">
             <Button variant="ghost" onClick={() => setConfirmDelete(null)}>
               Cancel

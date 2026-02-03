@@ -12,9 +12,10 @@ import { useUIStore } from '@/store/uiStore';
 import { useAuthStore } from '@/store/authStore';
 import { Project } from '@/types';
 import { Modal } from '@/components/ui/Modal';
-import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { format, isPast, isToday, isValid } from 'date-fns';
+import { useQuery } from 'convex/react';
+import { api } from '../../../convex/_generated/api';
 
 const priorityColors = {
     low: 'bg-gray-100 text-gray-600',
@@ -33,8 +34,9 @@ export function ProjectViewModal() {
     const { user } = useAuthStore();
     const { activeModal, modalData, closeModal, openModal, addToast } = useUIStore();
 
-    const isOpen = activeModal === 'project-view';
     const project = modalData as Project | null;
+
+    const isOpen = activeModal === 'project-view';
     const projectId = project?.id;
     const userId = user?.id || '';
 
@@ -99,7 +101,7 @@ export function ProjectViewModal() {
                                 <div>
                                     <div className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Target Date</div>
                                     <div className={`text-sm font-semibold ${dueDateStatus === 'overdue' ? 'text-red-500' :
-                                            dueDateStatus === 'today' ? 'text-amber-500' : 'text-gray-700'
+                                        dueDateStatus === 'today' ? 'text-amber-500' : 'text-gray-700'
                                         }`}>
                                         {hasValidDueDate ? format(dueDate as Date, 'MMM d, yyyy') : 'Unscheduled'}
                                     </div>
@@ -145,8 +147,14 @@ export function ProjectViewModal() {
                                 <div className="relative group">
                                     <div className="absolute -left-4 top-0 bottom-0 w-1 bg-violet-100 rounded-full" />
                                     <div className="bg-gray-50 p-6 rounded-2xl border border-gray-100 group-hover:border-violet-100 transition-colors">
+                                        <div className="flex items-center gap-2 mb-3">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-violet-400" />
+                                            <span className="text-[10px] font-bold text-gray-400 bg-white px-2 py-1 rounded-lg border border-gray-100 uppercase tracking-wider">
+                                                {project.noteUpdatedAt ? format(new Date(project.noteUpdatedAt), 'MMM d, h:mm a') : 'Recently'}
+                                            </span>
+                                        </div>
                                         <p className="text-gray-700 leading-relaxed font-medium italic whitespace-pre-wrap">
-                                            "{project.notes}"
+                                            "{project.notes.replace(/<[^>]*>/g, '')}"
                                         </p>
                                     </div>
                                 </div>

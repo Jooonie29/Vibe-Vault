@@ -121,7 +121,7 @@ export function Settings() {
               {profile?.avatarUrl ? (
                 <img src={profile.avatarUrl} alt="" className="w-full h-full object-cover" />
               ) : (
-                <User className="w-10 h-10 text-white" />
+                <img src={`https://api.dicebear.com/9.x/notionists/svg?seed=${user?.id}`} alt="Default Avatar" className="w-full h-full object-cover" />
               )}
             </div>
             <button

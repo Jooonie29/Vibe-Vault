@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { Save, FileText } from 'lucide-react';
+import { Save, FileText, Clock, Calendar } from 'lucide-react';
 import { useUIStore } from '@/store/uiStore';
 import { useUpdateProject } from '@/hooks/useProjects';
 import { Project } from '@/types';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
-import { Textarea } from '@/components/ui/Textarea';
+import { RichTextEditor } from '@/components/editor/RichTextEditor';
+import { format } from 'date-fns';
 
 export function ProjectNoteModal() {
     const { activeModal, modalData, closeModal, addToast } = useUIStore();
     const updateProject = useUpdateProject();
     const [note, setNote] = useState('');
+    const [lastSaved, setLastSaved] = useState<Date | null>(null);
 
     const isOpen = activeModal === 'project-note';
     const project = modalData as Project | null;
@@ -18,6 +20,7 @@ export function ProjectNoteModal() {
     useEffect(() => {
         if (project) {
             setNote(project.notes || '');
+            setLastSaved(null);
         }
     }, [project, isOpen]);
 
@@ -27,8 +30,12 @@ export function ProjectNoteModal() {
         try {
             await updateProject.mutateAsync({
                 id: project.id,
-                updates: { notes: note },
+                updates: {
+                    notes: note,
+                    noteUpdatedAt: Date.now()
+                },
             });
+            setLastSaved(new Date());
             addToast({
                 type: 'success',
                 title: 'Note saved',
@@ -44,27 +51,140 @@ export function ProjectNoteModal() {
         }
     };
 
+    const insertDateTime = () => {
+        const now = new Date();
+        const dateTimeString = format(now, "MMM d, yyyy 'at' h:mm a");
+        const htmlContent = `<p><strong>${dateTimeString}</strong></p><p></p>`;
+        setNote((prev) => prev + htmlContent);
+    };
+
+    const insertTemplate = (template: string) => {
+        let content = '';
+        switch (template) {
+            case 'daily':
+                content = `
+                    <h3>📅 Daily Progress - ${format(new Date(), 'MMM d, yyyy')}</h3>
+                    <h4>✅ Accomplishments</h4>
+                    <ul data-type="taskList">
+                        <li data-checked="false"><label><input type="checkbox"><div></div></label><div>Task 1</div></li>
+                        <li data-checked="false"><label><input type="checkbox"><div></div></label><div>Task 2</div></li>
+                    </ul>
+                    <h4>🚧 Blockers</h4>
+                    <p>Any challenges or roadblocks encountered...</p>
+                    <h4>📝 Notes</h4>
+                    <p>Additional notes or observations...</p>
+                `;
+                break;
+            case 'meeting':
+                content = `
+                    <h3>🤝 Meeting Notes</h3>
+                    <p><strong>Date:</strong> ${format(new Date(), 'MMM d, yyyy')}</p>
+                    <p><strong>Attendees:</strong></p>
+                    <ul>
+                        <li>Person 1</li>
+                        <li>Person 2</li>
+                    </ul>
+                    <h4>🎯 Agenda</h4>
+                    <ol>
+                        <li>Item 1</li>
+                        <li>Item 2</li>
+                    </ol>
+                    <h4>✅ Action Items</h4>
+                    <ul data-type="taskList">
+                        <li data-checked="false"><label><input type="checkbox"><div></div></label><div>Action 1</div></li>
+                    </ul>
+                `;
+                break;
+            case 'bug':
+                content = `
+                    <h3>🐛 Bug Report</h3>
+                    <p><strong>Date:</strong> ${format(new Date(), 'MMM d, yyyy')}</p>
+                    <h4>🔍 Description</h4>
+                    <p>Describe the bug...</p>
+                    <h4>🔄 Steps to Reproduce</h4>
+                    <ol>
+                        <li>Step 1</li>
+                        <li>Step 2</li>
+                    </ol>
+                    <h4>✅ Expected Behavior</h4>
+                    <p>What should happen...</p>
+                    <h4>❌ Actual Behavior</h4>
+                    <p>What actually happens...</p>
+                `;
+                break;
+        }
+        setNote((prev) => prev + content);
+    };
+
     return (
         <Modal
             isOpen={isOpen}
             onClose={closeModal}
             title="Project Progress Note"
-            size="sm"
+            size="lg"
         >
             <div className="p-6 space-y-4">
-                <div className="flex items-center gap-2 text-violet-600 mb-2">
-                    <FileText className="w-5 h-5" />
-                    <span className="font-semibold text-sm">Add your daily progress for "{project?.title}"</span>
+                {/* Header */}
+                <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-2 text-violet-600">
+                        <FileText className="w-5 h-5" />
+                        <span className="font-semibold text-sm">
+                            Daily progress for "{project?.title}"
+                        </span>
+                    </div>
+                    {lastSaved && (
+                        <div className="flex items-center gap-1 text-xs text-gray-500">
+                            <Clock className="w-3 h-3" />
+                            <span>Saved {format(lastSaved, 'h:mm a')}</span>
+                        </div>
+                    )}
                 </div>
 
-                <Textarea
-                    placeholder="What did you accomplish today? Any roadblocks?"
-                    rows={6}
-                    value={note}
-                    onChange={(e) => setNote(e.target.value)}
-                    autoFocus
+                {/* Templates */}
+                <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-xs text-gray-500 font-medium">Templates:</span>
+                    <button
+                        onClick={() => insertTemplate('daily')}
+                        className="text-xs px-3 py-1.5 bg-violet-50 text-violet-700 rounded-full hover:bg-violet-100 transition-colors"
+                    >
+                        📅 Daily Progress
+                    </button>
+                    <button
+                        onClick={() => insertTemplate('meeting')}
+                        className="text-xs px-3 py-1.5 bg-blue-50 text-blue-700 rounded-full hover:bg-blue-100 transition-colors"
+                    >
+                        🤝 Meeting Notes
+                    </button>
+                    <button
+                        onClick={() => insertTemplate('bug')}
+                        className="text-xs px-3 py-1.5 bg-red-50 text-red-700 rounded-full hover:bg-red-100 transition-colors"
+                    >
+                        🐛 Bug Report
+                    </button>
+                    <button
+                        onClick={insertDateTime}
+                        className="text-xs px-3 py-1.5 bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 transition-colors flex items-center gap-1"
+                    >
+                        <Calendar className="w-3 h-3" />
+                        Insert Date
+                    </button>
+                </div>
+
+                {/* Rich Text Editor */}
+                <RichTextEditor
+                    content={note}
+                    onChange={setNote}
+                    placeholder="What did you accomplish today? Use the toolbar to format your notes..."
                 />
 
+                {/* Tips */}
+                <div className="text-xs text-gray-500 bg-gray-50 p-3 rounded-lg">
+                    <strong>💡 Tips:</strong> Use <kbd className="px-1.5 py-0.5 bg-white rounded border text-gray-600">Ctrl+B</kbd> for bold,{' '}
+                    <kbd className="px-1.5 py-0.5 bg-white rounded border text-gray-600">Ctrl+I</kbd> for italic,{' '}
+                    <kbd className="px-1.5 py-0.5 bg-white rounded border text-gray-600">Ctrl+K</kbd> for links
+                </div>
+
+                {/* Actions */}
                 <div className="flex justify-end gap-3 pt-2">
                     <Button variant="ghost" onClick={closeModal}>
                         Cancel
@@ -72,8 +192,9 @@ export function ProjectNoteModal() {
                     <Button
                         onClick={handleSave}
                         loading={updateProject.isPending}
-                        icon={<Save className="w-4 h-4" />}
+                        className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700"
                     >
+                        <Save className="w-4 h-4 mr-2" />
                         Save Note
                     </Button>
                 </div>

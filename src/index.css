@@ -91,6 +91,22 @@
     @apply border-border;
   }
 
+  ::-webkit-scrollbar {
+    @apply w-[6px] h-[6px];
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-gray-200 dark:bg-gray-800 rounded-full transition-colors;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-300 dark:bg-gray-700;
+  }
+
   html {
     scroll-behavior: smooth;
   }
@@ -106,24 +122,6 @@
 }
 
 @layer components {
-  /* Custom scrollbar */
-  .custom-scrollbar::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
-
-  .custom-scrollbar::-webkit-scrollbar-track {
-    @apply bg-transparent;
-  }
-
-  .custom-scrollbar::-webkit-scrollbar-thumb {
-    @apply bg-gray-300 rounded-full;
-  }
-
-  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    @apply bg-gray-400;
-  }
-
   /* Glass effect */
   .glass {
     @apply bg-white/80 backdrop-blur-lg;
@@ -210,4 +208,148 @@
 /* Focus ring */
 .focus-ring {
   @apply focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:ring-offset-2;
+}
+
+/* TipTap Editor Styles */
+.ProseMirror {
+  @apply outline-none;
+}
+
+.ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  @apply text-gray-400 float-left pointer-events-none h-0;
+}
+
+/* Task List Styles */
+.ProseMirror ul[data-type="taskList"] {
+  @apply list-none p-0;
+}
+
+.ProseMirror ul[data-type="taskList"] li {
+  @apply flex items-start gap-2;
+}
+
+.ProseMirror ul[data-type="taskList"] li > label {
+  @apply flex-shrink-0 mt-1;
+}
+
+.ProseMirror ul[data-type="taskList"] li > div {
+  @apply flex-1;
+}
+
+.ProseMirror ul[data-type="taskList"] input[type="checkbox"] {
+  @apply w-4 h-4 rounded border-gray-300 text-violet-600 focus:ring-violet-500 cursor-pointer;
+}
+
+/* Code Block Styles */
+.ProseMirror pre {
+  @apply bg-gray-900 text-gray-100 p-4 rounded-xl overflow-x-auto font-mono text-sm my-4;
+}
+
+.ProseMirror pre code {
+  @apply bg-transparent text-inherit p-0;
+}
+
+.ProseMirror code {
+  @apply bg-gray-100 text-violet-600 px-1.5 py-0.5 rounded text-sm font-mono;
+}
+
+.dark .ProseMirror code {
+  @apply bg-gray-800 text-violet-400;
+}
+
+/* Blockquote Styles */
+.ProseMirror blockquote {
+  @apply border-l-4 border-violet-300 pl-4 italic text-gray-600 my-4;
+}
+
+.dark .ProseMirror blockquote {
+  @apply border-violet-700 text-gray-400;
+}
+
+/* Highlight Styles */
+.ProseMirror mark {
+  @apply bg-yellow-200 rounded px-0.5;
+}
+
+.dark .ProseMirror mark {
+  @apply bg-yellow-900/50;
+}
+
+/* Link Styles */
+.ProseMirror a {
+  @apply text-violet-600 underline cursor-pointer;
+}
+
+.dark .ProseMirror a {
+  @apply text-violet-400;
+}
+
+/* Horizontal Rule */
+.ProseMirror hr {
+  @apply border-t border-gray-200 my-4;
+}
+
+.dark .ProseMirror hr {
+  @apply border-gray-700;
+}
+
+/* Image Styles */
+.ProseMirror img {
+  @apply max-w-full h-auto rounded-xl my-4;
+}
+
+/* List Styles */
+.ProseMirror ul,
+.ProseMirror ol {
+  @apply my-2 pl-6;
+}
+
+.ProseMirror ul {
+  @apply list-disc;
+}
+
+.ProseMirror ol {
+  @apply list-decimal;
+}
+
+.ProseMirror li {
+  @apply my-1;
+}
+
+/* Heading Styles */
+.ProseMirror h1 {
+  @apply text-3xl font-bold text-gray-900 mb-4 mt-6;
+}
+
+.ProseMirror h2 {
+  @apply text-2xl font-bold text-gray-900 mb-3 mt-5;
+}
+
+.ProseMirror h3 {
+  @apply text-xl font-bold text-gray-900 mb-2 mt-4;
+}
+
+.dark .ProseMirror h1,
+.dark .ProseMirror h2,
+.dark .ProseMirror h3 {
+  @apply text-gray-100;
+}
+
+/* Paragraph Styles */
+.ProseMirror p {
+  @apply my-2 text-gray-700 leading-relaxed;
+}
+
+.dark .ProseMirror p {
+  @apply text-gray-300;
+}
+
+/* Selection Styles */
+.ProseMirror ::selection {
+  @apply bg-violet-200;
+}
+
+.dark .ProseMirror ::selection {
+  @apply bg-violet-900;
 }
