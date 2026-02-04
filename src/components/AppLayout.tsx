@@ -1,5 +1,4 @@
-import React, { useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useEffect, useState } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import { useUIStore } from '@/store/uiStore';
 import { Sidebar } from '@/components/layout/Sidebar';
@@ -30,17 +29,14 @@ import { Referral } from '@/components/support/Referral';
 import { HelpCenter } from '@/components/support/HelpCenter';
 import { Favorites } from '@/components/favorites/Favorites';
 
-const pageVariants = {
-  initial: { opacity: 0, y: 20 },
-  animate: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: -20 },
-};
-
 const AppLayout: React.FC = () => {
   const { user, loading, initialized, initialize, postAuthLoading } = useAuthStore();
   const { currentView, sidebarCollapsed, activeTeamId, setActiveTeamId } = useUIStore();
   const isMobile = useIsMobile();
 
+  // Track which views have been visited to keep them mounted
+  // Initialize with 'dashboard' to ensure it's always ready
+  const [visitedViews, setVisitedViews] = useState<Set<string>>(new Set(['dashboard']));
 
   useEffect(() => {
     initialize();
@@ -51,6 +47,15 @@ const AppLayout: React.FC = () => {
       setActiveTeamId(null);
     }
   }, [user, setActiveTeamId]);
+
+  // Update visited views when currentView changes
+  useEffect(() => {
+    setVisitedViews(prev => {
+      const newSet = new Set(prev);
+      newSet.add(currentView);
+      return newSet;
+    });
+  }, [currentView]);
 
   // Show loading screen while initializing
   if (!initialized || loading) {
@@ -103,9 +108,9 @@ const AppLayout: React.FC = () => {
     );
   }
 
-  // Render the main app for authenticated users
-  const renderContent = () => {
-    switch (currentView) {
+  // Helper to render specific view content
+  const renderViewContent = (view: string) => {
+    switch (view) {
       case 'dashboard':
         return <Dashboard />;
       case 'code':
@@ -145,7 +150,7 @@ const AppLayout: React.FC = () => {
       case 'settings':
         return <Settings />;
       default:
-        return <Dashboard />;
+        return null;
     }
   };
 
@@ -171,18 +176,15 @@ const AppLayout: React.FC = () => {
         style={mainStyle}
       >
         <div className={`p-4 md:p-6 min-h-screen ${isMobile ? 'pt-16 pb-20' : ''}`}>
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={currentView}
-              variants={pageVariants}
-              initial="initial"
-              animate="animate"
-              exit="exit"
-              transition={{ duration: 0.2 }}
+          {/* Render all visited views, but hide inactive ones */}
+          {Array.from(visitedViews).map((view) => (
+            <div
+              key={view}
+              className={`${view === currentView ? 'block animate-in fade-in duration-300' : 'hidden'}`}
             >
-              {renderContent()}
-            </motion.div>
-          </AnimatePresence>
+              {renderViewContent(view)}
+            </div>
+          ))}
         </div>
       </main>
 
