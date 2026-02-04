@@ -154,15 +154,18 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       // Listen for auth changes
       supabase.auth.onAuthStateChange(async (event, session) => {
         if (event === 'SIGNED_IN') {
-          if (postAuthLoadingTimeout) {
-            clearTimeout(postAuthLoadingTimeout);
+          // Only trigger loading animation if we weren't already authenticated
+          if (!get().user) {
+            if (postAuthLoadingTimeout) {
+              clearTimeout(postAuthLoadingTimeout);
+            }
+            set({ postAuthLoading: true });
+            postAuthLoadingTimeout = setTimeout(() => {
+              set({ postAuthLoading: false });
+            }, 2000);
           }
-          set({ postAuthLoading: true });
-          postAuthLoadingTimeout = setTimeout(() => {
-            set({ postAuthLoading: false });
-          }, 2000);
         }
-        
+
         set({ user: session?.user ?? null, session });
         if (session?.user) {
           await get().fetchProfile();
