@@ -39,28 +39,28 @@ export const getBoardShare = query({
   handler: async (ctx, args) => {
     // Check access? strictly speaking query is read-only.
     // We want to find the share config for this user/team.
-    
+
     if (args.teamId) {
-        return await ctx.db
-            .query("boardShares")
-            .withIndex("by_teamId", (q) => q.eq("teamId", args.teamId))
-            .first();
+      return await ctx.db
+        .query("boardShares")
+        .withIndex("by_teamId", (q) => q.eq("teamId", args.teamId))
+        .first();
     } else {
-        // For personal board, we look for a share created by this user that has NO teamId
-        // But my schema index is by_userId. 
-        // A user might have created team shares too.
-        // So we need to filter where teamId is undefined.
-        // But Convex indexes don't support "undefined" in equality easily if not indexed?
-        // Actually, existing schema allows teamId optional.
-        
-        // Let's filter in memory or add a compound index?
-        // Simple: find by userId, filter for !teamId.
-        const shares = await ctx.db
-            .query("boardShares")
-            .withIndex("by_userId", (q) => q.eq("userId", args.userId))
-            .collect();
-            
-        return shares.find(s => s.teamId === undefined);
+      // For personal board, we look for a share created by this user that has NO teamId
+      // But my schema index is by_userId. 
+      // A user might have created team shares too.
+      // So we need to filter where teamId is undefined.
+      // But Convex indexes don't support "undefined" in equality easily if not indexed?
+      // Actually, existing schema allows teamId optional.
+
+      // Let's filter in memory or add a compound index?
+      // Simple: find by userId, filter for !teamId.
+      const shares = await ctx.db
+        .query("boardShares")
+        .withIndex("by_userId", (q) => q.eq("userId", args.userId))
+        .collect();
+
+      return shares.find(s => s.teamId === undefined);
     }
   },
 });
@@ -76,16 +76,16 @@ export const createBoardShare = mutation({
 
     let existing;
     if (args.teamId) {
-        existing = await ctx.db
-            .query("boardShares")
-            .withIndex("by_teamId", (q) => q.eq("teamId", args.teamId))
-            .first();
+      existing = await ctx.db
+        .query("boardShares")
+        .withIndex("by_teamId", (q) => q.eq("teamId", args.teamId))
+        .first();
     } else {
-        const shares = await ctx.db
-            .query("boardShares")
-            .withIndex("by_userId", (q) => q.eq("userId", args.userId))
-            .collect();
-        existing = shares.find(s => s.teamId === undefined);
+      const shares = await ctx.db
+        .query("boardShares")
+        .withIndex("by_userId", (q) => q.eq("userId", args.userId))
+        .collect();
+      existing = shares.find(s => s.teamId === undefined);
     }
 
     if (existing) {
@@ -118,13 +118,13 @@ export const updateBoardShare = mutation({
   handler: async (ctx, args) => {
     const share = await ctx.db.get(args.shareId);
     if (!share) throw new Error("Share not found");
-    
+
     await ensureBoardAccess(ctx, args.userId, share.teamId);
-    
+
     const updates: any = {};
     if (args.enabled !== undefined) updates.enabled = args.enabled;
     if (args.expiresAt !== undefined) updates.expiresAt = args.expiresAt;
-    
+
     await ctx.db.patch(args.shareId, updates);
     return await ctx.db.get(args.shareId);
   },
@@ -144,26 +144,20 @@ export const getPublicBoardByToken = query({
     // Fetch projects
     let projects;
     if (share.teamId) {
-        projects = await ctx.db.query("projects").withIndex("by_teamId", q => q.eq("teamId", share.teamId)).collect();
+      projects = await ctx.db.query("projects").withIndex("by_teamId", q => q.eq("teamId", share.teamId)).collect();
     } else {
-        // Personal projects of the creator
-        // We must be careful not to expose projects that are personal but not meant to be shared?
-        // The prompt says "share this whole project tracker section".
-        // This usually means "all my personal projects" if I am in personal view.
-        projects = await ctx.db.query("projects").withIndex("by_userId", q => q.eq("userId", share.userId)).collect();
-        
-        // Filter out team projects if we are looking for personal projects (though by_userId index usually includes all projects where userId is owner?)
-        // In schema: projects has userId and teamId.
-        // If teamId is present, it's a team project.
-        // If we are sharing "Personal Board", we should probably exclude team projects?
-        // Or include everything the user sees?
-        // Usually "Personal Board" = Projects where teamId is undefined.
-        projects = projects.filter(p => p.teamId === undefined);
+      // Personal board - Projects created by the user
+      projects = await ctx.db.query("projects").withIndex("by_userId", q => q.eq("userId", share.userId)).collect();
+      // Filter out team projects for personal board
+      projects = projects.filter(p => p.teamId === undefined);
     }
-    
+
+    // Filter out archived projects to match the owner's view
+    const activeProjects = projects.filter(p => !p.isArchived);
+
     return {
-        shareConfig: share,
-        projects: projects.filter(p => !p.isArchived)
+      shareConfig: share,
+      projects: activeProjects
     };
   }
 });
@@ -181,25 +175,35 @@ export const getPublicBoardUpdates = query({
 
     let projects;
     if (share.teamId) {
-        projects = await ctx.db.query("projects").withIndex("by_teamId", q => q.eq("teamId", share.teamId)).collect();
+      projects = await ctx.db.query("projects").withIndex("by_teamId", q => q.eq("teamId", share.teamId)).collect();
     } else {
-        projects = await ctx.db.query("projects").withIndex("by_userId", q => q.eq("userId", share.userId)).collect();
-        // Filter out team projects for personal board
-        projects = projects.filter(p => p.teamId === undefined);
+      projects = await ctx.db.query("projects").withIndex("by_userId", q => q.eq("userId", share.userId)).collect();
+      projects = projects.filter(p => p.teamId === undefined);
     }
-    
-    // For personal board, we fetch updates by authorId (owner).
-    // For team board, we fetch updates by teamId.
-    
-    if (share.teamId) {
-        return await ctx.db.query("projectUpdates").withIndex("by_teamId", q => q.eq("teamId", share.teamId)).collect();
-    } else {
-        // Fetch updates by authorId
-        const updates = await ctx.db.query("projectUpdates").withIndex("by_authorId", q => q.eq("authorId", share.userId)).collect();
-        
-        // Filter updates to only include those for the projects on the board
-        const projectIds = new Set(projects.map(p => p._id));
-        return updates.filter(u => projectIds.has(u.projectId));
-    }
+
+    // Filter active projects only
+    const activeProjects = projects.filter(p => !p.isArchived);
+    const activeProjectIds = new Set(activeProjects.map(p => p._id));
+
+    // Fetch updates for these specific projects
+    // Iterate through projects to get updates (more efficient if project count is low)
+    // OR fetch all user updates and filter (better if update count is low).
+    // Given the previous issue, fetching by projectId is safer for correctness.
+
+    const allUpdates = await ctx.db
+      .query("projectUpdates")
+      .withIndex("by_authorId", (q) => q.eq("authorId", share.userId))
+      .filter(q =>
+        q.or(
+          q.eq(q.field("type"), "updated"),
+          q.eq(q.field("type"), "note")
+        )
+      )
+      .collect();
+
+    // Filter updates that belong to the active projects on the board
+    return allUpdates
+      .filter(u => activeProjectIds.has(u.projectId))
+      .sort((a, b) => b._creationTime - a._creationTime);
   }
 });

@@ -6,7 +6,7 @@ import { Project } from '@/types';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { RichTextEditor } from '@/components/editor/RichTextEditor';
-import { format } from 'date-fns';
+import { format, isToday } from 'date-fns';
 
 export function ProjectNoteModal() {
     const { activeModal, modalData, closeModal, addToast } = useUIStore();
@@ -19,7 +19,15 @@ export function ProjectNoteModal() {
 
     useEffect(() => {
         if (project) {
-            setNote(project.notes || '');
+            // Check if reason is "add new note for today" or "edit today's note"
+            // If the note was updated today, show it. Otherwise, start blank for a new daily entry.
+            const isNoteFromToday = project.noteUpdatedAt && isToday(new Date(project.noteUpdatedAt));
+
+            if (isNoteFromToday) {
+                setNote(project.notes || '');
+            } else {
+                setNote('');
+            }
             setLastSaved(null);
         }
     }, [project, isOpen]);
@@ -28,11 +36,11 @@ export function ProjectNoteModal() {
         if (!project) return;
 
         try {
+            console.log("Saving note content:", note); // Debug: Trace note content
             await updateProject.mutateAsync({
                 id: project.id,
                 updates: {
-                    notes: note,
-                    noteUpdatedAt: Date.now()
+                    notes: note
                 },
             });
             setLastSaved(new Date());
@@ -66,13 +74,13 @@ export function ProjectNoteModal() {
                     <h3>📅 Daily Progress - ${format(new Date(), 'MMM d, yyyy')}</h3>
                     <h4>✅ Accomplishments</h4>
                     <ul data-type="taskList">
-                        <li data-checked="false"><label><input type="checkbox"><div></div></label><div>Task 1</div></li>
-                        <li data-checked="false"><label><input type="checkbox"><div></div></label><div>Task 2</div></li>
+                        <li data-checked="false"><label><input type="checkbox"><div></div></label><div>[Task completed]</div></li>
+                        <li data-checked="false"><label><input type="checkbox"><div></div></label><div>[Task completed]</div></li>
                     </ul>
                     <h4>🚧 Blockers</h4>
-                    <p>Any challenges or roadblocks encountered...</p>
+                    <p>[Describe any challenges or roadblocks...]</p>
                     <h4>📝 Notes</h4>
-                    <p>Additional notes or observations...</p>
+                    <p>[Additional observations...]</p>
                 `;
                 break;
             case 'meeting':
@@ -81,17 +89,17 @@ export function ProjectNoteModal() {
                     <p><strong>Date:</strong> ${format(new Date(), 'MMM d, yyyy')}</p>
                     <p><strong>Attendees:</strong></p>
                     <ul>
-                        <li>Person 1</li>
-                        <li>Person 2</li>
+                        <li>[Attendee Name]</li>
+                        <li>[Attendee Name]</li>
                     </ul>
                     <h4>🎯 Agenda</h4>
                     <ol>
-                        <li>Item 1</li>
-                        <li>Item 2</li>
+                        <li>[Topic 1]</li>
+                        <li>[Topic 2]</li>
                     </ol>
                     <h4>✅ Action Items</h4>
                     <ul data-type="taskList">
-                        <li data-checked="false"><label><input type="checkbox"><div></div></label><div>Action 1</div></li>
+                        <li data-checked="false"><label><input type="checkbox"><div></div></label><div>[Action Item]</div></li>
                     </ul>
                 `;
                 break;
@@ -100,16 +108,17 @@ export function ProjectNoteModal() {
                     <h3>🐛 Bug Report</h3>
                     <p><strong>Date:</strong> ${format(new Date(), 'MMM d, yyyy')}</p>
                     <h4>🔍 Description</h4>
-                    <p>Describe the bug...</p>
+                    <p>[Brief description of the issue...]</p>
                     <h4>🔄 Steps to Reproduce</h4>
                     <ol>
-                        <li>Step 1</li>
-                        <li>Step 2</li>
+                        <li>[Step 1]</li>
+                        <li>[Step 2]</li>
+                        <li>[Step 3]</li>
                     </ol>
                     <h4>✅ Expected Behavior</h4>
-                    <p>What should happen...</p>
+                    <p>[What should happen...]</p>
                     <h4>❌ Actual Behavior</h4>
-                    <p>What actually happens...</p>
+                    <p>[What actually happens...]</p>
                 `;
                 break;
         }
@@ -129,7 +138,9 @@ export function ProjectNoteModal() {
                     <div className="flex items-center gap-2 text-violet-600">
                         <FileText className="w-5 h-5" />
                         <span className="font-semibold text-sm">
-                            Daily progress for "{project?.title}"
+                            {project?.noteUpdatedAt && isToday(new Date(project.noteUpdatedAt))
+                                ? "Editing today's progress"
+                                : "Add daily progress"} for "{project?.title}"
                         </span>
                     </div>
                     {lastSaved && (

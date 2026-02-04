@@ -12,15 +12,16 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
+import { Id } from "../../../convex/_generated/dataModel";
 import { toast } from "sonner";
 import { Copy, RefreshCw, Loader2 } from "lucide-react";
 
 export function KanbanBoard() {
   const { data: projects, isLoading } = useProjects();
   const updateStatus = useUpdateProjectStatus();
-  const { openModal } = useUIStore();
+  const { openModal, activeTeamId } = useUIStore();
   const { user } = useAuthStore();
-  
+
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
   const handleDragEnd = (result: DropResult) => {
@@ -34,7 +35,7 @@ export function KanbanBoard() {
 
   return (
     <>
-      <KanbanBoardUI 
+      <KanbanBoardUI
         projects={projects || []}
         onDragEnd={handleDragEnd}
         onAddProject={() => openModal('project')}
@@ -43,23 +44,24 @@ export function KanbanBoard() {
         onOpenUpdates={() => openModal('project-updates')}
         onShareBoard={() => setIsShareModalOpen(true)}
       />
-      
+
       {user && (
-        <BoardShareModal 
-            open={isShareModalOpen} 
-            onOpenChange={setIsShareModalOpen} 
-            userId={user.id}
+        <BoardShareModal
+          open={isShareModalOpen}
+          onOpenChange={setIsShareModalOpen}
+          userId={user.id}
+          teamId={activeTeamId as Id<"teams"> || undefined}
         />
       )}
     </>
   );
 }
 
-function BoardShareModal({ open, onOpenChange, userId }: { open: boolean; onOpenChange: (open: boolean) => void; userId: string }) {
-  const share = useQuery(api.boardShares.getBoardShare, { userId });
+function BoardShareModal({ open, onOpenChange, userId, teamId }: { open: boolean; onOpenChange: (open: boolean) => void; userId: string; teamId?: Id<"teams"> }) {
+  const share = useQuery(api.boardShares.getBoardShare, { userId, teamId });
   const createShare = useMutation(api.boardShares.createBoardShare);
   const updateShare = useMutation(api.boardShares.updateBoardShare);
-  
+
   const [isGenerating, setIsGenerating] = useState(false);
 
   const handleToggleShare = async (enabled: boolean) => {
@@ -67,7 +69,7 @@ function BoardShareModal({ open, onOpenChange, userId }: { open: boolean; onOpen
       // Create new share
       setIsGenerating(true);
       try {
-        await createShare({ userId });
+        await createShare({ userId, teamId });
         toast.success("Board sharing enabled");
       } catch (error) {
         toast.error("Failed to enable sharing");
@@ -76,6 +78,7 @@ function BoardShareModal({ open, onOpenChange, userId }: { open: boolean; onOpen
         setIsGenerating(false);
       }
     } else {
+      // ... (rest of the else block is verifying updateShare call which doesn't need teamId)
       // Update existing
       try {
         await updateShare({ userId, shareId: share._id, enabled });
@@ -97,13 +100,13 @@ function BoardShareModal({ open, onOpenChange, userId }: { open: boolean; onOpen
   const regenerateLink = async () => {
     if (!share) return;
     if (confirm("This will invalidate the old link. Are you sure?")) {
-        // Technically I didn't implement regenerate in backend, but creating a new one with same userId logic in createBoardShare 
-        // checks for existing. To regenerate, I'd need to delete old or update token.
-        // For now, let's skip regenerate or implement it later if needed.
-        // I'll just show a toast "Not implemented yet" or remove the button.
-        // Actually, let's remove it for simplicity as per instructions "don't create files unless necessary", 
-        // I want to keep backend simple.
-        toast.info("Regenerate link not available yet");
+      // Technically I didn't implement regenerate in backend, but creating a new one with same userId logic in createBoardShare 
+      // checks for existing. To regenerate, I'd need to delete old or update token.
+      // For now, let's skip regenerate or implement it later if needed.
+      // I'll just show a toast "Not implemented yet" or remove the button.
+      // Actually, let's remove it for simplicity as per instructions "don't create files unless necessary", 
+      // I want to keep backend simple.
+      toast.info("Regenerate link not available yet");
     }
   };
 
@@ -116,7 +119,7 @@ function BoardShareModal({ open, onOpenChange, userId }: { open: boolean; onOpen
             Anyone with the link can view this board and all its projects.
           </DialogDescription>
         </DialogHeader>
-        
+
         <div className="space-y-8 p-8 pt-2">
           <div className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100">
             <div className="space-y-0.5">
@@ -146,8 +149,8 @@ function BoardShareModal({ open, onOpenChange, userId }: { open: boolean; onOpen
                   className="h-12 rounded-xl bg-gray-50 border-gray-200 text-gray-600 font-medium"
                 />
               </div>
-              <Button 
-                type="button" 
+              <Button
+                type="button"
                 size="sm"
                 className="h-12 w-12 rounded-xl bg-violet-100 text-violet-600 hover:bg-violet-200 hover:text-violet-700 shadow-none p-0 flex items-center justify-center"
                 onClick={copyLink}

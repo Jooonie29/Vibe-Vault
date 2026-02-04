@@ -106,14 +106,16 @@ export const updateProject = mutation({
         await ctx.db.patch(args.id, updatePayload);
 
         if (Object.keys(changes).length > 0) {
-            const isNoteUpdate = Object.prototype.hasOwnProperty.call(changes, "notes");
+            // Check if notes are being updated explicitly from the arguments
+            const isNoteUpdate = args.updates.notes !== undefined;
+
             await ctx.db.insert("projectUpdates", {
                 teamId: project.teamId,
                 projectId: args.id,
                 authorId: args.userId,
                 type: isNoteUpdate ? "note" : "updated",
                 summary: isNoteUpdate
-                    ? args.updates.notes || ""
+                    ? args.updates.notes || "" // Use the actual note content
                     : `Updated project "${project.title}"`,
                 changes,
             });
@@ -139,6 +141,70 @@ export const deleteProject = mutation({
         });
         await ctx.db.delete(args.id);
         return args.id;
+    },
+});
+
+export const deleteProjectNote = mutation({
+    args: {
+        id: v.id("projectUpdates"),
+        projectId: v.id("projects"),
+        userId: v.string(),
+    },
+    handler: async (ctx, args) => {
+        const note = await ctx.db.get(args.id);
+        if (!note || note.authorId !== args.userId) {
+            throw new Error("Unauthorized");
+        }
+
+        await ctx.db.delete(args.id);
+
+        // Sync project notes with the new latest note
+        const recentUpdates = await ctx.db
+            .query("projectUpdates")
+            .withIndex("by_projectId", (q) => q.eq("projectId", args.projectId))
+            .order("desc")
+            .collect();
+
+        const latestNote = recentUpdates.find((u) => u.type === "note");
+
+        await ctx.db.patch(args.projectId, {
+            notes: latestNote ? latestNote.summary : undefined,
+            noteUpdatedAt: latestNote ? latestNote._creationTime : undefined,
+        });
+    },
+});
+
+export const editProjectNote = mutation({
+    args: {
+        id: v.id("projectUpdates"),
+        projectId: v.id("projects"),
+        userId: v.string(),
+        newContent: v.string(),
+    },
+    handler: async (ctx, args) => {
+        const note = await ctx.db.get(args.id);
+        if (!note || note.authorId !== args.userId) {
+            throw new Error("Unauthorized");
+        }
+
+        await ctx.db.patch(args.id, {
+            summary: args.newContent,
+        });
+
+        // Sync project notes with the new latest note
+        // (We fetch again to be sure order hasn't changed, though it shouldn't have)
+        const recentUpdates = await ctx.db
+            .query("projectUpdates")
+            .withIndex("by_projectId", (q) => q.eq("projectId", args.projectId))
+            .order("desc")
+            .collect();
+
+        const latestNote = recentUpdates.find((u) => u.type === "note");
+
+        await ctx.db.patch(args.projectId, {
+            notes: latestNote ? latestNote.summary : undefined,
+            noteUpdatedAt: latestNote ? latestNote._creationTime : undefined,
+        });
     },
 });
 

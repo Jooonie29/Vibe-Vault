@@ -240,7 +240,7 @@ function ProjectCard({
 
       {/* Notes / Daily Progress - Only show if updated today */}
       {(() => {
-        const noteUpdatedAt = (project as any).noteUpdatedAt;
+        const noteUpdatedAt = project.noteUpdatedAt;
         const isNoteFromToday = noteUpdatedAt && startOfDay(new Date(noteUpdatedAt)).getTime() === startOfDay(new Date()).getTime();
         return project.notes && isNoteFromToday ? (
           <div
@@ -277,10 +277,20 @@ function ProjectCard({
               {format(new Date(project.dueDate), 'MMM d')}
             </span>
           )}
+          {(() => {
+            const noteUpdatedAt = project.noteUpdatedAt;
+            const isNoteFromToday = noteUpdatedAt && startOfDay(new Date(noteUpdatedAt)).getTime() === startOfDay(new Date()).getTime();
+            return isNoteFromToday ? (
+              <span className="text-[10px] font-bold flex items-center gap-1 text-green-600 bg-green-50 px-2 py-1 rounded-lg uppercase tracking-tight">
+                <CheckCircle2 className="w-3 h-3" />
+                Tracked Today
+              </span>
+            ) : null;
+          })()}
         </div>
 
         {(() => {
-          const noteUpdatedAt = (project as any).noteUpdatedAt;
+          const noteUpdatedAt = project.noteUpdatedAt;
           const isNoteFromToday = noteUpdatedAt && startOfDay(new Date(noteUpdatedAt)).getTime() === startOfDay(new Date()).getTime();
           const showAddButton = !isReadOnly && (!project.notes || !isNoteFromToday);
           return showAddButton ? (

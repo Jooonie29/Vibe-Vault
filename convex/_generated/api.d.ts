@@ -17,6 +17,7 @@ import type * as projects from "../projects.js";
 import type * as publicShares from "../publicShares.js";
 import type * as tags from "../tags.js";
 import type * as teams from "../teams.js";
+import type * as usage from "../usage.js";
 
 import type {
   ApiFromModules,
@@ -34,6 +35,7 @@ declare const fullApi: ApiFromModules<{
   publicShares: typeof publicShares;
   tags: typeof tags;
   teams: typeof teams;
+  usage: typeof usage;
 }>;
 
 /**

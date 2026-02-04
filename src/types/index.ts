@@ -56,6 +56,7 @@ export interface Project {
   color: string;
   isArchived: boolean;
   notes?: string;
+  noteUpdatedAt?: number;
   _creationTime: number;
 }
 

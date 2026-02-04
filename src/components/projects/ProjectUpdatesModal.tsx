@@ -21,6 +21,12 @@ import {
   Calendar as CalendarIcon,
   Clock
 } from 'lucide-react';
+import { Calendar } from '@/components/ui/calendar';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 import {
   format,
   startOfWeek,
@@ -61,6 +67,7 @@ export function ProjectUpdatesModal() {
   const { data: projects } = useProjects();
 
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [selectedUpdate, setSelectedUpdate] = useState<any>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -207,12 +214,28 @@ export function ProjectUpdatesModal() {
               >
                 <ChevronLeft className="w-5 h-5" />
               </button>
-              <button
-                onClick={goToToday}
-                className="px-4 py-1.5 text-sm font-semibold text-gray-700 hover:bg-white hover:shadow-sm rounded-xl transition-all"
-              >
-                Today
-              </button>
+              <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
+                <PopoverTrigger asChild>
+                  <button
+                    className="px-4 py-1.5 text-sm font-semibold text-gray-700 hover:bg-white hover:shadow-sm rounded-xl transition-all"
+                  >
+                    Today
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="center">
+                  <Calendar
+                    mode="single"
+                    selected={currentDate}
+                    onSelect={(date) => {
+                      if (date) {
+                        setCurrentDate(date);
+                        setIsCalendarOpen(false);
+                      }
+                    }}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
               <button
                 onClick={nextWeek}
                 className="p-2 hover:bg-white hover:shadow-sm rounded-xl transition-all text-gray-500 hover:text-gray-900"
@@ -363,7 +386,7 @@ export function ProjectUpdatesModal() {
                                 </div>
 
                                 <p className="text-sm text-gray-600 leading-relaxed line-clamp-3 group-hover/card:text-gray-900 transition-colors">
-                                  {update.summary}
+                                  {update.summary?.replace(/<[^>]*>/g, '') || ''}
                                 </p>
 
                                 {project && (
@@ -443,7 +466,7 @@ export function ProjectUpdatesModal() {
               <div className="bg-gray-50 rounded-2xl p-5 border border-gray-100">
                 <h4 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">Update Description</h4>
                 <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
-                  {selectedUpdate.summary || 'No description provided.'}
+                  {selectedUpdate.summary?.replace(/<[^>]*>/g, '') || 'No description provided.'}
                 </p>
               </div>
 
@@ -459,8 +482,9 @@ export function ProjectUpdatesModal() {
               </div>
             </div>
           </motion.div>
-        </div>
-      )}
-    </Modal>
+        </div >
+      )
+      }
+    </Modal >
   );
 }

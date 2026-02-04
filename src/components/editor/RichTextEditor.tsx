@@ -90,6 +90,24 @@ export function RichTextEditor({ content, onChange, placeholder = "What did you 
     },
   });
 
+  // Sync content updates from parent (e.g. resetting to empty string)
+  React.useEffect(() => {
+    if (editor && content !== editor.getHTML()) {
+      // Only update if the content is different to avoid cursor jumps/loops
+      // For simple resets (clearing the note), this is essential.
+      if (content === '' || content === '<p></p>') {
+        editor.commands.setContent(content);
+      } else {
+        // Be careful with existing content to avoiding overwriting user typing if they type faster than React renders
+        // But for this specific bug (loading saved note vs empty), we need to respect the prop.
+        // An equality check prevents the loop.
+        if (editor.getHTML() !== content) {
+          editor.commands.setContent(content);
+        }
+      }
+    }
+  }, [content, editor]);
+
   const setLink = useCallback(() => {
     if (!editor) return;
     const previousUrl = editor.getAttributes('link').href;
@@ -349,9 +367,9 @@ export function RichTextEditor({ content, onChange, placeholder = "What did you 
 
       {/* Editor Content */}
       <div className="p-4 min-h-[200px] max-h-[400px] overflow-y-auto">
-        <EditorContent 
-          editor={editor} 
-          className="prose prose-sm max-w-none focus:outline-none [&_p.is-editor-empty:first-child::before]:content-[attr(data-placeholder)] [&_p.is-editor-empty:first-child::before]:text-gray-400 [&_p.is-editor-empty:first-child::before]:float-left [&_p.is-editor-empty:first-child::before]:pointer-events-none" 
+        <EditorContent
+          editor={editor}
+          className="prose prose-sm max-w-none focus:outline-none [&_p.is-editor-empty:first-child::before]:content-[attr(data-placeholder)] [&_p.is-editor-empty:first-child::before]:text-gray-400 [&_p.is-editor-empty:first-child::before]:float-left [&_p.is-editor-empty:first-child::before]:pointer-events-none"
         />
       </div>
 

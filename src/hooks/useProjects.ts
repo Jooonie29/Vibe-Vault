@@ -11,9 +11,9 @@ export function useProjects() {
   const { activeTeamId } = useUIStore();
   const userId = user?.id || "";
 
-  const projects = useQuery(api.projects.getProjects, { 
+  const projects = useQuery(api.projects.getProjects, {
     userId,
-    teamId: (activeTeamId as Id<"teams">) || undefined 
+    teamId: (activeTeamId as Id<"teams">) || undefined
   });
 
   return {
@@ -76,15 +76,23 @@ export function useUpdateProject() {
   const { activeTeamId } = useUIStore();
   const updateProjectMutation = useMutation(api.projects.updateProject).withOptimisticUpdate((localStore, args) => {
     const { id, updates, userId } = args;
-    const projects = localStore.getQuery(api.projects.getProjects, { 
+    const projects = localStore.getQuery(api.projects.getProjects, {
       userId,
       teamId: (activeTeamId as Id<"teams">) || undefined
     });
     if (projects !== undefined) {
-      const newProjects = projects.map((p) =>
-        p._id === id ? { ...p, ...updates } : p
-      );
-      localStore.setQuery(api.projects.getProjects, { 
+      const newProjects = projects.map((p) => {
+        if (p._id !== id) return p;
+
+        const optimisticUpdates = { ...updates };
+        // If notes are being updated, optimistically update the timestamp to now
+        if (optimisticUpdates.notes !== undefined) {
+          (optimisticUpdates as any).noteUpdatedAt = Date.now();
+        }
+
+        return { ...p, ...optimisticUpdates };
+      });
+      localStore.setQuery(api.projects.getProjects, {
         userId,
         teamId: (activeTeamId as Id<"teams">) || undefined
       }, newProjects);
@@ -115,11 +123,16 @@ export function useUpdateProject() {
         },
       });
 
-      addToast({
-        type: 'success',
-        title: 'Project updated',
-        message: `${updates.title || 'Project'} has been updated.`,
-      });
+      // Only show toast if it's not a note update (ProjectNoteModal handles its own toast)
+      const isNoteUpdate = Object.keys(updates).length === 1 && updates.notes !== undefined;
+
+      if (!isNoteUpdate) {
+        addToast({
+          type: 'success',
+          title: 'Project updated',
+          message: `${updates.title || 'Project'} has been updated.`,
+        });
+      }
     } catch (error: any) {
       addToast({
         type: 'error',
@@ -139,7 +152,7 @@ export function useUpdateProjectStatus() {
   const { activeTeamId } = useUIStore();
   const updateProjectMutation = useMutation(api.projects.updateProject).withOptimisticUpdate((localStore, args) => {
     const { id, updates, userId } = args;
-    const projects = localStore.getQuery(api.projects.getProjects, { 
+    const projects = localStore.getQuery(api.projects.getProjects, {
       userId,
       teamId: (activeTeamId as Id<"teams">) || undefined
     });
@@ -147,7 +160,7 @@ export function useUpdateProjectStatus() {
       const newProjects = projects.map((p) =>
         p._id === id ? { ...p, ...updates } : p
       );
-      localStore.setQuery(api.projects.getProjects, { 
+      localStore.setQuery(api.projects.getProjects, {
         userId,
         teamId: (activeTeamId as Id<"teams">) || undefined
       }, newProjects);
