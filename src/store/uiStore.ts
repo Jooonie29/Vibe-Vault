@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
 type View = 'dashboard' | 'code' | 'prompts' | 'files' | 'projects' | 'settings' | 'documentation' | 'chat' | 'community' | 'referral' | 'help' | 'favorites' | 'video-tutorial';
 type ModalType = 'auth' | 'item' | 'project' | 'project-note' | 'project-view' | 'project-updates' | 'team-onboarding' | 'command' | 'invite-member' | null;
@@ -28,39 +29,51 @@ interface Toast {
   message?: string;
 }
 
-export const useUIStore = create<UIState>((set, get) => ({
-  currentView: 'dashboard',
-  sidebarCollapsed: false,
-  activeModal: null,
-  modalData: null,
-  activeTeamId: null,
-  searchQuery: '',
-  toasts: [],
+export const useUIStore = create<UIState>()(
+  persist(
+    (set, get) => ({
+      currentView: 'dashboard',
+      sidebarCollapsed: false,
+      activeModal: null,
+      modalData: null,
+      activeTeamId: null,
+      searchQuery: '',
+      toasts: [],
 
-  setCurrentView: (view) => set({ currentView: view }),
+      setCurrentView: (view) => set({ currentView: view }),
 
-  toggleSidebar: () => set((state) => ({ sidebarCollapsed: !state.sidebarCollapsed })),
+      toggleSidebar: () => set((state) => ({ sidebarCollapsed: !state.sidebarCollapsed })),
 
-  openModal: (type, data = null) => set({ activeModal: type, modalData: data }),
+      openModal: (type, data = null) => set({ activeModal: type, modalData: data }),
 
-  closeModal: () => set({ activeModal: null, modalData: null }),
+      closeModal: () => set({ activeModal: null, modalData: null }),
 
-  setActiveTeamId: (teamId) => set({ activeTeamId: teamId }),
+      setActiveTeamId: (teamId) => set({ activeTeamId: teamId }),
 
-  setSearchQuery: (query) => set({ searchQuery: query }),
+      setSearchQuery: (query) => set({ searchQuery: query }),
 
-  addToast: (toast) => {
-    const id = Math.random().toString(36).substring(7);
-    set((state) => ({
-      toasts: [...state.toasts, { ...toast, id }],
-    }));
-    // Auto remove after 5 seconds
-    setTimeout(() => {
-      get().removeToast(id);
-    }, 5000);
-  },
+      addToast: (toast) => {
+        const id = Math.random().toString(36).substring(7);
+        set((state) => ({
+          toasts: [...state.toasts, { ...toast, id }],
+        }));
+        // Auto remove after 5 seconds
+        setTimeout(() => {
+          get().removeToast(id);
+        }, 5000);
+      },
 
-  removeToast: (id) => set((state) => ({
-    toasts: state.toasts.filter((t) => t.id !== id),
-  })),
-}));
+      removeToast: (id) => set((state) => ({
+        toasts: state.toasts.filter((t) => t.id !== id),
+      })),
+    }),
+    {
+      name: 'vibe-vault-ui-storage',
+      partialize: (state) => ({
+        currentView: state.currentView,
+        sidebarCollapsed: state.sidebarCollapsed,
+        activeTeamId: state.activeTeamId,
+      }),
+    }
+  )
+);
