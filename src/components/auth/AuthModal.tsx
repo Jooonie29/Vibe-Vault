@@ -45,14 +45,14 @@ export function AuthModal() {
             onClick={handleClose}
           />
           <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="relative w-full max-w-md bg-transparent rounded-3xl overflow-hidden flex flex-col items-center justify-center"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            className="relative w-full max-w-md z-50"
           >
             <button
               onClick={handleClose}
-              className="absolute top-4 right-4 z-50 p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white/70 hover:text-white transition-all backdrop-blur-md border border-white/20"
+              className="absolute -top-10 right-4 p-2 rounded-lg bg-gray-100/80 hover:bg-gray-200 text-gray-500 hover:text-gray-700 transition-all z-10"
             >
               <X className="w-5 h-5" />
             </button>
@@ -60,7 +60,6 @@ export function AuthModal() {
             {view === 'login' ? (
               <SignIn
                 routing="hash"
-                
                 appearance={{
                   elements: {
                     rootBox: "mx-auto",
@@ -71,7 +70,6 @@ export function AuthModal() {
             ) : (
               <SignUp
                 routing="hash"
-                
                 appearance={{
                   elements: {
                     rootBox: "mx-auto",

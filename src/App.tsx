@@ -70,7 +70,6 @@ const App = () => {
                   <Route path="/" element={<Index />} />
                   <Route path="/share/:token" element={<PublicSharePage />} />
                   <Route path="/share/board/:token" element={<PublicBoardPage />} />
-                  <Route path="*" element={<OverrideNotFound />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </BrowserRouter>

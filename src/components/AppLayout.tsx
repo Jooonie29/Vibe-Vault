@@ -22,7 +22,8 @@ import { TeamOnboarding } from '@/components/teams/TeamOnboarding';
 import { InviteModal } from '@/components/teams/InviteModal';
 import { CommandPalette } from '@/components/command/CommandPalette';
 import { ToastContainer } from '@/components/ui/Toast.tsx';
-import { Loader2 } from 'lucide-react';
+import { VaultLoading } from '@/components/loading/VaultLoading';
+import { RefreshLoading } from '@/components/loading/RefreshLoading';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Documentation } from '@/components/learn/Documentation';
 import { VideoTutorial } from '@/components/learn/VideoTutorial';
@@ -39,6 +40,19 @@ const AppLayout: React.FC = () => {
   const { user: storeUser, loading: storeLoading, initialized, initialize, postAuthLoading, setUser } = useAuthStore();
   const { currentView, sidebarCollapsed, activeTeamId, setActiveTeamId, addToast } = useUIStore();
   const isMobile = useIsMobile();
+  
+  const [showLoader, setShowLoader] = useState(true);
+  const [showPostAuthLoader, setShowPostAuthLoader] = useState(true);
+  
+  // Detect if this is the first visit or a refresh
+  const [isFirstVisit, setIsFirstVisit] = useState(() => {
+    const hasVisited = sessionStorage.getItem('vibeVaultVisited');
+    if (!hasVisited) {
+      sessionStorage.setItem('vibeVaultVisited', 'true');
+      return true;
+    }
+    return false;
+  });
 
   // Track which views have been visited to keep them mounted
   // Initialize with 'dashboard' to ensure it's always ready
@@ -88,56 +102,16 @@ const AppLayout: React.FC = () => {
     });
   }, [currentView]);
 
-  // Show loading screen while initializing
-  if (!isLoaded || storeLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center mx-auto mb-4 animate-pulse">
-            <Loader2 className="w-8 h-8 text-white animate-spin" />
-          </div>
-          <p className="text-gray-500 font-medium">Loading Vibe Vault...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (postAuthLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center mx-auto mb-4 animate-pulse">
-            <img
-              src="/logo-white.png"
-              alt="Vibe Vault Logo"
-              className="w-10 h-10 object-contain animate-float"
-            />
-          </div>
-          <p className="text-gray-500 font-medium">Preparing your vault...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Show landing page for unauthenticated users
-  if (!isSignedIn) {
-    return (
-      <>
-        <LandingPage />
-        <AuthModal />
-        <ToastContainer />
-      </>
-    );
-  }
-
-  if (!activeTeamId) {
-    return (
-      <>
-        <TeamOnboarding />
-        <ToastContainer />
-      </>
-    );
-  }
+  const isInitializing = !isLoaded || storeLoading;
+  
+  // For first visit: wait for both loading AND animation to complete
+  // For refresh: just wait for loading to complete
+  const shouldShowInitLoader = isFirstVisit 
+    ? (isInitializing || showLoader) 
+    : isInitializing;
+  const shouldShowPostAuthLoader = isFirstVisit 
+    ? (postAuthLoading || showPostAuthLoader) 
+    : postAuthLoading;
 
   // Helper to render specific view content
   const renderViewContent = (view: string) => {
@@ -193,48 +167,106 @@ const AppLayout: React.FC = () => {
       marginRight: 0,
     };
 
+  // Show landing page for unauthenticated users
+  if (!isSignedIn && !shouldShowInitLoader) {
+    return (
+      <>
+        <LandingPage />
+        <AuthModal />
+        <ToastContainer />
+      </>
+    );
+  }
+
+  // Show team onboarding for authenticated users without a team
+  if (isSignedIn && !activeTeamId && !shouldShowPostAuthLoader) {
+    return (
+      <>
+        <TeamOnboarding />
+        <ToastContainer />
+      </>
+    );
+  }
+
+  // Show refresh loader for page refreshes (not first visit)
+  if (!isFirstVisit && isInitializing) {
+    return <RefreshLoading message="Refreshing Vibe Vault..." />;
+  }
+
+  // Show refresh loader for post-auth on refreshes
+  if (!isFirstVisit && isSignedIn && postAuthLoading) {
+    return <RefreshLoading message="Preparing your vault..." />;
+  }
+
   return (
-    <div className="min-h-screen bg-background vibe-depth-bg transition-colors duration-500">
-      {/* Mobile Navigation */}
-      {isMobile && <MobileNav />}
+    <>
+      {/* First Visit: Initial Loading Animation - Always completes */}
+      {isFirstVisit && (
+        <VaultLoading 
+          message="Loading Vibe Vault..."
+          subMessage="Unlocking your creative assets"
+          variant="initialize"
+          isLoading={isInitializing}
+          onAnimationComplete={() => setShowLoader(false)}
+        />
+      )}
+      
+      {/* First Visit: Post-Auth Loading Animation - Always completes */}
+      {isFirstVisit && isSignedIn && (
+        <VaultLoading 
+          message="Welcome to Vibe Vault"
+          subMessage="Preparing your personal vault..."
+          variant="post-auth"
+          isLoading={postAuthLoading}
+          onAnimationComplete={() => setShowPostAuthLoader(false)}
+        />
+      )}
+      
+      {/* Main App Content */}
+      {isSignedIn && activeTeamId && !shouldShowInitLoader && !shouldShowPostAuthLoader && (
+        <div className="min-h-screen bg-background vibe-depth-bg transition-colors duration-500">
+          {/* Mobile Navigation */}
+          {isMobile && <MobileNav />}
 
-      {/* Sidebar - hidden on mobile */}
-      {!isMobile && <Sidebar />}
+          {/* Sidebar - hidden on mobile */}
+          {!isMobile && <Sidebar />}
 
-      {/* Main Content */}
-      <main
-        className="transition-all duration-300"
-        style={mainStyle}
-      >
-        <div className={`p-4 md:p-6 min-h-screen ${isMobile ? 'pt-16 pb-20' : ''}`}>
-          {/* Render all visited views, but hide inactive ones */}
-          {Array.from(visitedViews).map((view) => (
-            <div
-              key={view}
-              className={`${view === currentView ? 'block' : 'hidden'}`}
-            >
-              {renderViewContent(view)}
+          {/* Main Content */}
+          <main
+            className="transition-all duration-300"
+            style={mainStyle}
+          >
+            <div className={`p-4 md:p-6 min-h-screen ${isMobile ? 'pt-16 pb-20' : ''}`}>
+              {/* Render all visited views, but hide inactive ones */}
+              {Array.from(visitedViews).map((view) => (
+                <div
+                  key={view}
+                  className={`${view === currentView ? 'block' : 'hidden'}`}
+                >
+                  {renderViewContent(view)}
+                </div>
+              ))}
             </div>
-          ))}
+          </main>
+
+          {/* Modals */}
+          <AuthModal />
+          <ItemModal />
+          <ProjectModal />
+          <ProjectNoteModal />
+          <ProjectViewModal />
+          <ProjectUpdatesModal />
+          <InviteModal />
+          <CommandPalette />
+
+          {/* Toast Notifications */}
+          <ToastContainer />
+
+          {/* Floating Chat Widget */}
+          <FloatingChat />
         </div>
-      </main>
-
-      {/* Modals */}
-      <AuthModal />
-      <ItemModal />
-      <ProjectModal />
-      <ProjectNoteModal />
-      <ProjectViewModal />
-      <ProjectUpdatesModal />
-      <InviteModal />
-      <CommandPalette />
-
-      {/* Toast Notifications */}
-      <ToastContainer />
-
-      {/* Floating Chat Widget */}
-      <FloatingChat />
-    </div>
+      )}
+    </>
   );
 };
 
