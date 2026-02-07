@@ -1,0 +1,7 @@
+{
+  "rewrites": [
+    { "source": "/share/:token", "destination": "/index.html" },
+    { "source": "/share/board/:token", "destination": "/index.html" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
