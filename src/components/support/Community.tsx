@@ -1,0 +1,78 @@
+import React from 'react';
+import { Users, Github, Twitter, MessageCircle, Heart, Globe } from 'lucide-react';
+
+export const Community = () => {
+  return (
+    <div className="max-w-5xl mx-auto space-y-8">
+      <div className="text-center max-w-2xl mx-auto mb-12">
+        <h1 className="text-3xl font-bold text-gray-900 mb-4">Join the Vibe Vault Community</h1>
+        <p className="text-gray-500 text-lg">
+          Connect with thousands of developers, share your prompts, and build the future of coding together.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Discord */}
+        <CommunityCard 
+            icon={MessageCircle}
+            color="bg-[#5865F2]"
+            title="Discord Server"
+            members="12.5k Members"
+            description="Chat with the team, get help, and showcase your projects."
+            action="Join Server"
+        />
+        
+        {/* Twitter */}
+        <CommunityCard 
+            icon={Twitter}
+            color="bg-[#1DA1F2]"
+            title="Twitter / X"
+            members="@vibevault"
+            description="Follow us for the latest updates, tips, and feature drops."
+            action="Follow Us"
+        />
+
+        {/* GitHub */}
+        <CommunityCard 
+            icon={Github}
+            color="bg-[#24292e]"
+            title="GitHub"
+            members="Open Source"
+            description="Contribute to the codebase, report bugs, or request features."
+            action="Star Repo"
+        />
+      </div>
+
+      <div className="mt-12 bg-gradient-to-br from-violet-600 to-indigo-700 rounded-2xl p-8 text-white relative overflow-hidden">
+        <div className="absolute top-0 right-0 -mt-10 -mr-10 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
+        <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
+            <div className="space-y-2">
+                <h3 className="text-2xl font-bold">Community Showcase</h3>
+                <p className="text-violet-100 max-w-md">
+                    See what others are building with Vibe Vault. Explore our gallery of community-created prompts and workflows.
+                </p>
+            </div>
+            <button className="px-6 py-3 bg-white text-violet-600 font-bold rounded-xl hover:bg-gray-50 transition-colors shadow-lg">
+                Explore Showcase
+            </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const CommunityCard = ({ icon: Icon, color, title, members, description, action }: any) => (
+    <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm hover:shadow-md transition-all group">
+        <div className={`w-12 h-12 rounded-xl ${color} flex items-center justify-center text-white mb-4 shadow-lg shadow-gray-200 group-hover:scale-110 transition-transform`}>
+            <Icon className="w-6 h-6" />
+        </div>
+        <h3 className="text-lg font-bold text-gray-900">{title}</h3>
+        <p className="text-sm font-medium text-violet-600 mb-2">{members}</p>
+        <p className="text-gray-500 text-sm mb-6 leading-relaxed">
+            {description}
+        </p>
+        <button className="w-full py-2.5 rounded-xl border border-gray-200 text-gray-700 font-medium hover:bg-gray-50 hover:border-gray-300 transition-all text-sm">
+            {action}
+        </button>
+    </div>
+);
