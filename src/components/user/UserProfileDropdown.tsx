@@ -8,6 +8,7 @@ import {
     LogOut,
     ChevronRight
 } from 'lucide-react';
+import { useAuth } from '@clerk/clerk-react';
 import { useAuthStore } from '@/store/authStore';
 import { useUIStore } from '@/store/uiStore';
 
@@ -19,7 +20,8 @@ interface UserProfileDropdownProps {
 
 export function UserProfileDropdown({ isOpen, onClose, anchorRef }: UserProfileDropdownProps) {
     const dropdownRef = useRef<HTMLDivElement>(null);
-    const { user, profile, signOut } = useAuthStore();
+    const { signOut: clerkSignOut } = useAuth();
+    const { user, profile, signOut: clearAuthStore } = useAuthStore();
     const { setCurrentView, setActiveTeamId } = useUIStore();
 
     const displayName = profile?.fullName || profile?.username || user?.email?.split('@')[0] || 'User';
@@ -54,9 +56,12 @@ export function UserProfileDropdown({ isOpen, onClose, anchorRef }: UserProfileD
         window.dispatchEvent(event);
     };
 
-    const handleSignOut = () => {
+    const handleSignOut = async () => {
         onClose();
-        signOut();
+        await clerkSignOut();
+        await clearAuthStore();
+        setActiveTeamId(null);
+        setCurrentView('dashboard');
     };
 
     const menuItems = [

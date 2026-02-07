@@ -13,6 +13,7 @@ import {
   Check
 } from 'lucide-react';
 import { useMutation, useQuery } from 'convex/react';
+import { useAuth } from '@clerk/clerk-react';
 import { api } from '../../../convex/_generated/api';
 import { useAuthStore } from '@/store/authStore';
 import { useUIStore } from '@/store/uiStore';
@@ -21,7 +22,8 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 
 export function Settings() {
-  const { user, profile, updateProfile, signOut } = useAuthStore();
+  const { signOut: clerkSignOut } = useAuth();
+  const { user, profile, updateProfile, signOut: clearAuthStore } = useAuthStore();
   const { addToast } = useUIStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const userId = user?.id || "";
@@ -36,6 +38,11 @@ export function Settings() {
   const generateUploadUrl = useMutation(api.files.generateUploadUrl);
   const markNotificationRead = useMutation(api.notifications.markNotificationRead);
   const markAllNotificationsRead = useMutation(api.notifications.markAllNotificationsRead);
+
+  const handleSignOut = async () => {
+    await clerkSignOut();
+    await clearAuthStore();
+  };
 
   const notifications = useQuery(api.notifications.getNotifications, { userId });
 
@@ -291,7 +298,7 @@ export function Settings() {
               <h4 className="font-medium text-gray-900">Sign Out</h4>
               <p className="text-sm text-gray-500">Sign out of your account</p>
             </div>
-            <Button variant="ghost" onClick={signOut} icon={<LogOut className="w-4 h-4" />}>
+            <Button variant="ghost" onClick={handleSignOut} icon={<LogOut className="w-4 h-4" />}>
               Sign Out
             </Button>
           </div>

@@ -103,7 +103,8 @@ export function Dashboard() {
 
   const handlePeriodChange = (period: TimePeriod) => {
     setTimePeriod(period);
-    toast.success(`Showing data for ${timeOptions.find((opt) => opt.value === period)?.label}`);
+    const option = timeOptions.find((opt) => opt.value === period);
+    toast.success(`Showing data for ${option?.label || ""}`);
   };
 
   const getMemberColor = (index: number) => {
@@ -340,36 +341,36 @@ export function Dashboard() {
               <div className="space-y-3">
                 {teamMembersLoading ? (
                   <div className="text-center py-4 text-gray-400 text-sm">Loading...</div>
-                ) : teamMembers?.slice(0, 4).map((member, i) => (
-                  <div key={member.id} className="flex items-center justify-between py-2">
-                    <div className="flex items-center gap-3">
-                      {member.profile?.avatarUrl ? (
-                        <img 
-                          alt={member.profile.fullName} 
-                          className="w-10 h-10 rounded-xl object-cover" 
-                          src={member.profile.avatarUrl} 
-                        />
-                      ) : (
-                        <div className={`w-10 h-10 rounded-xl ${getMemberColor(i)} flex items-center justify-center text-sm font-semibold`}>
-                          {getMemberInitials(member.profile?.fullName || "User")}
+                ) : (
+                  teamMembers?.slice(0, 4).map((member, i) => (
+                    <div key={member.id} className="flex items-center justify-between py-2">
+                      <div className="flex items-center gap-3">
+                        {member.profile?.avatarUrl ? (
+                          <img
+                            alt={member.profile.fullName}
+                            className="w-10 h-10 rounded-xl object-cover"
+                            src={member.profile.avatarUrl}
+                          />
+                        ) : (
+                          <div className={`w-10 h-10 rounded-xl ${getMemberColor(i)} flex items-center justify-center text-sm font-semibold`}>
+                            {getMemberInitials(member.profile?.fullName || "User")}
+                          </div>
+                        )}
+                        <div>
+                          <h4 className="text-sm font-medium text-gray-900">{member.profile?.fullName || "Team Member"}</h4>
+                          <p className="text-xs text-gray-400">{member.role}</p>
                         </div>
-                      )}
-                      <div>
-                        <h4 className="text-sm font-medium text-gray-900">{member.profile?.fullName || "Team Member"}</h4>
-                        <p className="text-xs text-gray-400">{member.role}</p>
                       </div>
+                      <button className="p-2 rounded-lg text-gray-300 hover:text-violet-600 hover:bg-violet-50 transition-colors">
+                        <MessageSquare className="w-4 h-4" />
+                      </button>
                     </div>
-                    <button className="p-2 rounded-lg text-gray-300 hover:text-violet-600 hover:bg-violet-50 transition-colors">
-                      <MessageSquare className="w-4 h-4" />
-                    </button>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             </div>
           </div>
         </div>
-      </div>
-
       {/* View All Activity Dialog */}
       <Dialog open={showAllActivity} onOpenChange={setShowAllActivity}>
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-hidden">
@@ -388,18 +389,19 @@ export function Dashboard() {
           </DialogHeader>
           <div className="overflow-y-auto max-h-[60vh] space-y-2 pr-2">
             {recentItems?.map((item) => {
-              const Icon =
-                item.type === "code"
-                  ? Code2
-                  : item.type === "prompt"
-                    ? MessageSquare
-                    : FolderOpen;
-              const color =
-                item.type === "code"
-                  ? "text-blue-500 bg-blue-50"
-                  : item.type === "prompt"
-                    ? "text-purple-500 bg-purple-50"
-                    : "text-amber-500 bg-amber-50";
+              let Icon: typeof Code2;
+              let color: string;
+
+              if (item.type === "code") {
+                Icon = Code2;
+                color = "text-blue-500 bg-blue-50";
+              } else if (item.type === "prompt") {
+                Icon = MessageSquare;
+                color = "text-purple-500 bg-purple-50";
+              } else {
+                Icon = FolderOpen;
+                color = "text-amber-500 bg-amber-50";
+              }
 
               return (
                 <div
