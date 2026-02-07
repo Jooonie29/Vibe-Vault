@@ -11,6 +11,7 @@
 import type * as boardShares from "../boardShares.js";
 import type * as files from "../files.js";
 import type * as items from "../items.js";
+import type * as messages from "../messages.js";
 import type * as notifications from "../notifications.js";
 import type * as profiles from "../profiles.js";
 import type * as projects from "../projects.js";
@@ -29,6 +30,7 @@ declare const fullApi: ApiFromModules<{
   boardShares: typeof boardShares;
   files: typeof files;
   items: typeof items;
+  messages: typeof messages;
   notifications: typeof notifications;
   profiles: typeof profiles;
   projects: typeof projects;

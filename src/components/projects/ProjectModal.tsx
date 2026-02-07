@@ -110,32 +110,32 @@ export function ProjectModal() {
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} title="" size="lg">
+    <Modal isOpen={isOpen} onClose={handleClose} size="lg" noPadding>
       <div className="flex flex-col h-full">
         {/* Header */}
-        <div className="px-8 py-6 border-b border-gray-100 flex items-start justify-between bg-white/50 backdrop-blur-sm sticky top-0 z-10">
-          <div className="flex items-center gap-5">
-            <div className="w-14 h-14 rounded-2xl flex items-center justify-center border border-violet-100 bg-violet-50 text-violet-600 shadow-sm">
-              <FolderKanban className="w-7 h-7" />
+        <div className="px-6 py-5 border-b border-gray-100 flex items-start justify-between bg-white sticky top-0 z-10">
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center border border-violet-100 bg-violet-50 text-violet-600 shadow-sm">
+              <FolderKanban className="w-5 h-5" />
             </div>
             <div>
-              <div className="flex items-center gap-3 mb-1">
-                <Badge variant="outline" className="uppercase tracking-wider text-[10px] font-bold bg-white">
+              <div className="flex items-center gap-2 mb-1">
+                <Badge variant="outline" className="uppercase tracking-wider text-[10px] font-bold bg-gray-50/50">
                   Project
                 </Badge>
                 {existingProject && (
-                   <span className="text-xs text-gray-400 font-medium flex items-center gap-1">
-                     <Clock className="w-3 h-3" />
-                     Tracking
-                   </span>
+                  <span className="text-[11px] text-gray-400 font-medium flex items-center gap-1">
+                    <Clock className="w-3 h-3" />
+                    Active
+                  </span>
                 )}
               </div>
-              <h2 className="text-2xl font-bold text-gray-900 tracking-tight">
+              <h2 className="text-xl font-bold text-gray-900 tracking-tight">
                 {isEditing ? 'Edit Project' : 'New Project'}
               </h2>
             </div>
           </div>
-          
+
           <div className="flex items-center gap-2">
             {isEditing && existingProject && (
               confirmDelete ? (
@@ -145,36 +145,37 @@ export function ProjectModal() {
                     className="p-1.5 rounded-lg bg-red-500 hover:bg-red-600 text-white transition-colors shadow-sm"
                     title="Confirm Delete"
                   >
-                    <Check className="w-4 h-4" />
+                    <Check className="w-3.5 h-3.5" />
                   </button>
                   <button
                     onClick={() => setConfirmDelete(false)}
                     className="p-1.5 rounded-lg text-red-600 hover:bg-red-100 transition-colors"
                     title="Cancel"
                   >
-                    <X className="w-4 h-4" />
+                    <X className="w-3.5 h-3.5" />
                   </button>
                 </div>
               ) : (
                 <button
                   onClick={() => setConfirmDelete(true)}
-                  className="p-2.5 rounded-xl bg-white border border-gray-200 text-gray-400 hover:text-red-500 hover:border-red-200 hover:bg-red-50 transition-all duration-200"
+                  className="p-2 rounded-xl bg-white border border-gray-200 text-gray-400 hover:text-red-500 hover:border-red-200 hover:bg-red-50 transition-all duration-200"
                   title="Delete Project"
                 >
-                  <Trash2 className="w-5 h-5" />
+                  <Trash2 className="w-4 h-4" />
                 </button>
               )
             )}
             <button
               onClick={handleClose}
-              className="p-2.5 rounded-xl bg-white border border-gray-200 text-gray-400 hover:text-gray-900 hover:bg-gray-50 transition-all duration-200"
+              className="p-2 rounded-xl bg-white border border-gray-200 text-gray-400 hover:text-gray-600 hover:border-gray-300 transition-all duration-200"
+              title="Close"
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4" />
             </button>
           </div>
         </div>
 
-        <div className="px-8 py-6 space-y-6 overflow-y-auto custom-scrollbar">
+        <div className="px-6 py-6 space-y-5 overflow-y-auto custom-scrollbar">
           <Input
             label="Project Title"
             placeholder="My Awesome App"
@@ -186,12 +187,12 @@ export function ProjectModal() {
           <Textarea
             label="Description"
             placeholder="What's this project about? Goals, scope, etc."
-            rows={3}
+            rows={2}
             value={formData.description}
             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
           />
 
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-2 gap-4">
             <Select
               label="Status"
               options={statusOptions}
@@ -206,17 +207,17 @@ export function ProjectModal() {
             />
           </div>
 
-          <div className="bg-gray-50 p-5 rounded-2xl border border-gray-100 space-y-4">
+          <div className="bg-gray-50/50 p-4 rounded-2xl border border-gray-100 space-y-4">
             <div className="flex items-center justify-between">
-              <label className="text-sm font-medium text-gray-700">Project Progress</label>
+              <label className="text-sm font-bold text-gray-900 tracking-tight">Project Progress</label>
               <span className="text-sm font-bold text-violet-600">{formData.progress}%</span>
             </div>
-            <div className="relative h-4 w-full bg-white rounded-full overflow-hidden shadow-inner border border-gray-100">
-               <div 
-                 className="absolute top-0 left-0 h-full bg-gradient-to-r from-violet-500 to-fuchsia-500 rounded-full transition-all duration-300"
-                 style={{ width: `${formData.progress}%` }}
-               />
-               <input
+            <div className="relative h-5 w-full bg-white rounded-full overflow-hidden shadow-inner border border-gray-100 p-0.5">
+              <div
+                className="absolute top-0 left-0 h-full bg-gradient-to-r from-violet-500 via-fuchsia-500 to-rose-500 rounded-full transition-all duration-300 shadow-sm"
+                style={{ width: `${formData.progress}%` }}
+              />
+              <input
                 type="range"
                 min="0"
                 max="100"
@@ -225,37 +226,36 @@ export function ProjectModal() {
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
               />
             </div>
-            <div className="flex justify-between text-xs text-gray-400 font-medium">
+            <div className="flex justify-between text-[10px] text-gray-400 font-semibold uppercase tracking-wide">
               <span>Not Started</span>
               <span>Halfway</span>
               <span>Complete</span>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <Input
               label="Due Date"
               type="date"
               value={formData.dueDate}
               onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
-              icon={<Calendar className="w-5 h-5" />}
+              icon={<Calendar className="w-4 h-4" />}
             />
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Color Theme</label>
+              <label className="block text-sm font-bold text-gray-900 mb-2">Color Theme</label>
               <div className="flex gap-2 flex-wrap">
                 {colorOptions.map((color) => (
                   <button
                     key={color}
                     onClick={() => setFormData({ ...formData, color })}
-                    className={`w-9 h-9 rounded-xl transition-all shadow-sm flex items-center justify-center ${
-                      formData.color === color 
-                        ? 'ring-2 ring-offset-2 ring-gray-300 scale-110 shadow-md' 
-                        : 'hover:scale-110 hover:shadow-md'
-                    }`}
+                    className={`w-8 h-8 rounded-xl transition-all shadow-sm flex items-center justify-center border-2 ${formData.color === color
+                        ? 'border-white ring-2 ring-violet-500/20 scale-105 shadow-md z-10'
+                        : 'border-transparent hover:scale-105 hover:shadow-md'
+                      }`}
                     style={{ backgroundColor: color }}
                   >
-                    {formData.color === color && <Check className="w-5 h-5 text-white stroke-[3]" />}
+                    {formData.color === color && <Check className="w-4 h-4 text-white stroke-[3]" />}
                   </button>
                 ))}
               </div>
@@ -264,17 +264,17 @@ export function ProjectModal() {
         </div>
 
         {/* Footer */}
-        <div className="px-8 py-5 border-t border-gray-100 bg-gray-50 flex items-center justify-end gap-3 mt-auto">
-          <Button variant="ghost" onClick={handleClose} className="text-gray-500 hover:text-gray-900">
+        <div className="px-6 py-4 border-t border-gray-100 bg-gray-50/50 flex items-center justify-end gap-3 mt-auto">
+          <Button variant="ghost" onClick={handleClose} className="text-gray-500 font-medium hover:text-gray-900 transition-colors text-sm">
             Cancel
           </Button>
           <Button
             onClick={handleSave}
             loading={createProject.isPending || updateProject.isPending}
-            icon={<Save className="w-4 h-4" />}
-            className="shadow-lg shadow-violet-500/20"
+            icon={<Save className="w-3.5 h-3.5" />}
+            className="px-5 py-2 rounded-xl shadow-lg shadow-violet-500/10 font-bold text-sm"
           >
-            {isEditing ? 'Save Changes' : 'Create Project'}
+            {isEditing ? 'Save' : 'Create'}
           </Button>
         </div>
       </div>

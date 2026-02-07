@@ -1,14 +1,18 @@
 import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
   title?: string;
+  description?: string;
   children: React.ReactNode;
   size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full' | 'custom';
   className?: string;
+  showCloseButton?: boolean;
+  noPadding?: boolean;
 }
 
 const sizes = {
@@ -21,7 +25,17 @@ const sizes = {
   custom: '',
 };
 
-export function Modal({ isOpen, onClose, title, children, size = 'md', className }: ModalProps) {
+export function Modal({
+  isOpen,
+  onClose,
+  title,
+  description,
+  children,
+  size = 'md',
+  className,
+  showCloseButton = true,
+  noPadding = false
+}: ModalProps) {
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
@@ -46,21 +60,56 @@ export function Modal({ isOpen, onClose, title, children, size = 'md', className
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
             onClick={onClose}
           />
           <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            initial={{ opacity: 0, scale: 0.98, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+            exit={{ opacity: 0, scale: 0.98, y: 10 }}
+            transition={{ type: 'spring', damping: 25, stiffness: 400 }}
             className={cn(
-              "relative w-full bg-white dark:bg-[#0f1117] rounded-3xl shadow-2xl max-h-[90vh] overflow-hidden flex flex-col dark:border dark:border-white/10",
-              sizes[size],
+              "relative w-full bg-white dark:bg-[#0f1117] rounded-[32px] shadow-2xl max-h-[90vh] overflow-hidden flex flex-col dark:border dark:border-white/10",
+              sizes[size as keyof typeof sizes],
               className
             )}
           >
-            <div className="flex-1 flex flex-col min-h-0 h-full">
+            {/* Header */}
+            {(title || (showCloseButton && !noPadding)) && (
+              <div className={cn(
+                "flex items-start justify-between shrink-0",
+                noPadding ? "absolute top-4 right-4 z-10 p-0" : "p-8 pb-0"
+              )}>
+                <div className="flex-1">
+                  {title && (
+                    <h3 className="text-2xl font-extrabold text-gray-900 dark:text-white leading-tight tracking-tight">
+                      {title}
+                    </h3>
+                  )}
+                  {description && (
+                    <p className="mt-2 text-base text-muted-foreground/80">
+                      {description}
+                    </p>
+                  )}
+                </div>
+                {showCloseButton && (
+                  <button
+                    onClick={onClose}
+                    className={cn(
+                      "p-2 text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/5 rounded-2xl transition-all duration-200",
+                      noPadding && "bg-white/80 dark:bg-black/80 backdrop-blur-md shadow-sm border border-gray-100 dark:border-white/10"
+                    )}
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                )}
+              </div>
+            )}
+
+            <div className={cn(
+              "flex-1 flex flex-col min-h-0 h-full",
+              !noPadding && "p-8"
+            )}>
               {children}
             </div>
           </motion.div>

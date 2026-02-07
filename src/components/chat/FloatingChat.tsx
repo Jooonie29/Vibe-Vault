@@ -6,34 +6,56 @@ import {
   Send, 
   Smile, 
   Paperclip, 
-  BookOpen,
+  ChevronLeft,
+  Plus,
+  Search,
+  MoreHorizontal,
   Check,
-  CheckCheck
+  CheckCheck,
+  Edit3,
+  Trash2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useAuthStore } from '@/store/authStore';
+import { useUIStore } from '@/store/uiStore';
+import { 
+  useConversations, 
+  useMessages, 
+  useSendMessage, 
+  useMarkAsRead,
+  useGetOrCreateDirectConversation,
+  useAvailableTeamMembers,
+  useEditMessage,
+  useDeleteMessage,
+  Conversation,
+  Message,
+  TeamMember
+} from '@/hooks/useMessaging';
 
-interface Message {
-  id: string;
-  text: string;
-  sender: 'user' | 'agent';
-  timestamp: Date;
-  status?: 'sent' | 'delivered' | 'read';
-}
+type ViewState = 'list' | 'thread' | 'new-message';
 
 export function FloatingChat() {
   const [isOpen, setIsOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<'chat' | 'kb'>('chat');
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      text: 'How can we help you?',
-      sender: 'agent',
-      timestamp: new Date(),
-      status: 'read'
-    }
-  ]);
+  const [viewState, setViewState] = useState<ViewState>('list');
+  const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
   const [inputValue, setInputValue] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
+  const [editText, setEditText] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { user } = useAuthStore();
+  const { activeTeamId } = useUIStore();
+  
+  const { data: conversations, isLoading: conversationsLoading } = useConversations();
+  const { data: messages, isLoading: messagesLoading } = useMessages(selectedConversationId);
+  const { data: teamMembers, isLoading: membersLoading } = useAvailableTeamMembers();
+  const sendMessage = useSendMessage();
+  const markAsRead = useMarkAsRead();
+  const getOrCreateDirectConversation = useGetOrCreateDirectConversation();
+  const editMessage = useEditMessage();
+  const deleteMessage = useDeleteMessage();
+
+  const selectedConversation = conversations?.find(c => c._id === selectedConversationId);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -43,40 +65,79 @@ export function FloatingChat() {
     scrollToBottom();
   }, [messages]);
 
-  const handleSend = () => {
-    if (!inputValue.trim()) return;
+  // Mark conversation as read when opened
+  useEffect(() => {
+    if (selectedConversationId && selectedConversation?.unreadCount && selectedConversation.unreadCount > 0) {
+      markAsRead(selectedConversationId);
+    }
+  }, [selectedConversationId, selectedConversation?.unreadCount, markAsRead]);
 
-    const newMessage: Message = {
-      id: Date.now().toString(),
-      text: inputValue,
-      sender: 'user',
-      timestamp: new Date(),
-      status: 'sent'
-    };
+  const handleSend = async () => {
+    if (!inputValue.trim() || !selectedConversationId) return;
 
-    setMessages(prev => [...prev, newMessage]);
+    await sendMessage(selectedConversationId, inputValue);
     setInputValue('');
-
-    // Simulate agent response
-    setTimeout(() => {
-      const agentResponse: Message = {
-        id: (Date.now() + 1).toString(),
-        text: 'Thanks for reaching out! Our team will get back to you shortly.',
-        sender: 'agent',
-        timestamp: new Date(),
-        status: 'read'
-      };
-      setMessages(prev => [...prev, agentResponse]);
-    }, 1000);
   };
 
-  const formatTime = (date: Date) => {
-    return date.toLocaleTimeString('en-US', { 
+  const handleStartConversation = async (member: TeamMember) => {
+    if (!activeTeamId) return;
+    
+    const conversationId = await getOrCreateDirectConversation(activeTeamId, member.userId);
+    setSelectedConversationId(conversationId);
+    setViewState('thread');
+    setSearchQuery('');
+  };
+
+  const handleEditMessage = async (messageId: string) => {
+    if (!editText.trim()) return;
+    await editMessage(messageId, editText);
+    setEditingMessageId(null);
+    setEditText('');
+  };
+
+  const handleDeleteMessage = async (messageId: string) => {
+    await deleteMessage(messageId);
+  };
+
+  const formatTime = (timestamp: number) => {
+    return new Date(timestamp).toLocaleTimeString('en-US', { 
       hour: 'numeric', 
       minute: '2-digit',
       hour12: true 
     });
   };
+
+  const formatDate = (timestamp: number) => {
+    const date = new Date(timestamp);
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    if (date.toDateString() === today.toDateString()) {
+      return 'Today';
+    } else if (date.toDateString() === yesterday.toDateString()) {
+      return 'Yesterday';
+    } else {
+      return date.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+    }
+  };
+
+  const filteredTeamMembers = teamMembers?.filter(member => 
+    member.username?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    member.fullName?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const filteredConversations = conversations?.filter(conv => {
+    const participantNames = conv.participants.map(p => 
+      p.fullName || p.username || 'Unknown'
+    ).join(' ');
+    return participantNames.toLowerCase().includes(searchQuery.toLowerCase());
+  });
+
+  // Get total unread count
+  const totalUnreadCount = conversations?.reduce((acc, conv) => acc + (conv.unreadCount || 0), 0) || 0;
+
+  if (!activeTeamId) return null;
 
   return (
     <>
@@ -93,6 +154,11 @@ export function FloatingChat() {
             className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-violet-600 hover:bg-violet-700 text-white rounded-full shadow-lg shadow-violet-600/30 flex items-center justify-center transition-colors"
           >
             <MessageCircle className="w-6 h-6" />
+            {totalUnreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                {totalUnreadCount > 9 ? '9+' : totalUnreadCount}
+              </span>
+            )}
           </motion.button>
         )}
       </AnimatePresence>
@@ -105,163 +171,411 @@ export function FloatingChat() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="fixed bottom-6 right-6 z-50 w-[380px] max-w-[calc(100vw-48px)] bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-100"
+            className="fixed bottom-6 right-6 z-50 w-[400px] max-w-[calc(100vw-48px)] h-[600px] max-h-[calc(100vh-100px)] bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-100 flex flex-col"
           >
             {/* Header */}
-            <div className="bg-violet-600 text-white">
-              {/* Tabs */}
-              <div className="flex items-center px-4 pt-3 pb-2">
-                <button
-                  onClick={() => setActiveTab('chat')}
-                  className={cn(
-                    "flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-all",
-                    activeTab === 'chat' ? "bg-white/20" : "hover:bg-white/10"
-                  )}
-                >
-                  <MessageCircle className="w-4 h-4" />
-                  Chat
-                </button>
-                <button
-                  onClick={() => setActiveTab('kb')}
-                  className={cn(
-                    "flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ml-2",
-                    activeTab === 'kb' ? "bg-white/20" : "hover:bg-white/10"
-                  )}
-                >
-                  <BookOpen className="w-4 h-4" />
-                  Knowledge Base
-                </button>
-                <button
-                  onClick={() => setIsOpen(false)}
-                  className="ml-auto p-1.5 hover:bg-white/20 rounded-lg transition-colors"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              {/* Welcome Section */}
-              {activeTab === 'chat' && (
-                <div className="px-4 pb-4 pt-1">
-                  <div className="flex items-center gap-2 mb-2">
+            <div className="bg-white border-b border-gray-100 flex items-center px-4 py-3 shrink-0">
+              {viewState === 'list' && (
+                <>
+                  <h2 className="text-lg font-bold text-gray-900">Messages</h2>
+                  <div className="flex items-center gap-2 ml-auto">
+                    <button
+                      onClick={() => setViewState('new-message')}
+                      className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                      title="New message"
+                    >
+                      <Plus className="w-5 h-5 text-gray-700" />
+                    </button>
+                    <button
+                      onClick={() => setIsOpen(false)}
+                      className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                    >
+                      <X className="w-5 h-5 text-gray-700" />
+                    </button>
+                  </div>
+                </>
+              )}
+              
+              {viewState === 'thread' && selectedConversation && (
+                <>
+                  <button
+                    onClick={() => {
+                      setViewState('list');
+                      setSelectedConversationId(null);
+                    }}
+                    className="p-2 -ml-2 hover:bg-gray-100 rounded-full transition-colors"
+                  >
+                    <ChevronLeft className="w-5 h-5 text-gray-700" />
+                  </button>
+                  <div className="flex items-center gap-3 ml-2 flex-1 min-w-0">
                     <div className="flex -space-x-2">
-                      {[1, 2, 3].map((i) => (
-                        <div
-                          key={i}
-                          className="w-8 h-8 rounded-full bg-violet-400 border-2 border-violet-600 flex items-center justify-center text-xs font-bold text-white"
-                        >
-                          {String.fromCharCode(64 + i)}
+                      {selectedConversation.isGroup ? (
+                        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center text-white text-sm font-bold">
+                          {selectedConversation.groupName?.[0] || 'G'}
                         </div>
-                      ))}
-                      <div className="w-8 h-8 rounded-full bg-green-500 border-2 border-violet-600 flex items-center justify-center">
-                        <MessageCircle className="w-4 h-4 text-white" />
-                      </div>
+                      ) : (
+                        selectedConversation.participants.slice(0, 2).map((participant, idx) => (
+                          <div
+                            key={participant.userId}
+                            className={cn(
+                              "w-9 h-9 rounded-full border-2 border-white flex items-center justify-center text-white text-sm font-bold bg-gradient-to-br",
+                              idx === 0 ? "from-violet-500 to-fuchsia-500" : "from-blue-500 to-cyan-500"
+                            )}
+                          >
+                            {participant.avatarUrl ? (
+                              <img src={participant.avatarUrl} alt="" className="w-full h-full rounded-full object-cover" />
+                            ) : (
+                              participant.fullName?.[0] || participant.username?.[0] || '?'
+                            )}
+                          </div>
+                        ))
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <h3 className="font-semibold text-gray-900 truncate">
+                        {selectedConversation.isGroup 
+                          ? selectedConversation.groupName 
+                          : selectedConversation.participants[0]?.fullName || selectedConversation.participants[0]?.username || 'Unknown'
+                        }
+                      </h3>
+                      <p className="text-xs text-gray-500 truncate">
+                        {selectedConversation.isGroup 
+                          ? `${selectedConversation.participants.length} members`
+                          : `@${selectedConversation.participants[0]?.username || 'unknown'}`
+                        }
+                      </p>
                     </div>
                   </div>
-                  <h3 className="text-lg font-bold">Got questions? Let us help.</h3>
-                  <p className="text-sm text-violet-100 mt-0.5">We typically reply within 12 hours</p>
-                </div>
+                </>
+              )}
+
+              {viewState === 'new-message' && (
+                <>
+                  <button
+                    onClick={() => {
+                      setViewState('list');
+                      setSearchQuery('');
+                    }}
+                    className="p-2 -ml-2 hover:bg-gray-100 rounded-full transition-colors"
+                  >
+                    <ChevronLeft className="w-5 h-5 text-gray-700" />
+                  </button>
+                  <h2 className="text-lg font-bold text-gray-900 ml-2">New Message</h2>
+                </>
               )}
             </div>
 
-            {/* Content */}
-            <div className="h-[400px] flex flex-col bg-gray-50">
-              {activeTab === 'chat' ? (
-                <>
-                  {/* Messages */}
-                  <div className="flex-1 overflow-y-auto p-4 space-y-3">
-                    {/* Date divider */}
-                    <div className="flex items-center justify-center">
-                      <span className="text-[10px] text-gray-400 font-medium">
-                        {new Date().toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long' })}
-                      </span>
-                    </div>
+            {/* Search Bar */}
+            {(viewState === 'list' || viewState === 'new-message') && (
+              <div className="px-4 py-3 border-b border-gray-100">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder={viewState === 'new-message' ? "Search team members..." : "Search messages..."}
+                    className="w-full pl-9 pr-4 py-2 bg-gray-100 border-0 rounded-full text-sm placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-violet-500/20"
+                  />
+                </div>
+              </div>
+            )}
 
-                    {messages.map((message) => (
-                      <motion.div
-                        key={message.id}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className={cn(
-                          "flex",
-                          message.sender === 'user' ? "justify-end" : "justify-start"
-                        )}
+            {/* Content */}
+            <div className="flex-1 overflow-hidden">
+              {/* Conversation List */}
+              {viewState === 'list' && (
+                <div className="h-full overflow-y-auto">
+                  {conversationsLoading ? (
+                    <div className="flex items-center justify-center h-full">
+                      <div className="animate-spin w-6 h-6 border-2 border-violet-600 border-t-transparent rounded-full" />
+                    </div>
+                  ) : filteredConversations?.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center h-full text-center px-6">
+                      <MessageCircle className="w-12 h-12 text-gray-300 mb-3" />
+                      <h3 className="font-semibold text-gray-900 mb-1">No messages yet</h3>
+                      <p className="text-sm text-gray-500 mb-4">Start a conversation with your team</p>
+                      <button
+                        onClick={() => setViewState('new-message')}
+                        className="px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white text-sm font-medium rounded-full transition-colors"
                       >
-                        <div className={cn(
-                          "max-w-[80%] rounded-2xl px-4 py-2.5 text-sm",
-                          message.sender === 'user' 
-                            ? "bg-violet-600 text-white rounded-br-md"
-                            : "bg-white shadow-sm border border-gray-100 rounded-bl-md text-gray-800"
-                        )}>
-                          <p>{message.text}</p>
-                          <div className={cn(
-                            "flex items-center gap-1 mt-1 text-[10px]",
-                            message.sender === 'user' ? "text-violet-200" : "text-gray-400"
-                          )}>
-                            <span>{formatTime(message.timestamp)}</span>
-                            {message.sender === 'user' && message.status && (
-                              message.status === 'read' ? (
-                                <CheckCheck className="w-3 h-3" />
-                              ) : (
-                                <Check className="w-3 h-3" />
-                              )
+                        Start a conversation
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="divide-y divide-gray-50">
+                      {filteredConversations?.map((conversation) => (
+                        <button
+                          key={conversation._id}
+                          onClick={() => {
+                            setSelectedConversationId(conversation._id);
+                            setViewState('thread');
+                          }}
+                          className="w-full px-4 py-3 hover:bg-gray-50 transition-colors flex items-center gap-3 text-left"
+                        >
+                          <div className="flex -space-x-2 shrink-0">
+                            {conversation.isGroup ? (
+                              <div className="w-11 h-11 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center text-white font-bold">
+                                {conversation.groupName?.[0] || 'G'}
+                              </div>
+                            ) : (
+                              conversation.participants.slice(0, 2).map((participant, idx) => (
+                                <div
+                                  key={participant.userId}
+                                  className={cn(
+                                    "w-11 h-11 rounded-full border-2 border-white flex items-center justify-center text-white font-bold bg-gradient-to-br",
+                                    idx === 0 ? "from-violet-500 to-fuchsia-500" : "from-blue-500 to-cyan-500"
+                                  )}
+                                >
+                                  {participant.avatarUrl ? (
+                                    <img src={participant.avatarUrl} alt="" className="w-full h-full rounded-full object-cover" />
+                                  ) : (
+                                    participant.fullName?.[0] || participant.username?.[0] || '?'
+                                  )}
+                                </div>
+                              ))
                             )}
                           </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between mb-0.5">
+                              <h4 className={cn(
+                                "truncate",
+                                conversation.unreadCount > 0 ? "font-bold text-gray-900" : "font-medium text-gray-900"
+                              )}>
+                                {conversation.isGroup 
+                                  ? conversation.groupName 
+                                  : conversation.participants[0]?.fullName || conversation.participants[0]?.username || 'Unknown'
+                                }
+                              </h4>
+                              <span className="text-xs text-gray-400 shrink-0 ml-2">
+                                {formatTime(conversation.lastMessageAt)}
+                              </span>
+                            </div>
+                            <p className={cn(
+                              "text-sm truncate",
+                              conversation.unreadCount > 0 ? "text-gray-900 font-medium" : "text-gray-500"
+                            )}>
+                              {conversation.lastMessageText || 'No messages yet'}
+                            </p>
+                          </div>
+                          {conversation.unreadCount > 0 && (
+                            <span className="w-5 h-5 bg-violet-600 text-white text-xs font-bold rounded-full flex items-center justify-center shrink-0">
+                              {conversation.unreadCount > 9 ? '9+' : conversation.unreadCount}
+                            </span>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Message Thread */}
+              {viewState === 'thread' && selectedConversation && (
+                <>
+                  <div className="h-[calc(100%-72px)] overflow-y-auto p-4 space-y-4">
+                    {messagesLoading ? (
+                      <div className="flex items-center justify-center h-full">
+                        <div className="animate-spin w-6 h-6 border-2 border-violet-600 border-t-transparent rounded-full" />
+                      </div>
+                    ) : messages?.length === 0 ? (
+                      <div className="flex flex-col items-center justify-center h-full text-center">
+                        <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-3">
+                          <MessageCircle className="w-8 h-8 text-gray-400" />
                         </div>
-                      </motion.div>
-                    ))}
-                    <div ref={messagesEndRef} />
+                        <h3 className="font-semibold text-gray-900 mb-1">Start a conversation</h3>
+                        <p className="text-sm text-gray-500">Send a message to get started</p>
+                      </div>
+                    ) : (
+                      <>
+                        {messages?.map((message, index) => {
+                          const isCurrentUser = message.senderId === user?.id;
+                          const showDate = index === 0 || 
+                            new Date(message._creationTime).toDateString() !== 
+                            new Date(messages[index - 1]._creationTime).toDateString();
+                          
+                          return (
+                            <div key={message._id}>
+                              {showDate && (
+                                <div className="flex items-center justify-center my-4">
+                                  <span className="text-xs text-gray-400 font-medium px-3 py-1 bg-gray-100 rounded-full">
+                                    {formatDate(message._creationTime)}
+                                  </span>
+                                </div>
+                              )}
+                              <motion.div
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className={cn(
+                                  "flex",
+                                  isCurrentUser ? "justify-end" : "justify-start"
+                                )}
+                              >
+                                <div className={cn(
+                                  "flex gap-2 max-w-[85%]",
+                                  isCurrentUser ? "flex-row-reverse" : "flex-row"
+                                )}>
+                                  {!isCurrentUser && (
+                                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center text-white text-sm font-bold shrink-0">
+                                      {message.sender.avatarUrl ? (
+                                        <img src={message.sender.avatarUrl} alt="" className="w-full h-full rounded-full object-cover" />
+                                      ) : (
+                                        message.sender.fullName?.[0] || message.sender.username?.[0] || '?'
+                                      )}
+                                    </div>
+                                  )}
+                                  <div className={cn(
+                                    "group relative",
+                                    isCurrentUser ? "items-end" : "items-start"
+                                  )}>
+                                    {editingMessageId === message._id ? (
+                                      <div className="flex items-center gap-2">
+                                        <input
+                                          type="text"
+                                          value={editText}
+                                          onChange={(e) => setEditText(e.target.value)}
+                                          onKeyDown={(e) => {
+                                            if (e.key === 'Enter') handleEditMessage(message._id);
+                                            if (e.key === 'Escape') {
+                                              setEditingMessageId(null);
+                                              setEditText('');
+                                            }
+                                          }}
+                                          className="px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/20"
+                                          autoFocus
+                                        />
+                                        <button
+                                          onClick={() => handleEditMessage(message._id)}
+                                          className="p-1.5 bg-violet-600 text-white rounded-lg hover:bg-violet-700"
+                                        >
+                                          <Check className="w-4 h-4" />
+                                        </button>
+                                      </div>
+                                    ) : (
+                                      <div className={cn(
+                                        "px-4 py-2.5 rounded-2xl text-sm relative",
+                                        isCurrentUser 
+                                          ? "bg-violet-600 text-white rounded-br-md" 
+                                          : "bg-gray-100 text-gray-900 rounded-bl-md"
+                                      )}>
+                                        <p>{message.text}</p>
+                                        <div className={cn(
+                                          "flex items-center gap-1.5 mt-1 text-[10px]",
+                                          isCurrentUser ? "text-violet-200" : "text-gray-500"
+                                        )}>
+                                          <span>{formatTime(message._creationTime)}</span>
+                                          {message.editedAt && <span>(edited)</span>}
+                                          {isCurrentUser && (
+                                            <CheckCheck className="w-3 h-3" />
+                                          )}
+                                        </div>
+                                      </div>
+                                    )}
+                                    
+                                    {/* Message Actions */}
+                                    {isCurrentUser && editingMessageId !== message._id && (
+                                      <div className="absolute top-0 -right-8 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col gap-1">
+                                        <button
+                                          onClick={() => {
+                                            setEditingMessageId(message._id);
+                                            setEditText(message.text);
+                                          }}
+                                          className="p-1.5 bg-white border border-gray-200 rounded-lg shadow-sm hover:bg-gray-50 text-gray-600"
+                                          title="Edit"
+                                        >
+                                          <Edit3 className="w-3 h-3" />
+                                        </button>
+                                        <button
+                                          onClick={() => handleDeleteMessage(message._id)}
+                                          className="p-1.5 bg-white border border-gray-200 rounded-lg shadow-sm hover:bg-red-50 text-red-500"
+                                          title="Delete"
+                                        >
+                                          <Trash2 className="w-3 h-3" />
+                                        </button>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              </motion.div>
+                            </div>
+                          );
+                        })}
+                        <div ref={messagesEndRef} />
+                      </>
+                    )}
                   </div>
 
                   {/* Input Area */}
                   <div className="p-3 bg-white border-t border-gray-100">
-                    <div className="flex items-center gap-2 mb-2">
-                      <button className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-400 hover:text-gray-600 transition-colors">
+                    <div className="flex items-center gap-2">
+                      <button className="p-2 hover:bg-gray-100 rounded-full text-gray-400 hover:text-gray-600 transition-colors">
                         <Smile className="w-5 h-5" />
                       </button>
-                      <button className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-400 hover:text-gray-600 transition-colors">
+                      <button className="p-2 hover:bg-gray-100 rounded-full text-gray-400 hover:text-gray-600 transition-colors">
                         <Paperclip className="w-5 h-5" />
                       </button>
-                    </div>
-                    <div className="flex items-center gap-2">
                       <input
                         type="text"
                         value={inputValue}
                         onChange={(e) => setInputValue(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                        placeholder="Type your message..."
-                        className="flex-1 px-3 py-2 bg-gray-100 border-0 rounded-xl text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500/20"
+                        placeholder="Type a message..."
+                        className="flex-1 px-4 py-2 bg-gray-100 border-0 rounded-full text-sm placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-violet-500/20"
                       />
                       <button
                         onClick={handleSend}
                         disabled={!inputValue.trim()}
-                        className="p-2 bg-violet-600 hover:bg-violet-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl transition-colors"
+                        className="p-2.5 bg-violet-600 hover:bg-violet-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-full transition-colors"
                       >
                         <Send className="w-4 h-4" />
                       </button>
                     </div>
                   </div>
                 </>
-              ) : (
-                /* Knowledge Base */
-                <div className="flex-1 overflow-y-auto p-4">
-                  <div className="space-y-3">
-                    <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 hover:shadow-md transition-shadow cursor-pointer">
-                      <h4 className="font-semibold text-gray-900 mb-1">Getting Started Guide</h4>
-                      <p className="text-sm text-gray-600">Learn the basics of using Vibe Vault</p>
+              )}
+
+              {/* New Message - Team Members List */}
+              {viewState === 'new-message' && (
+                <div className="h-full overflow-y-auto">
+                  {membersLoading ? (
+                    <div className="flex items-center justify-center h-full">
+                      <div className="animate-spin w-6 h-6 border-2 border-violet-600 border-t-transparent rounded-full" />
                     </div>
-                    <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 hover:shadow-md transition-shadow cursor-pointer">
-                      <h4 className="font-semibold text-gray-900 mb-1">Managing Workspaces</h4>
-                      <p className="text-sm text-gray-600">How to create and organize workspaces</p>
+                  ) : filteredTeamMembers?.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center h-full text-center px-6">
+                      <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-3">
+                        <Search className="w-8 h-8 text-gray-400" />
+                      </div>
+                      <h3 className="font-semibold text-gray-900 mb-1">No members found</h3>
+                      <p className="text-sm text-gray-500">Try a different search term</p>
                     </div>
-                    <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 hover:shadow-md transition-shadow cursor-pointer">
-                      <h4 className="font-semibold text-gray-900 mb-1">Billing & Plans</h4>
-                      <p className="text-sm text-gray-600">Understanding your subscription options</p>
+                  ) : (
+                    <div className="divide-y divide-gray-50">
+                      {filteredTeamMembers?.map((member) => (
+                        <button
+                          key={member.userId}
+                          onClick={() => handleStartConversation(member)}
+                          className="w-full px-4 py-3 hover:bg-gray-50 transition-colors flex items-center gap-3 text-left"
+                        >
+                          <div className="w-11 h-11 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center text-white font-bold shrink-0">
+                            {member.avatarUrl ? (
+                              <img src={member.avatarUrl} alt="" className="w-full h-full rounded-full object-cover" />
+                            ) : (
+                              member.fullName?.[0] || member.username?.[0] || '?'
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-semibold text-gray-900 truncate">
+                              {member.fullName || member.username || 'Unknown'}
+                            </h4>
+                            <p className="text-sm text-gray-500 truncate">
+                              @{member.username || 'unknown'} • {member.role}
+                            </p>
+                          </div>
+                        </button>
+                      ))}
                     </div>
-                    <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 hover:shadow-md transition-shadow cursor-pointer">
-                      <h4 className="font-semibold text-gray-900 mb-1">API Documentation</h4>
-                      <p className="text-sm text-gray-600">Integrate with our API</p>
-                    </div>
-                  </div>
+                  )}
                 </div>
               )}
             </div>

@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import {
   Users, ArrowRight, Plus, KeyRound, LogOut, Search, Bell, Grid, List,
   MoreHorizontal, Layout, Star, BookOpen, MessageCircle, HelpCircle,
-  Video, MessageSquare, Heart, Image as ImageIcon, X
+  Video, MessageSquare, Heart, Image as ImageIcon, X, Loader2, Shield
 } from 'lucide-react';
 import { useMutation, useQuery } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
@@ -12,8 +12,27 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Modal } from '@/components/ui/Modal';
+import { ImageUpload } from '@/components/ui/ImageUpload';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { NotificationsPanel } from '@/components/notifications/NotificationsPanel';
 import { UserProfileDropdown } from '@/components/user/UserProfileDropdown';
+import { cn } from '@/lib/utils';
 
 // Import pages
 import { Favorites } from '@/components/favorites/Favorites';
@@ -33,10 +52,16 @@ export function TeamOnboarding() {
 
   const teams = useQuery(api.teams.getTeamsForUser, userId ? { userId } : 'skip');
   const createTeam = useMutation(api.teams.createTeam);
+  const updateTeam = useMutation(api.teams.updateTeam);
+  const deleteTeam = useMutation(api.teams.deleteTeam);
   const acceptInviteByCode = useMutation(api.teams.acceptInviteByCode);
 
   const [activeSection, setActiveSection] = useState('all-workspaces');
-  const [teamForm, setTeamForm] = useState({ name: '', description: '' });
+  const [teamForm, setTeamForm] = useState<{ name: string; description: string; coverId?: string }>({
+    name: '',
+    description: '',
+    coverId: undefined
+  });
   const [inviteCode, setInviteCode] = useState('');
   const [creating, setCreating] = useState(false);
   const [joining, setJoining] = useState(false);
@@ -45,6 +70,14 @@ export function TeamOnboarding() {
   const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+
+  // Management state
+  const [editingTeam, setEditingTeam] = useState<any>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [teamToDelete, setTeamToDelete] = useState<any>(null);
+  const [updating, setUpdating] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   // Refs for dropdown anchors
   const notificationButtonRef = useRef<HTMLButtonElement>(null);
@@ -111,8 +144,9 @@ export function TeamOnboarding() {
         userId: user.id,
         name: teamForm.name,
         description: teamForm.description || undefined,
+        coverId: teamForm.coverId as any,
       });
-      setTeamForm({ name: '', description: '' });
+      setTeamForm({ name: '', description: '', coverId: undefined });
       setIsCreateModalOpen(false);
       setActiveTeamId(teamId as any);
       addToast({ type: 'success', title: 'Workspace created', message: 'Your new workspace is ready.' });
@@ -120,6 +154,62 @@ export function TeamOnboarding() {
       addToast({ type: 'error', title: 'Unable to create workspace', message: error.message });
     } finally {
       setCreating(false);
+    }
+  };
+
+  const handleEditWorkspace = (team: any) => {
+    setEditingTeam(team);
+    setTeamForm({
+      name: team.name,
+      description: team.description || '',
+      coverId: team.coverId,
+    });
+    setIsEditModalOpen(true);
+  };
+
+  const handleUpdateWorkspace = async () => {
+    if (!user || !editingTeam) return;
+    if (!teamForm.name.trim()) {
+      addToast({ type: 'error', title: 'Workspace name required', message: 'Enter a workspace name to continue.' });
+      return;
+    }
+    setUpdating(true);
+    try {
+      await updateTeam({
+        userId: user.id,
+        teamId: editingTeam._id,
+        updates: {
+          name: teamForm.name,
+          description: teamForm.description || undefined,
+          coverId: teamForm.coverId as any,
+        },
+      });
+      setIsEditModalOpen(false);
+      setEditingTeam(null);
+      setTeamForm({ name: '', description: '', coverId: undefined });
+      addToast({ type: 'success', title: 'Workspace updated', message: 'The changes have been saved.' });
+    } catch (error: any) {
+      addToast({ type: 'error', title: 'Unable to update workspace', message: error.message });
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  const handleDeleteWorkspace = async () => {
+    if (!user || !teamToDelete) return;
+    setDeleting(true);
+    try {
+      await deleteTeam({
+        userId: user.id,
+        teamId: teamToDelete._id,
+      });
+      setIsDeleteDialogOpen(false);
+      setTeamToDelete(null);
+      addToast({ type: 'success', title: 'Workspace deleted', message: 'The workspace has been removed.' });
+    } catch (error: any) {
+      addToast({ type: 'error', title: 'Unable to delete workspace', message: error.message });
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -354,32 +444,112 @@ export function TeamOnboarding() {
                 ) : (
                   <div className={`grid gap-6 ${viewMode === 'grid' ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1'}`}>
                     {teams.map((team: any) => (
-                      <button
+                      <div
                         key={team._id}
-                        onClick={() => handleEnterWorkspace(team._id)}
                         className={`
-                                group relative bg-white border border-gray-200 hover:border-violet-500 hover:shadow-xl hover:shadow-violet-500/10 transition-all duration-300 text-left
-                                ${viewMode === 'grid' ? 'rounded-2xl p-6 flex flex-col h-56' : 'rounded-xl p-4 flex items-center gap-6'}
+                                group relative bg-white border border-gray-200 hover:border-violet-500/50 hover:shadow-2xl hover:shadow-violet-500/10 transition-all duration-300 text-left cursor-pointer
+                                ${viewMode === 'grid'
+                            ? 'rounded-3xl p-5 flex flex-col h-[300px] hover:-translate-y-1'
+                            : 'rounded-2xl p-4 flex items-center gap-6'}
                             `}
+                        onClick={() => handleEnterWorkspace(team._id)}
                       >
+                        {/* Cover Image Area */}
                         <div className={`
-                                flex items-center justify-center rounded-xl bg-gradient-to-br from-violet-100 to-indigo-100 text-violet-600 font-bold text-xl
-                                ${viewMode === 'grid' ? 'w-full h-32 mb-4' : 'w-16 h-16 flex-shrink-0'}
+                                relative flex items-center justify-center rounded-2xl overflow-hidden bg-gradient-to-br from-violet-100 to-indigo-100 text-violet-600 font-bold text-2xl flex-shrink-0
+                                ${viewMode === 'grid' ? 'w-full h-44 mb-4' : 'w-20 h-20'}
                             `}>
-                          {team.name.substring(0, 2).toUpperCase()}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h3 className="font-bold text-gray-900 truncate mb-1">{team.name}</h3>
-                          {team.description && (
-                            <p className="text-sm text-gray-500 line-clamp-2">{team.description}</p>
+                          {team.coverUrl ? (
+                            <img src={team.coverUrl} alt={team.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                          ) : (
+                            <span className="opacity-40">{team.name.substring(0, 2).toUpperCase()}</span>
                           )}
-                          <div className="flex items-center gap-2 mt-3">
-                            <span className="px-2 py-0.5 bg-gray-100 rounded text-xs font-medium text-gray-600">
-                              Admin
-                            </span>
+
+                          {/* Top Glass Overlay for Action Menu */}
+                          <div className="absolute inset-x-0 top-0 h-12 bg-gradient-to-b from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+                          {/* Action Menu Button */}
+                          {team.role === 'admin' && (
+                            <div className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-[-4px] group-hover:translate-y-0" onClick={(e) => e.stopPropagation()}>
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <button className="p-2 bg-white/20 hover:bg-white/40 backdrop-blur-md rounded-full text-white transition-colors border border-white/30">
+                                    <MoreHorizontal className="w-4 h-4" />
+                                  </button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end" className="w-48 p-1.5 rounded-xl border-border/40">
+                                  <DropdownMenuItem onClick={() => handleEditWorkspace(team)} className="rounded-lg gap-2">
+                                    <ImageIcon className="w-4 h-4" /> Edit Workspace
+                                  </DropdownMenuItem>
+                                  <DropdownMenuSeparator className="bg-border/40" />
+                                  <DropdownMenuItem
+                                    className="text-red-600 focus:text-white rounded-lg gap-2 focus:bg-red-500"
+                                    onClick={() => {
+                                      setTeamToDelete(team);
+                                      setIsDeleteDialogOpen(true);
+                                    }}
+                                  >
+                                    <X className="w-4 h-4" /> Delete Workspace
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Content Area */}
+                        <div className="flex-1 min-w-0 flex flex-col justify-between">
+                          <div>
+                            <h3 className="font-extrabold text-gray-900 truncate text-lg group-hover:text-violet-600 transition-colors duration-300">{team.name}</h3>
+                            {team.description && (
+                              <p className="text-sm text-gray-500 line-clamp-2 mt-1 leading-relaxed">{team.description}</p>
+                            )}
+                          </div>
+
+                          <div className="flex items-center gap-2 mt-4">
+                            <div className={cn(
+                              "flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider",
+                              team.role === 'admin'
+                                ? "bg-violet-100 text-violet-700 dark:bg-violet-500/10 dark:text-violet-400"
+                                : "bg-gray-100 text-gray-700"
+                            )}>
+                              {team.role === 'admin' ? <Shield className="w-3 h-3" /> : <Users className="w-3 h-3" />}
+                              {team.role}
+                            </div>
+
+                            <div className="flex items-center">
+                              <div className="flex -space-x-2 mr-3">
+                                {team.members?.map((member: any, i: number) => (
+                                  <div
+                                    key={member.userId}
+                                    className="relative w-6 h-6 rounded-full border-2 border-white bg-gray-100 flex items-center justify-center overflow-hidden"
+                                    style={{ zIndex: 10 - i }}
+                                    title={member.fullName || member.username}
+                                  >
+                                    {member.avatarUrl ? (
+                                      <img src={member.avatarUrl} alt="" className="w-full h-full object-cover" />
+                                    ) : (
+                                      <span className="text-[8px] font-bold text-gray-500 uppercase">
+                                        {(member.fullName || member.username || '?').substring(0, 1)}
+                                      </span>
+                                    )}
+                                  </div>
+                                ))}
+                                {team.memberCount > 5 && (
+                                  <div className="relative w-6 h-6 rounded-full border-2 border-white bg-gray-100 flex items-center justify-center z-0">
+                                    <span className="text-[8px] font-bold text-gray-500">
+                                      +{team.memberCount - 5}
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
+                              <span className="text-[10px] font-bold text-gray-500 uppercase tracking-tight">
+                                {team.memberCount === 1 ? '1 member' : `${team.memberCount} members`}
+                              </span>
+                            </div>
                           </div>
                         </div>
-                      </button>
+                      </div>
                     ))}
                   </div>
                 )}
@@ -401,87 +571,154 @@ export function TeamOnboarding() {
       <Modal
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
-        title="Create New Workspace"
+        title="Create Workspace"
+        description="Choose a name and description for your new workspace. You can change these later in settings."
       >
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Workspace Name</label>
+        <div className="space-y-8">
+          <div className="space-y-5">
             <Input
+              label="Workspace Name"
               placeholder="e.g. Acme Corp, My Project"
               value={teamForm.name}
               onChange={(e) => setTeamForm({ ...teamForm, name: e.target.value })}
               autoFocus
             />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Description (Optional)</label>
             <Input
+              label="Description (Optional)"
               placeholder="What's this workspace for?"
               value={teamForm.description}
               onChange={(e) => setTeamForm({ ...teamForm, description: e.target.value })}
             />
+            <ImageUpload
+              label="Workspace Cover"
+              onUploadComplete={(storageId) => setTeamForm(prev => ({ ...prev, coverId: storageId }))}
+              onClear={() => setTeamForm(prev => ({ ...prev, coverId: undefined }))}
+            />
           </div>
-          <div className="flex justify-end gap-3 mt-6">
-            <Button variant="ghost" onClick={() => setIsCreateModalOpen(false)}>Cancel</Button>
-            <Button onClick={handleCreateTeam} loading={creating}>Create Workspace</Button>
+          <div className="flex justify-end gap-3">
+            <Button variant="ghost" onClick={() => setIsCreateModalOpen(false)} className="font-bold text-gray-500">Cancel</Button>
+            <Button onClick={handleCreateTeam} loading={creating} className="min-w-[160px] font-black py-6 rounded-2xl shadow-lg shadow-violet-500/10">Create Workspace</Button>
           </div>
         </div>
       </Modal>
+
+      {/* Edit Workspace Modal */}
+      <Modal
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setEditingTeam(null);
+          setTeamForm({ name: '', description: '', coverId: undefined });
+        }}
+        title="Edit Workspace"
+        description="Update your workspace details or change its cover photo."
+      >
+        <div className="space-y-8">
+          <div className="space-y-5">
+            <Input
+              label="Workspace Name"
+              placeholder="e.g. Acme Corp, My Project"
+              value={teamForm.name}
+              onChange={(e) => setTeamForm({ ...teamForm, name: e.target.value })}
+              autoFocus
+            />
+            <Input
+              label="Description (Optional)"
+              placeholder="What's this workspace for?"
+              value={teamForm.description}
+              onChange={(e) => setTeamForm({ ...teamForm, description: e.target.value })}
+            />
+            <ImageUpload
+              label="Workspace Cover"
+              onUploadComplete={(storageId) => setTeamForm(prev => ({ ...prev, coverId: storageId }))}
+              onClear={() => setTeamForm(prev => ({ ...prev, coverId: undefined }))}
+            />
+          </div>
+          <div className="flex justify-end gap-3">
+            <Button variant="ghost" onClick={() => setIsEditModalOpen(false)} className="font-bold text-gray-500">Cancel</Button>
+            <Button onClick={handleUpdateWorkspace} loading={updating} className="min-w-[160px] font-black py-6 rounded-2xl shadow-lg shadow-violet-500/10">Save Changes</Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Delete Confirmation */}
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent className="rounded-[32px] p-8 border-none shadow-2xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-2xl font-black tracking-tight text-gray-900">Delete Workspace</AlertDialogTitle>
+            <AlertDialogDescription className="text-base text-gray-500 mt-2">
+              Are you sure you want to delete <span className="font-bold text-gray-900">"{teamToDelete?.name}"</span>? This action cannot be undone and will remove access for all team members.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="mt-8 gap-3">
+            <AlertDialogCancel disabled={deleting} className="rounded-2xl font-bold py-6 border-gray-200">Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                handleDeleteWorkspace();
+              }}
+              className="bg-red-600 hover:bg-red-700 focus:ring-red-600 rounded-2xl font-black py-6 shadow-lg shadow-red-500/20 px-8"
+              disabled={deleting}
+            >
+              {deleting ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Deleting...
+                </>
+              ) : "Delete Workspace"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <Modal
         isOpen={isJoinModalOpen}
         onClose={() => setIsJoinModalOpen(false)}
         title="Join Workspace"
-        size="md"
+        description="Enter the 6-digit invite code provided by your team admin to access an existing workspace."
       >
-        <div className="p-6">
-          <div className="text-center mb-6">
-            <div className="w-16 h-16 bg-gradient-to-br from-violet-100 to-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <KeyRound className="w-8 h-8 text-violet-600" />
+        <div className="space-y-8">
+          <div className="flex flex-col items-center justify-center py-4">
+            <div className="w-20 h-20 bg-gradient-to-br from-violet-100 to-indigo-100 dark:from-violet-500/10 dark:to-indigo-500/10 rounded-[28px] flex items-center justify-center mb-8 shadow-inner border border-white dark:border-white/5">
+              <KeyRound className="w-10 h-10 text-violet-600 dark:text-violet-400" />
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">Join a Workspace</h3>
-            <p className="text-sm text-gray-500">Enter the invite code to join your team's workspace</p>
-          </div>
 
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Invite Code</label>
-              <div className="relative">
+            <div className="w-full max-w-sm">
+              <div className="relative group">
                 <Input
-                  placeholder="Enter the 6-digit code"
+                  placeholder="000000"
                   value={inviteCode}
                   onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
                   autoFocus
-                  className="text-center text-lg font-mono tracking-widest uppercase h-14 border-2 border-gray-200 focus:border-violet-500 focus:ring-violet-500/20 transition-all"
+                  className="text-center text-3xl font-black tracking-[0.5em] uppercase h-20 border-2 rounded-2xl focus:ring-8 focus:ring-violet-500/10"
                   maxLength={6}
                 />
-                <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-                  <KeyRound className="w-5 h-5 text-gray-400" />
-                </div>
               </div>
-              <p className="text-xs text-gray-500 mt-3 text-center">Ask your team admin for the invite code</p>
+              <p className="text-xs text-muted-foreground mt-5 text-center font-medium">
+                Invite codes are case-sensitive and expire after 24 hours.
+              </p>
             </div>
+          </div>
 
-            <div className="flex gap-3 mt-8">
-              <Button
-                variant="outline"
-                onClick={() => setIsJoinModalOpen(false)}
-                className="flex-1 h-12"
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleJoinByCode}
-                loading={joining}
-                className="flex-1 h-12 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700"
-                disabled={!inviteCode.trim() || inviteCode.length < 6}
-              >
-                Join Workspace
-              </Button>
-            </div>
+          <div className="flex gap-4">
+            <Button
+              variant="secondary"
+              onClick={() => setIsJoinModalOpen(false)}
+              className="flex-1 font-bold py-6 rounded-2xl"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleJoinByCode}
+              loading={joining}
+              className="flex-1 font-black py-6 rounded-2xl shadow-xl shadow-violet-500/20"
+              disabled={!inviteCode.trim() || inviteCode.length < 6}
+            >
+              Join Workspace
+            </Button>
           </div>
         </div>
       </Modal>
-    </div>
+    </div >
   );
 }

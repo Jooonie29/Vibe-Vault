@@ -47,14 +47,36 @@ export const getTeamsForUser = query({
       memberships.map(async (membership) => {
         const team = await ctx.db.get(membership.teamId);
         if (!team) return null;
-        const memberCount = await ctx.db
+        const members = await ctx.db
           .query("teamMembers")
           .withIndex("by_teamId", (q) => q.eq("teamId", membership.teamId))
           .collect();
+
+        const memberCount = members.length;
+
+        // Fetch profiles for the first 5 members for the avatar stack
+        const memberDetails = await Promise.all(
+          members.slice(0, 5).map(async (m) => {
+            const profile = await ctx.db
+              .query("profiles")
+              .withIndex("by_userId", (q) => q.eq("userId", m.userId))
+              .first();
+            return {
+              userId: m.userId,
+              role: m.role,
+              username: profile?.username,
+              fullName: profile?.fullName,
+              avatarUrl: profile?.avatarUrl,
+            };
+          })
+        );
+
         return {
           ...team,
           role: membership.role,
-          memberCount: memberCount.length,
+          memberCount,
+          members: memberDetails,
+          coverUrl: team.coverId ? await ctx.storage.getUrl(team.coverId) : null,
         };
       })
     );
@@ -109,7 +131,12 @@ export const ensurePersonalTeam = mutation({
 });
 
 export const createTeam = mutation({
-  args: { userId: v.string(), name: v.string(), description: v.optional(v.string()) },
+  args: {
+    userId: v.string(),
+    name: v.string(),
+    description: v.optional(v.string()),
+    coverId: v.optional(v.id("_storage")),
+  },
   handler: async (ctx, args) => {
     const name = normalizeText(args.name);
     if (!name) throw new Error("Team name is required");
@@ -120,6 +147,7 @@ export const createTeam = mutation({
       createdBy: args.userId,
       isPersonal: false,
       inviteCode: createInviteCode(),
+      coverId: args.coverId,
     });
 
     await ctx.db.insert("teamMembers", {
@@ -133,6 +161,7 @@ export const createTeam = mutation({
   },
 });
 
+// Workspace management mutations
 export const updateTeam = mutation({
   args: {
     userId: v.string(),
@@ -140,6 +169,7 @@ export const updateTeam = mutation({
     updates: v.object({
       name: v.optional(v.string()),
       description: v.optional(v.string()),
+      coverId: v.optional(v.id("_storage")),
     }),
   },
   handler: async (ctx, args) => {
@@ -151,7 +181,38 @@ export const updateTeam = mutation({
     if (args.updates.description !== undefined) {
       updates.description = args.updates.description ? normalizeText(args.updates.description) : undefined;
     }
+    if (args.updates.coverId !== undefined) {
+      updates.coverId = args.updates.coverId;
+    }
     await ctx.db.patch(args.teamId, updates);
+    return args.teamId;
+  },
+});
+
+export const deleteTeam = mutation({
+  args: {
+    userId: v.string(),
+    teamId: v.id("teams"),
+  },
+  handler: async (ctx, args) => {
+    await ensureAdmin(ctx, args.teamId, args.userId);
+
+    // 1. Delete all team members
+    const members = await ctx.db
+      .query("teamMembers")
+      .withIndex("by_teamId", (q) => q.eq("teamId", args.teamId))
+      .collect();
+
+    await Promise.all(members.map(member => ctx.db.delete(member._id)));
+
+    // 2. Delete the team itself
+    const team = await ctx.db.get(args.teamId);
+    if (team?.coverId) {
+      // Optional: cleanup storage
+      await ctx.storage.delete(team.coverId);
+    }
+
+    await ctx.db.delete(args.teamId);
     return args.teamId;
   },
 });
@@ -333,7 +394,7 @@ export const acceptInviteByCode = mutation({
       .first();
 
     if (team) {
-       const existing = await ctx.db
+      const existing = await ctx.db
         .query("teamMembers")
         .withIndex("by_teamId_userId", (q) => q.eq("teamId", team._id).eq("userId", args.userId))
         .first();
@@ -354,7 +415,7 @@ export const acceptInviteByCode = mutation({
       .query("teamInvites")
       .withIndex("by_code", (q) => q.eq("code", code))
       .first();
-    
+
     if (!invite || invite.status !== "pending" || isExpired(invite.expiresAt)) {
       throw new Error("Invite not valid");
     }

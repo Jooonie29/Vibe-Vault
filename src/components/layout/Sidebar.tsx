@@ -155,13 +155,13 @@ export function Sidebar() {
               </DropdownMenuItem>
             ))}
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => setActiveTeamId(null)} className="text-muted-foreground">
-              <LayoutGrid className="w-4 h-4 mr-2" />
-              Back to menu
-            </DropdownMenuItem>
             <DropdownMenuItem onClick={() => openModal('team-onboarding')} className="text-violet-600 font-medium">
               <Plus className="w-4 h-4 mr-2" />
               Create workspace
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setActiveTeamId(null)} className="text-muted-foreground">
+              <LayoutGrid className="w-4 h-4 mr-2" />
+              Back to menu
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => signOut()} className="text-red-500 font-medium">
@@ -204,7 +204,7 @@ export function Sidebar() {
         {!sidebarCollapsed && (
           <div className="bg-gradient-to-br from-black via-violet-950 to-violet-800 rounded-2xl p-4 shadow-xl shadow-black/40 mb-4 border border-violet-500/30 overflow-hidden relative group">
             {/* Noise texture overlay */}
-            <div 
+            <div
               className="absolute inset-0 opacity-20 mix-blend-soft-light pointer-events-none"
               style={{
                 backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,

@@ -40,9 +40,19 @@ export function ProjectAnalytics({ data, maxValue, timePeriod }: ProjectAnalytic
             {/* Chart Container */}
             <div className="flex-1 min-h-[180px] flex items-end justify-between gap-1 px-1">
                 {data.map((point, i) => {
-                    const height = hasData ? Math.max((point.value / safeMaxValue) * 100, 4) : 4;
                     const isToday = isSameDay(new Date(point.fullDate), new Date());
                     const hasActivity = point.value > 0;
+                    
+                    // Calculate discrete height in 10 levels using fixed reference (max = 10 activities)
+                    // Level 1 = 10%, Level 2 = 20%, ..., Level 10 = 100%
+                    // Using fixed max of 10 so 1 activity = 10% height, not 100%
+                    const FIXED_MAX_ACTIVITIES = 10;
+                    let heightLevel = 0;
+                    if (hasActivity) {
+                        // Map to 10 discrete levels based on fixed maximum of 10
+                        heightLevel = Math.min(10, Math.max(1, Math.ceil(point.value / FIXED_MAX_ACTIVITIES * 10)));
+                    }
+                    const height = hasData ? (heightLevel * 10) : 4;
                     
                     return (
                         <div 
@@ -95,11 +105,6 @@ export function ProjectAnalytics({ data, maxValue, timePeriod }: ProjectAnalytic
                                 }`}>
                                     {point.day}
                                 </span>
-                                {hasActivity && (
-                                    <span className="text-[10px] text-gray-400 font-medium">
-                                        {point.value}
-                                    </span>
-                                )}
                             </div>
                         </div>
                     );

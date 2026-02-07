@@ -69,6 +69,7 @@ export default defineSchema({
         createdBy: v.string(),
         isPersonal: v.boolean(),
         inviteCode: v.optional(v.string()),
+        coverId: v.optional(v.id("_storage")),
     })
         .index("by_createdBy", ["createdBy"])
         .index("by_inviteCode", ["inviteCode"]),
@@ -156,4 +157,34 @@ export default defineSchema({
     })
         .index("by_userId", ["userId"])
         .index("by_teamId", ["teamId"]),
+
+    // Workspace Messaging System (Twitter/X-style DMs)
+    conversations: defineTable({
+        teamId: v.id("teams"),
+        participantIds: v.array(v.string()), // Array of userIds
+        isGroup: v.boolean(),
+        groupName: v.optional(v.string()),
+        groupAvatar: v.optional(v.string()),
+        lastMessageAt: v.number(),
+        lastMessageText: v.optional(v.string()),
+        lastMessageSenderId: v.optional(v.string()),
+        unreadCount: v.optional(v.record(v.string(), v.number())), // userId -> unread count
+    })
+        .index("by_teamId", ["teamId"])
+        .index("by_teamId_lastMessageAt", ["teamId", "lastMessageAt"]),
+
+    messages: defineTable({
+        conversationId: v.id("conversations"),
+        senderId: v.string(),
+        text: v.string(),
+        attachments: v.optional(v.array(v.object({
+            type: v.string(), // 'image', 'file'
+            url: v.string(),
+            name: v.optional(v.string()),
+        }))),
+        replyToId: v.optional(v.id("messages")),
+        editedAt: v.optional(v.number()),
+        deletedAt: v.optional(v.number()),
+    })
+        .index("by_conversationId", ["conversationId"]),
 });
