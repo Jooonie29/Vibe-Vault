@@ -183,25 +183,24 @@ export function Favorites() {
               : "space-y-4"
           }
         >
-          <AnimatePresence mode="popLayout">
-            {favoriteItems.map((item) => {
-              const TypeIcon = getTypeIcon(item.type);
-              const typeColor = getTypeColor(item.type);
+          {favoriteItems.map((item) => {
+            const TypeIcon = getTypeIcon(item.type);
+            const typeColor = getTypeColor(item.type);
 
-              return (
-                <motion.div key={item.id} layout>
-                  <Card
-                    className={`
-                      group cursor-pointer hover:shadow-md transition-all border-border hover:border-violet-200 dark:hover:border-violet-800
-                      ${viewMode === "list" ? "flex items-center p-4 gap-6" : "h-full flex flex-col"}
-                    `}
-                    onClick={() =>
-                      openModal(
-                        item.type === "project" ? "project-view" : "item",
-                        item,
-                      )
-                    }
-                  >
+            return (
+              <div key={item.id}>
+                <Card
+                  className={`
+                    group cursor-pointer hover:shadow-md transition-all border-border hover:border-violet-200 dark:hover:border-violet-800
+                    ${viewMode === "list" ? "flex items-center p-4 gap-6" : "h-full flex flex-col"}
+                  `}
+                  onClick={() =>
+                    openModal(
+                      item.type === "project" ? "project-view" : "item",
+                      item,
+                    )
+                  }
+                >
                     {/* Card Content based on View Mode */}
                     {viewMode === "grid" ? (
                       <>
@@ -269,10 +268,9 @@ export function Favorites() {
                       </>
                     )}
                   </Card>
-                </motion.div>
+                </div>
               );
             })}
-          </AnimatePresence>
         </div>
       )}
     </div>

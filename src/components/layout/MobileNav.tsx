@@ -26,15 +26,15 @@ export function MobileNav() {
           <div className="flex items-center gap-2">
             <img
               src="/logo-black.png"
-              alt="Vibe Vault"
+              alt="Vault Vibe"
               className="w-9 h-9 object-contain dark:hidden"
             />
             <img
               src="/logo-white.png"
-              alt="Vibe Vault"
+              alt="Vault Vibe"
               className="w-9 h-9 object-contain hidden dark:block"
             />
-            <span className="font-bold text-lg text-foreground tracking-tight">Vibe Vault</span>
+            <span className="font-bold text-lg text-foreground tracking-tight">Vault Vibe</span>
           </div>
           <button
             onClick={() => setIsOpen(!isOpen)}
@@ -70,16 +70,16 @@ export function MobileNav() {
               <div className="flex items-center gap-3">
                 <img
                   src="/logo-black.png"
-                  alt="Vibe Vault"
+                  alt="Vault Vibe"
                   className="w-11 h-11 object-contain dark:hidden"
                 />
                 <img
                   src="/logo-white.png"
-                  alt="Vibe Vault"
+                  alt="Vault Vibe"
                   className="w-11 h-11 object-contain hidden dark:block"
                 />
                 <div>
-                  <h1 className="font-bold text-xl text-foreground tracking-tight">Vibe Vault</h1>
+                  <h1 className="font-bold text-xl text-foreground tracking-tight">Vault Vibe</h1>
                   <p className="text-xs text-muted-foreground">{clerkUser?.username || clerkUser?.firstName || profile?.username || 'Developer'}</p>
                 </div>
               </div>

@@ -69,7 +69,7 @@ export function UserProfileDropdown({ isOpen, onClose, anchorRef }: UserProfileD
             id: 'documentation',
             label: 'Documentation',
             icon: BookOpen,
-            description: 'Learn how to use Vibe Vault'
+            description: 'Learn how to use Vault Vibe'
         },
         {
             id: 'help',

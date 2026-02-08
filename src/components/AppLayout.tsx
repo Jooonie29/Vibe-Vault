@@ -46,9 +46,9 @@ const AppLayout: React.FC = () => {
   
   // Detect if this is the first visit or a refresh
   const [isFirstVisit, setIsFirstVisit] = useState(() => {
-    const hasVisited = sessionStorage.getItem('vibeVaultVisited');
+    const hasVisited = sessionStorage.getItem('vaultVibeVisited');
     if (!hasVisited) {
-      sessionStorage.setItem('vibeVaultVisited', 'true');
+      sessionStorage.setItem('vaultVibeVisited', 'true');
       return true;
     }
     return false;
@@ -225,7 +225,7 @@ const AppLayout: React.FC = () => {
 
   // Show refresh loader for page refreshes (not first visit)
   if (!isFirstVisit && isInitializing) {
-    return <RefreshLoading message="Refreshing Vibe Vault..." />;
+    return <RefreshLoading message="Refreshing Vault Vibe..." />;
   }
 
   // Show refresh loader for post-auth on refreshes
@@ -238,7 +238,7 @@ const AppLayout: React.FC = () => {
       {/* First Visit: Initial Loading Animation - Always completes */}
       {isFirstVisit && (
         <VaultLoading 
-          message="Loading Vibe Vault..."
+          message="Loading Vault Vibe..."
           subMessage="Unlocking your creative assets"
           variant="initialize"
           isLoading={isInitializing}
@@ -249,7 +249,7 @@ const AppLayout: React.FC = () => {
       {/* First Visit: Post-Auth Loading Animation - Always completes */}
       {isFirstVisit && isSignedIn && !showLoader && (
         <VaultLoading 
-          message="Welcome to Vibe Vault"
+          message="Welcome to Vault Vibe"
           subMessage="Preparing your personal vault..."
           variant="post-auth"
           isLoading={postAuthLoading}

@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/Button';
 export const ChatSupport = () => {
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState<{id: number, text: string, isUser: boolean, time: string}[]>([
-    { id: 1, text: "Hi there! How can we help you with Vibe Vault today?", isUser: false, time: 'Just now' }
+    { id: 1, text: "Hi there! How can we help you with Vault Vibe today?", isUser: false, time: 'Just now' }
   ]);
 
   const handleSend = (e: React.FormEvent) => {
@@ -35,7 +35,7 @@ export const ChatSupport = () => {
             <MessageSquare className="w-5 h-5 text-violet-600 dark:text-violet-400" />
         </div>
         <div>
-            <h2 className="font-semibold text-gray-900 dark:text-white">Vibe Vault Support</h2>
+            <h2 className="font-semibold text-gray-900 dark:text-white">Vault Vibe Support</h2>
             <p className="text-xs text-green-600 dark:text-green-400 flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
                 Online

@@ -1,8 +1,8 @@
-# Vibe Vault - Technical Documentation
+# Vault Vibe - Technical Documentation
 
 ## 1. Executive Summary
 
-**Vibe Vault** is a comprehensive SaaS productivity platform designed specifically for "vibe coding" workflows. It enables developers and creative technologists to efficiently store, organize, retrieve, and share AI prompts, code snippets, and knowledge resources.
+**Vault Vibe** is a comprehensive SaaS productivity platform designed specifically for "vibe coding" workflows. It enables developers and creative technologists to efficiently store, organize, retrieve, and share AI prompts, code snippets, and knowledge resources.
 
 The platform is built as a multi-tenant web application, supporting individual developers and teams with role-based access control (RBAC), real-time collaboration, and seamless integration with modern development workflows.
 
@@ -10,7 +10,7 @@ The platform is built as a multi-tenant web application, supporting individual d
 
 ## 2. System Architecture
 
-Vibe Vault utilizes a modern, serverless architecture leveraging **Convex** for the backend/database and **React (Vite)** for the frontend, ensuring sub-200ms response times and real-time synchronization.
+Vault Vibe utilizes a modern, serverless architecture leveraging **Convex** for the backend/database and **React (Vite)** for the frontend, ensuring sub-200ms response times and real-time synchronization.
 
 ### 2.1 Tech Stack
 
@@ -92,7 +92,7 @@ Manages public and private sharing links.
 
 ## 4. API Specification & Data Flow
 
-Vibe Vault uses **Convex Functions** (Queries and Mutations) instead of traditional REST/GraphQL endpoints. This ensures end-to-end type safety and automatic reactivity.
+Vault Vibe uses **Convex Functions** (Queries and Mutations) instead of traditional REST/GraphQL endpoints. This ensures end-to-end type safety and automatic reactivity.
 
 ### 4.1 Authentication Flow
 1.  **Client** calls `supabase.auth.signInWithPassword`.

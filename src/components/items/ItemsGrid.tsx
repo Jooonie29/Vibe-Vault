@@ -329,27 +329,24 @@ export function ItemsGrid({ type, title, description }: ItemsGridProps) {
           )}
         </div>
       ) : (
-        <AnimatePresence mode="popLayout">
-          <motion.div
-            layout
-            className={
-              viewMode === "grid"
-                ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-                : "space-y-4"
-            }
-          >
-            {filteredItems.map((item, index) => (
-              <motion.div key={item.id} layout>
-                <ItemCard
-                  item={item}
-                  viewMode={viewMode}
-                  colors={colors}
-                  onOpen={(item) => openModal("item", item)}
-                />
-              </motion.div>
-            ))}
-          </motion.div>
-        </AnimatePresence>
+        <div
+          className={
+            viewMode === "grid"
+              ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+              : "space-y-4"
+          }
+        >
+          {filteredItems.map((item, index) => (
+            <div key={item.id}>
+              <ItemCard
+                item={item}
+                viewMode={viewMode}
+                colors={colors}
+                onOpen={(item) => openModal("item", item)}
+              />
+            </div>
+          ))}
+        </div>
       )}
     </div>
   );

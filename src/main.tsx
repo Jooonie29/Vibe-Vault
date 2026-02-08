@@ -4,19 +4,19 @@ import App from './App.tsx'
 import './index.css'
 
 const rootElement = document.getElementById("root");
-console.log("[Vibe Vault] Starting initialization...");
+console.log("[Vault Vibe] Starting initialization...");
 
 if (!rootElement) {
-  console.error("[Vibe Vault] Fatal: Root element (#root) not found in DOM");
+  console.error("[Vault Vibe] Fatal: Root element (#root) not found in DOM");
 } else {
-  console.log("[Vibe Vault] Root element found, attempting to render...");
+  console.log("[Vault Vibe] Root element found, attempting to render...");
   try {
     const root = createRoot(rootElement);
-    console.log("[Vibe Vault] React root created, calling render...");
+    console.log("[Vault Vibe] React root created, calling render...");
     root.render(<App />);
-    console.log("[Vibe Vault] Render called successfully");
+    console.log("[Vault Vibe] Render called successfully");
   } catch (error) {
-    console.error("[Vibe Vault] Fatal: Failed to render React app:", error);
+    console.error("[Vault Vibe] Fatal: Failed to render React app:", error);
 
     // Low-level fallback for when React fails to mount at all
     rootElement.innerHTML = `
@@ -27,7 +27,7 @@ if (!rootElement) {
           </div>
           <h1 style="font-size: 20px; font-weight: bold; color: #111827; margin-bottom: 15px;">Application Load Failure</h1>
           <p style="color: #4b5563; font-size: 14px; line-height: 1.6; margin-bottom: 20px;">
-            Vibe Vault failed to initialize. This usually happens due to missing configuration or a script error.
+            Vault Vibe failed to initialize. This usually happens due to missing configuration or a script error.
           </p>
           <div style="background: #fffbeb; border: 1px solid #fef3c7; border-radius: 12px; padding: 15px; text-align: left; font-size: 13px; color: #92400e;">
             <p style="font-weight: bold; margin-top: 0; margin-bottom: 8px;">Checklist:</p>

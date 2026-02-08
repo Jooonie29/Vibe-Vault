@@ -271,24 +271,26 @@ export function Dashboard() {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            <button
-              ref={notificationButtonRef}
-              onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
-              className="p-2 bg-card border border-border rounded-full text-muted-foreground hover:text-foreground transition-colors relative"
-            >
-              <Bell className="w-5 h-5" />
-              {unreadCount > 0 && (
-                <span className="absolute top-0 right-0 min-w-[16px] h-[16px] bg-red-500 rounded-full border-2 border-card flex items-center justify-center text-[10px] font-bold text-white transform translate-x-1 -translate-y-1">
-                  {unreadCount > 9 ? '9+' : unreadCount}
-                </span>
-              )}
-            </button>
+            <div className="relative">
+              <button
+                ref={notificationButtonRef}
+                onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
+                className="p-2 bg-card border border-border rounded-full text-muted-foreground hover:text-foreground transition-colors relative"
+              >
+                <Bell className="w-5 h-5" />
+                {unreadCount > 0 && (
+                  <span className="absolute top-0 right-0 min-w-[16px] h-[16px] bg-red-500 rounded-full border-2 border-card flex items-center justify-center text-[10px] font-bold text-white transform translate-x-1 -translate-y-1">
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </span>
+                )}
+              </button>
 
-            <NotificationsPanel
-              isOpen={isNotificationsOpen}
-              onClose={() => setIsNotificationsOpen(false)}
-              anchorRef={notificationButtonRef}
-            />
+              <NotificationsPanel
+                isOpen={isNotificationsOpen}
+                onClose={() => setIsNotificationsOpen(false)}
+                anchorRef={notificationButtonRef}
+              />
+            </div>
           </div>
         </header>
 

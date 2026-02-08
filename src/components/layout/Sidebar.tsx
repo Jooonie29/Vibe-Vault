@@ -88,17 +88,17 @@ export function Sidebar() {
         <div className={`flex items-center ${sidebarCollapsed ? 'justify-center' : 'gap-3'}`}>
           <img
             src="/logo-black.png"
-            alt="Vibe Vault"
+            alt="Vault Vibe"
             className={`${sidebarCollapsed ? 'w-8 h-8' : 'w-10 h-10'} object-contain transition-all duration-300 dark:hidden`}
           />
           <img
             src="/logo-white.png"
-            alt="Vibe Vault"
+            alt="Vault Vibe"
             className={`${sidebarCollapsed ? 'w-8 h-8' : 'w-10 h-10'} object-contain transition-all duration-300 hidden dark:block`}
           />
           {!sidebarCollapsed && (
             <span className="font-bold text-xl text-sidebar-foreground tracking-tight whitespace-nowrap overflow-hidden">
-              Vibe Vault
+              Vault Vibe
             </span>
           )}
         </div>

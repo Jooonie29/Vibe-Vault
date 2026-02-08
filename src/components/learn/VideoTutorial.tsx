@@ -8,7 +8,7 @@ export const VideoTutorial = () => {
   const tutorials = [
     {
       id: 1,
-      title: 'Getting Started with Vibe Vault',
+      title: 'Getting Started with Vault Vibe',
       duration: '5:20',
       category: 'Basics',
       thumbnail: 'bg-gradient-to-br from-violet-500 to-purple-600',
@@ -62,7 +62,7 @@ export const VideoTutorial = () => {
       <div className="space-y-4">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Video Tutorials</h1>
         <p className="text-gray-500 dark:text-muted-foreground text-lg max-w-3xl">
-          Watch our step-by-step guides to master Vibe Vault and boost your productivity.
+          Watch our step-by-step guides to master Vault Vibe and boost your productivity.
           From basic setup to advanced workflows, we've got you covered.
         </p>
       </div>
@@ -84,7 +84,7 @@ export const VideoTutorial = () => {
           <Badge className="bg-violet-600 hover:bg-violet-700 text-white border-none mb-4">
             New Arrival
           </Badge>
-          <h2 className="text-3xl font-bold text-white mb-2">Vibe Vault 2.0 Walkthrough</h2>
+          <h2 className="text-3xl font-bold text-white mb-2">Vault Vibe 2.0 Walkthrough</h2>
           <p className="text-gray-200 max-w-2xl mb-4 line-clamp-2">
             Explore the latest features including the new AI assistant, enhanced project management tools, and improved team collaboration workflows.
           </p>

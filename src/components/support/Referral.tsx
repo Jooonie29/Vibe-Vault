@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/Button';
 
 export const Referral = () => {
   const [copied, setCopied] = useState(false);
-  const referralLink = "https://vibevault.app/r/johndoe123";
+  const referralLink = "https://vaultvibe.app/r/johndoe123";
 
   const handleCopy = () => {
     navigator.clipboard.writeText(referralLink);
@@ -22,7 +22,7 @@ export const Referral = () => {
             </div>
             <h1 className="text-3xl font-bold mb-4">Invite Friends, Get Pro Free</h1>
             <p className="text-violet-100 text-lg max-w-lg mx-auto">
-                Give your friends 1 month of Vibe Vault Pro for free. For every friend who joins, you get 1 month free too!
+                Give your friends 1 month of Vault Vibe Pro for free. For every friend who joins, you get 1 month free too!
             </p>
         </div>
 

@@ -10,7 +10,7 @@ interface VaultLoadingProps {
 }
 
 export function VaultLoading({ 
-  message = 'Loading Vibe Vault...', 
+  message = 'Loading Vault Vibe...', 
   subMessage = 'Unlocking your creative assets',
   variant = 'initialize',
   onAnimationComplete,
@@ -60,7 +60,7 @@ export function VaultLoading({
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.5 }}
-          className="fixed inset-0 z-50 bg-white flex items-center justify-center"
+          className="fixed inset-0 z-[200] bg-white flex items-center justify-center"
         >
           <div className="text-center">
             {/* Vault Container */}

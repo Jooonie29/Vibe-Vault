@@ -147,7 +147,7 @@ const PublicSharePage = () => {
         <div className="max-w-md text-center bg-white border border-gray-100 shadow-sm rounded-3xl p-8">
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Share not available</h1>
           <p className="text-gray-500 mb-6">This public link is disabled or has expired.</p>
-          <Link className="text-violet-600 font-semibold hover:underline" to="/">Return to Vibe Vault</Link>
+          <Link className="text-violet-600 font-semibold hover:underline" to="/">Return to Vault Vibe</Link>
         </div>
       </div>
     );
@@ -175,11 +175,11 @@ const PublicSharePage = () => {
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-5xl mx-auto px-6 py-10 space-y-8">
         <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-2 mb-2">
-            <img src="/logo-black.png" alt="Vibe Vault" className="w-5 h-5" />
-            <span className="font-bold text-gray-900">Vibe Vault</span>
+          <div className="flex items-center gap-2">
+            <img src="/logo-black.png" alt="Vault Vibe" className="w-5 h-5" />
+            <span className="font-bold text-gray-900">Vault Vibe</span>
           </div>
-          <Link className="text-sm font-semibold text-violet-600 hover:underline" to="/">Open Vibe Vault</Link>
+          <Link className="text-sm font-semibold text-violet-600 hover:underline" to="/">Open Vault Vibe</Link>
         </div>
 
         <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-8 space-y-8">

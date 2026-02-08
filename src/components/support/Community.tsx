@@ -7,7 +7,7 @@ export const Community = () => {
   return (
     <div className="max-w-5xl mx-auto space-y-8">
       <div className="text-center max-w-2xl mx-auto mb-12">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Join the Vibe Vault Community</h1>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Join the Vault Vibe Community</h1>
         <p className="text-gray-500 dark:text-muted-foreground text-lg">
           Connect with thousands of developers, share your prompts, and build the future of coding together.
         </p>
@@ -54,7 +54,7 @@ export const Community = () => {
             <div className="space-y-2">
                 <h3 className="text-2xl font-bold">Community Showcase</h3>
                 <p className="text-violet-100 max-w-md">
-                    See what others are building with Vibe Vault. Explore our gallery of community-created prompts and workflows.
+                    See what others are building with Vault Vibe. Explore our gallery of community-created prompts and workflows.
                 </p>
             </div>
             <a

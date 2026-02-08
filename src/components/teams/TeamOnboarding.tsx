@@ -280,9 +280,9 @@ export function TeamOnboarding() {
       <aside className="w-64 bg-sidebar border-r border-sidebar-border flex flex-col fixed left-0 top-0 bottom-0 z-30 text-sidebar-foreground">
         {/* Logo */}
         <div className="p-6 flex items-center gap-3">
-          <img src="/logo-black.png" alt="Vibe Vault" className="w-8 h-8 object-contain dark:hidden" />
-          <img src="/vibe logo white.png" alt="Vibe Vault" className="w-8 h-8 object-contain hidden dark:block" />
-          <span className="font-extrabold text-2xl text-sidebar-foreground tracking-tighter">Vibe Vault</span>
+          <img src="/logo-black.png" alt="Vault Vibe" className="w-8 h-8 object-contain dark:hidden" />
+          <img src="/vibe logo white.png" alt="Vault Vibe" className="w-8 h-8 object-contain hidden dark:block" />
+          <span className="font-extrabold text-2xl text-sidebar-foreground tracking-tighter">Vault Vibe</span>
         </div>
 
         <div className="flex-1 overflow-y-auto px-4 py-2 space-y-8">
@@ -420,27 +420,29 @@ export function TeamOnboarding() {
               <Search className="w-5 h-5" />
             </button>
 
-            {/* Notifications Button */}
-            <button
-              ref={notificationButtonRef}
-              onClick={handleToggleNotifications}
-              className="p-2 text-muted-foreground hover:text-foreground hover:bg-accent rounded-full transition-colors relative"
-              title="Notifications"
-            >
-              <Bell className="w-5 h-5" />
-              {unreadCount > 0 && (
-                <span className="absolute top-1 right-1 min-w-[18px] h-[18px] bg-red-500 rounded-full border-2 border-background flex items-center justify-center text-[10px] font-bold text-white">
-                  {unreadCount > 9 ? '9+' : unreadCount}
-                </span>
-              )}
-            </button>
+            <div className="relative">
+              {/* Notifications Button */}
+              <button
+                ref={notificationButtonRef}
+                onClick={handleToggleNotifications}
+                className="p-2 text-muted-foreground hover:text-foreground hover:bg-accent rounded-full transition-colors relative"
+                title="Notifications"
+              >
+                <Bell className="w-5 h-5" />
+                {unreadCount > 0 && (
+                  <span className="absolute top-1 right-1 min-w-[18px] h-[18px] bg-red-500 rounded-full border-2 border-background flex items-center justify-center text-[10px] font-bold text-white">
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </span>
+                )}
+              </button>
 
-            {/* Notifications Panel */}
-            <NotificationsPanel
-              isOpen={isNotificationsOpen}
-              onClose={() => setIsNotificationsOpen(false)}
-              anchorRef={notificationButtonRef}
-            />
+              {/* Notifications Panel */}
+              <NotificationsPanel
+                isOpen={isNotificationsOpen}
+                onClose={() => setIsNotificationsOpen(false)}
+                anchorRef={notificationButtonRef}
+              />
+            </div>
 
             {/* Profile Button */}
             <button

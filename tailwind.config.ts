@@ -64,7 +64,7 @@ export default {
           border: 'hsl(var(--sidebar-border))',
           ring: 'hsl(var(--sidebar-ring))'
         },
-        // Vibe Vault custom colors
+        // Vault Vibe custom colors
         violet: {
           50: '#f5f3ff',
           100: '#ede9fe',

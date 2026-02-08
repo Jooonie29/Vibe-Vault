@@ -38,12 +38,12 @@ const repoUrl = 'https://github.com/Jooonie29/Vibe-Vault.git';
 
 const faqs = [
   {
-    question: "How does Vibe Vault help organize my development workflow?",
-    answer: "Vibe Vault provides a centralized hub for all your developer assets - code snippets, AI prompts, file assets, and project tracking. Everything is searchable, taggable, and accessible from anywhere."
+    question: "How does Vault Vibe help organize my development workflow?",
+    answer: "Vault Vibe provides a centralized hub for all your developer assets - code snippets, AI prompts, file assets, and project tracking. Everything is searchable, taggable, and accessible from anywhere."
   },
   {
     question: "Do I need a detailed setup to get started?",
-    answer: "Not at all! Vibe Vault works out of the box. Simply sign up and start adding your snippets, prompts, and files. Our intuitive interface makes organization effortless."
+    answer: "Not at all! Vault Vibe works out of the box. Simply sign up and start adding your snippets, prompts, and files. Our intuitive interface makes organization effortless."
   },
   {
     question: "Is the platform free to use for individual developers?",
@@ -51,7 +51,7 @@ const faqs = [
   },
   {
     question: "Can I share my resources with team members?",
-    answer: "Absolutely! Vibe Vault supports team workspaces where you can share snippets, prompts, and files with your colleagues. Set permissions and collaborate seamlessly."
+    answer: "Absolutely! Vault Vibe supports team workspaces where you can share snippets, prompts, and files with your colleagues. Set permissions and collaborate seamlessly."
   },
   {
     question: "How does the project tracking feature work?",
@@ -149,8 +149,8 @@ export function LandingPage() {
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <div className="flex items-center gap-2">
-              <img src="/logo.png" alt="Vibe Vault" className="w-8 h-8 object-contain" />
-              <span className="font-bold text-xl text-gray-900">Vibe Vault</span>
+              <img src="/logo.png" alt="Vault Vibe" className="w-8 h-8 object-contain" />
+              <span className="font-bold text-xl text-gray-900">Vault Vibe</span>
             </div>
 
             {/* Desktop Navigation */}
@@ -355,7 +355,7 @@ export function LandingPage() {
             {[...Array(12)].map((_, i) => (
               <div key={i} className="flex items-center gap-4">
                 <img src="/logo.png" alt="" className="w-8 h-8 object-contain opacity-50 grayscale hover:opacity-100 hover:grayscale-0 transition-all cursor-default" />
-                <span className="text-xl font-bold text-gray-400 tracking-tight">Vibe Vault</span>
+                <span className="text-xl font-bold text-gray-400 tracking-tight">Vault Vibe</span>
               </div>
             ))}
             {/* Duplicate for seamless loop */}
@@ -684,8 +684,8 @@ export function LandingPage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-12 mb-16 px-4">
             <div className="col-span-2">
               <div className="flex items-center gap-2 mb-6">
-                <img src="/logo.png" alt="Vibe Vault" className="w-8 h-8 object-contain" />
-                <span className="font-bold text-xl text-gray-900 tracking-tight">Vibe Vault</span>
+                <img src="/logo.png" alt="Vault Vibe" className="w-8 h-8 object-contain" />
+                <span className="font-bold text-xl text-gray-900 tracking-tight">Vault Vibe</span>
               </div>
               <p className="text-gray-500 max-w-sm leading-relaxed">
                 Architectural asset management for vibe coders.
@@ -729,7 +729,7 @@ export function LandingPage() {
               </a>
             </div>
             <p className="text-gray-400 text-sm">
-              © 2026 Vibe Vault. All rights reserved.
+              © 2026 Vault Vibe. All rights reserved.
             </p>
           </div>
         </div>

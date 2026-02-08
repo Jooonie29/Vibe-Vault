@@ -8,7 +8,7 @@ export const Documentation = () => {
       <div className="space-y-4">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Documentation</h1>
         <p className="text-gray-500 dark:text-muted-foreground text-lg">
-          Technical specifications, architecture details, and implementation guidelines for Vibe Vault.
+          Technical specifications, architecture details, and implementation guidelines for Vault Vibe.
         </p>
       </div>
 
@@ -52,7 +52,7 @@ export const Documentation = () => {
           
           <Section title="1. Executive Summary">
             <p className="text-gray-600 dark:text-muted-foreground leading-relaxed">
-              Vibe Vault is a comprehensive SaaS productivity platform designed specifically for "vibe coding" workflows. 
+              Vault Vibe is a comprehensive SaaS productivity platform designed specifically for "vibe coding" workflows. 
               It enables developers and creative technologists to efficiently store, organize, retrieve, and share AI prompts, 
               code snippets, and knowledge resources.
             </p>
@@ -62,7 +62,7 @@ export const Documentation = () => {
 
           <Section title="2. System Architecture">
             <p className="text-gray-600 dark:text-muted-foreground mb-4">
-              Vibe Vault utilizes a modern, serverless architecture leveraging <strong>Convex</strong> for the backend/database 
+              Vault Vibe utilizes a modern, serverless architecture leveraging <strong>Convex</strong> for the backend/database 
               and <strong>React (Vite)</strong> for the frontend, ensuring sub-200ms response times and real-time synchronization.
             </p>
             <div className="bg-gray-50 dark:bg-muted/30 rounded-xl p-4 border border-gray-100 dark:border-white/10">

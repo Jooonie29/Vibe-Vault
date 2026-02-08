@@ -1,4 +1,4 @@
-// Type definitions for Vibe Vault
+// Type definitions for Vault Vibe
 // Note: These interfaces are mapped from Convex types which use camelCase
 // and include automatic _id and _creationTime fields.
 
