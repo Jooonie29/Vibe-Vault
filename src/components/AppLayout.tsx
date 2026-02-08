@@ -42,7 +42,6 @@ const AppLayout: React.FC = () => {
   const isMobile = useIsMobile();
   
   const [showLoader, setShowLoader] = useState(true);
-  const [showPostAuthLoader, setShowPostAuthLoader] = useState(true);
   
   // Detect if this is the first visit or a refresh
   const [isFirstVisit, setIsFirstVisit] = useState(() => {
@@ -142,11 +141,8 @@ const AppLayout: React.FC = () => {
   // For first visit: wait for both loading AND animation to complete
   // For refresh: just wait for loading to complete
   const shouldShowInitLoader = isFirstVisit 
-    ? (isInitializing || showLoader) 
+    ? (isInitializing || (isSignedIn && postAuthLoading) || showLoader) 
     : isInitializing;
-  const shouldShowPostAuthLoader = isFirstVisit 
-    ? (postAuthLoading || showPostAuthLoader) 
-    : postAuthLoading;
 
   // Helper to render specific view content
   const renderViewContent = (view: string) => {
@@ -214,7 +210,7 @@ const AppLayout: React.FC = () => {
   }
 
   // Show team onboarding for authenticated users without a team
-  if (isSignedIn && !activeTeamId && !shouldShowPostAuthLoader) {
+  if (isSignedIn && !activeTeamId && !shouldShowInitLoader) {
     return (
       <>
         <TeamOnboarding />
@@ -241,24 +237,13 @@ const AppLayout: React.FC = () => {
           message="Loading Vault Vibe..."
           subMessage="Unlocking your creative assets"
           variant="initialize"
-          isLoading={isInitializing}
+          isLoading={isInitializing || (isSignedIn && postAuthLoading)}
           onAnimationComplete={() => setShowLoader(false)}
         />
       )}
       
-      {/* First Visit: Post-Auth Loading Animation - Always completes */}
-      {isFirstVisit && isSignedIn && !showLoader && (
-        <VaultLoading 
-          message="Welcome to Vault Vibe"
-          subMessage="Preparing your personal vault..."
-          variant="post-auth"
-          isLoading={postAuthLoading}
-          onAnimationComplete={() => setShowPostAuthLoader(false)}
-        />
-      )}
-      
       {/* Main App Content */}
-      {isSignedIn && activeTeamId && !shouldShowInitLoader && !shouldShowPostAuthLoader && (
+      {isSignedIn && activeTeamId && !shouldShowInitLoader && (
         <div className="min-h-screen bg-background vibe-depth-bg transition-colors duration-500">
           {/* Mobile Navigation */}
           {isMobile && <MobileNav />}
