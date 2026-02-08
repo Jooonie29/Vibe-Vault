@@ -58,7 +58,7 @@ import { Settings as SettingsComponent } from '@/components/settings/Settings';
 
 export function TeamOnboarding() {
   const { user, profile, signOut } = useAuthStore();
-  const { addToast, setActiveTeamId } = useUIStore();
+  const { addToast, setActiveTeamId, setCurrentView } = useUIStore();
   const { theme, setTheme } = useTheme();
   const userId = user?.id || '';
   const displayName = profile?.fullName || profile?.username || user?.email?.split('@')[0] || 'User';
@@ -154,6 +154,7 @@ export function TeamOnboarding() {
 
   const handleEnterWorkspace = (teamId: string) => {
     setActiveTeamId(teamId);
+    setCurrentView('dashboard');
   };
 
   const handleCreateTeam = async () => {

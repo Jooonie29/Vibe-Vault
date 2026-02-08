@@ -123,10 +123,10 @@ const AppLayout: React.FC = () => {
   }, [isLoaded, isSignedIn, clerkUser, activeTeamId, migrateLegacyOwnerItemsToTeam, migrateLegacyOwnerTagsToTeam, addToast]);
 
   useEffect(() => {
-    if (initialized && !storeLoading && !storeUser && !isSignedIn) {
+    if (initialized && !storeLoading && !storeUser && !isSignedIn && isLoaded) {
       setActiveTeamId(null);
     }
-  }, [storeUser, initialized, storeLoading, setActiveTeamId, isSignedIn]);
+  }, [storeUser, initialized, storeLoading, setActiveTeamId, isSignedIn, isLoaded]);
 
   // Update visited views when currentView changes
   useEffect(() => {
@@ -247,7 +247,7 @@ const AppLayout: React.FC = () => {
       )}
       
       {/* First Visit: Post-Auth Loading Animation - Always completes */}
-      {isFirstVisit && isSignedIn && (
+      {isFirstVisit && isSignedIn && !showLoader && (
         <VaultLoading 
           message="Welcome to Vibe Vault"
           subMessage="Preparing your personal vault..."
