@@ -244,8 +244,16 @@ export function FileManager() {
             placeholder="Search files..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-12 pr-4 py-3 bg-secondary/50 border-transparent rounded-2xl text-base focus:bg-card focus:border-primary/20 focus:ring-4 focus:ring-primary/10 transition-all outline-none placeholder:text-muted-foreground/50 text-foreground"
+            className="w-full pl-12 pr-12 py-3 bg-secondary/50 border-transparent rounded-2xl text-base focus:bg-card focus:border-primary/20 focus:ring-4 focus:ring-primary/10 transition-all outline-none placeholder:text-muted-foreground/50 text-foreground"
           />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery("")}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          )}
         </div>
         <div className="flex bg-secondary p-1.5 rounded-2xl">
           <button

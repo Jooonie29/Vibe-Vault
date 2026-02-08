@@ -42,40 +42,40 @@ export function DashboardStatCard({
 
     // Icon background colors from reference
     const iconBgColors: Record<string, string> = {
-        'bg-blue-500': 'bg-blue-100',
-        'bg-purple-500': 'bg-purple-100', 
-        'bg-orange-500': 'bg-orange-100',
-        'bg-emerald-500': 'bg-emerald-100',
+        'bg-blue-500': 'bg-blue-100 dark:bg-blue-900/30',
+        'bg-purple-500': 'bg-purple-100 dark:bg-purple-900/30', 
+        'bg-orange-500': 'bg-orange-100 dark:bg-orange-900/30',
+        'bg-emerald-500': 'bg-emerald-100 dark:bg-emerald-900/30',
     };
 
     const iconTextColors: Record<string, string> = {
-        'bg-blue-500': 'text-blue-500',
-        'bg-purple-500': 'text-purple-500',
-        'bg-orange-500': 'text-orange-500', 
-        'bg-emerald-500': 'text-emerald-500',
+        'bg-blue-500': 'text-blue-500 dark:text-blue-400',
+        'bg-purple-500': 'text-purple-500 dark:text-purple-400',
+        'bg-orange-500': 'text-orange-500 dark:text-orange-400', 
+        'bg-emerald-500': 'text-emerald-500 dark:text-emerald-400',
     };
 
     return (
         <motion.div
             whileHover={{ y: -2 }}
-            className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 transition-all duration-300"
+            className="bg-card rounded-2xl p-6 shadow-sm border border-border transition-all duration-300"
         >
             {/* Header */}
             <div className="flex justify-between items-start mb-4">
-                <p className="text-gray-500 text-sm font-medium">{label}</p>
-                <div className={`w-10 h-10 rounded-xl ${iconBgColors[color] || 'bg-gray-100'} flex items-center justify-center`}>
-                    <Icon className={`w-5 h-5 ${iconTextColors[color] || 'text-gray-500'}`} />
+                <p className="text-muted-foreground text-sm font-medium">{label}</p>
+                <div className={`w-10 h-10 rounded-xl ${iconBgColors[color] || 'bg-muted'} flex items-center justify-center`}>
+                    <Icon className={`w-5 h-5 ${iconTextColors[color] || 'text-muted-foreground'}`} />
                 </div>
             </div>
 
             {/* Value */}
-            <h3 className="text-3xl font-bold text-gray-900 mb-4">{value}</h3>
+            <h3 className="text-3xl font-bold text-card-foreground mb-4">{value}</h3>
 
             {/* Mini Chart and Trend */}
             <div className="flex items-end justify-between">
                 {/* Trend Badge */}
                 <div className={`flex items-center gap-1 text-sm font-medium ${
-                    isPositive ? 'text-emerald-500' : isNegative ? 'text-red-500' : 'text-gray-400'
+                    isPositive ? 'text-emerald-500' : isNegative ? 'text-red-500' : 'text-muted-foreground'
                 }`}>
                     {isPositive && <TrendingUp className="w-4 h-4" />}
                     {isNegative && <TrendingDown className="w-4 h-4" />}

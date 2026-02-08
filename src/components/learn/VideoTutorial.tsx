@@ -60,8 +60,8 @@ export const VideoTutorial = () => {
     <div className="max-w-7xl mx-auto space-y-8 pb-12">
       {/* Header */}
       <div className="space-y-4">
-        <h1 className="text-3xl font-bold text-gray-900">Video Tutorials</h1>
-        <p className="text-gray-500 text-lg max-w-3xl">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Video Tutorials</h1>
+        <p className="text-gray-500 dark:text-muted-foreground text-lg max-w-3xl">
           Watch our step-by-step guides to master Vibe Vault and boost your productivity.
           From basic setup to advanced workflows, we've got you covered.
         </p>
@@ -99,7 +99,7 @@ export const VideoTutorial = () => {
       {/* Tutorial Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {tutorials.map((tutorial) => (
-          <Card key={tutorial.id} className="group cursor-pointer hover:shadow-lg transition-all border-gray-200 overflow-hidden">
+          <Card key={tutorial.id} className="group cursor-pointer hover:shadow-lg transition-all border-gray-200 dark:border-white/10 overflow-hidden">
             <div className={`h-48 ${tutorial.thumbnail} relative`}>
               <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors" />
               <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
@@ -114,23 +114,23 @@ export const VideoTutorial = () => {
             
             <div className="p-5">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-semibold text-violet-600 uppercase tracking-wider">
+                <span className="text-xs font-semibold text-violet-600 dark:text-violet-400 uppercase tracking-wider">
                   {tutorial.category}
                 </span>
-                <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-gray-400 hover:text-gray-600">
+                <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300">
                   <BookOpen className="w-4 h-4" />
                 </Button>
               </div>
               
-              <h3 className="font-bold text-gray-900 mb-2 group-hover:text-violet-600 transition-colors line-clamp-1">
+              <h3 className="font-bold text-gray-900 dark:text-white mb-2 group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors line-clamp-1">
                 {tutorial.title}
               </h3>
               
-              <p className="text-sm text-gray-500 mb-4 line-clamp-2">
+              <p className="text-sm text-gray-500 dark:text-muted-foreground mb-4 line-clamp-2">
                 {tutorial.description}
               </p>
               
-              <div className="flex items-center text-sm font-medium text-violet-600 group/link">
+              <div className="flex items-center text-sm font-medium text-violet-600 dark:text-violet-400 group/link">
                 Watch now
                 <ChevronRight className="w-4 h-4 ml-1 transform group-hover/link:translate-x-1 transition-transform" />
               </div>

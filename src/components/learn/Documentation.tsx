@@ -6,8 +6,8 @@ export const Documentation = () => {
     <div className="max-w-5xl mx-auto space-y-8 pb-12">
       {/* Header */}
       <div className="space-y-4">
-        <h1 className="text-3xl font-bold text-gray-900">Documentation</h1>
-        <p className="text-gray-500 text-lg">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Documentation</h1>
+        <p className="text-gray-500 dark:text-muted-foreground text-lg">
           Technical specifications, architecture details, and implementation guidelines for Vibe Vault.
         </p>
       </div>
@@ -47,27 +47,27 @@ export const Documentation = () => {
       </div>
 
       {/* Content Section */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="bg-white dark:bg-card rounded-2xl shadow-sm border border-gray-100 dark:border-white/10 overflow-hidden">
         <div className="p-6 md:p-8 space-y-8">
           
           <Section title="1. Executive Summary">
-            <p className="text-gray-600 leading-relaxed">
+            <p className="text-gray-600 dark:text-muted-foreground leading-relaxed">
               Vibe Vault is a comprehensive SaaS productivity platform designed specifically for "vibe coding" workflows. 
               It enables developers and creative technologists to efficiently store, organize, retrieve, and share AI prompts, 
               code snippets, and knowledge resources.
             </p>
           </Section>
 
-          <div className="h-px bg-gray-100" />
+          <div className="h-px bg-gray-100 dark:bg-white/10" />
 
           <Section title="2. System Architecture">
-            <p className="text-gray-600 mb-4">
+            <p className="text-gray-600 dark:text-muted-foreground mb-4">
               Vibe Vault utilizes a modern, serverless architecture leveraging <strong>Convex</strong> for the backend/database 
               and <strong>React (Vite)</strong> for the frontend, ensuring sub-200ms response times and real-time synchronization.
             </p>
-            <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
-              <h4 className="text-sm font-semibold text-gray-900 mb-3">Tech Stack</h4>
-              <ul className="space-y-2 text-sm text-gray-600">
+            <div className="bg-gray-50 dark:bg-muted/30 rounded-xl p-4 border border-gray-100 dark:border-white/10">
+              <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Tech Stack</h4>
+              <ul className="space-y-2 text-sm text-gray-600 dark:text-muted-foreground">
                 <li className="flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-blue-500" />
                   <strong>Frontend:</strong> React 18, Vite, Tailwind CSS
@@ -88,10 +88,10 @@ export const Documentation = () => {
             </div>
           </Section>
 
-          <div className="h-px bg-gray-100" />
+          <div className="h-px bg-gray-100 dark:bg-white/10" />
 
           <Section title="3. Database Schema">
-            <p className="text-gray-600 mb-4">
+            <p className="text-gray-600 dark:text-muted-foreground mb-4">
               The database is implemented using Convex, providing strong consistency and real-time updates.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -122,14 +122,14 @@ export const Documentation = () => {
 
           <Section title="4. Implementation Guidelines">
              <div className="space-y-4">
-                <div className="bg-blue-50 text-blue-800 p-4 rounded-xl border border-blue-100">
+                <div className="bg-blue-50 dark:bg-blue-500/10 text-blue-800 dark:text-blue-300 p-4 rounded-xl border border-blue-100 dark:border-blue-500/20">
                     <h4 className="font-semibold mb-1">Offline Capability</h4>
                     <p className="text-sm">
                         Implement service workers using <code>vite-plugin-pwa</code> and leverage Convex's optimistic updates 
                         for robust offline support.
                     </p>
                 </div>
-                <div className="bg-purple-50 text-purple-800 p-4 rounded-xl border border-purple-100">
+                <div className="bg-purple-50 dark:bg-purple-500/10 text-purple-800 dark:text-purple-300 p-4 rounded-xl border border-purple-100 dark:border-purple-500/20">
                     <h4 className="font-semibold mb-1">Browser Extension</h4>
                     <p className="text-sm">
                         Use <code>window.postMessage</code> for communication between the web app and extension content scripts.
@@ -146,29 +146,29 @@ export const Documentation = () => {
 };
 
 const DocCard = ({ icon: Icon, title, description }: { icon: any, title: string, description: string }) => (
-  <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow cursor-pointer group">
-    <div className="w-10 h-10 rounded-lg bg-gray-50 flex items-center justify-center mb-4 group-hover:bg-violet-50 group-hover:text-violet-600 transition-colors">
-      <Icon className="w-5 h-5 text-gray-500 group-hover:text-violet-600" />
+  <div className="bg-white dark:bg-card p-5 rounded-xl border border-gray-100 dark:border-white/10 shadow-sm hover:shadow-md transition-shadow cursor-pointer group">
+    <div className="w-10 h-10 rounded-lg bg-gray-50 dark:bg-white/5 flex items-center justify-center mb-4 group-hover:bg-violet-50 dark:group-hover:bg-violet-500/20 group-hover:text-violet-600 dark:group-hover:text-violet-300 transition-colors">
+      <Icon className="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-violet-600 dark:group-hover:text-violet-300" />
     </div>
-    <h3 className="font-semibold text-gray-900 mb-1">{title}</h3>
-    <p className="text-sm text-gray-500">{description}</p>
+    <h3 className="font-semibold text-gray-900 dark:text-white mb-1">{title}</h3>
+    <p className="text-sm text-gray-500 dark:text-muted-foreground">{description}</p>
   </div>
 );
 
 const Section = ({ title, children }: { title: string, children: React.ReactNode }) => (
   <div>
-    <h2 className="text-xl font-bold text-gray-900 mb-4">{title}</h2>
+    <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">{title}</h2>
     {children}
   </div>
 );
 
 const SchemaTable = ({ name, description, fields }: { name: string, description: string, fields: string[] }) => (
-    <div className="border border-gray-200 rounded-lg p-4">
-        <h4 className="font-mono text-sm font-bold text-violet-600 mb-1">{name}</h4>
-        <p className="text-xs text-gray-500 mb-3">{description}</p>
+    <div className="border border-gray-200 dark:border-white/10 rounded-lg p-4">
+        <h4 className="font-mono text-sm font-bold text-violet-600 dark:text-violet-400 mb-1">{name}</h4>
+        <p className="text-xs text-gray-500 dark:text-muted-foreground mb-3">{description}</p>
         <div className="flex flex-wrap gap-1">
             {fields.map(f => (
-                <span key={f} className="px-1.5 py-0.5 bg-gray-100 text-gray-600 rounded text-[10px] font-mono">
+                <span key={f} className="px-1.5 py-0.5 bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-300 rounded text-[10px] font-mono">
                     {f}
                 </span>
             ))}

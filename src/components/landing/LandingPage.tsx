@@ -34,6 +34,8 @@ import { useUIStore } from '@/store/uiStore';
 import { Button } from '@/components/ui/Button';
 import { SignedIn, SignedOut, SignInButton, SignUpButton, UserButton } from '@clerk/clerk-react';
 
+const repoUrl = 'https://github.com/Jooonie29/Vibe-Vault.git';
+
 const faqs = [
   {
     question: "How does Vibe Vault help organize my development workflow?",
@@ -694,18 +696,18 @@ export function LandingPage() {
             <div>
               <h4 className="font-semibold text-gray-900 mb-6">Products</h4>
               <ul className="space-y-4 text-gray-500">
-                <li><a href="#features" className="hover:text-violet-600 transition-colors">Features</a></li>
-                <li><a href="#" className="hover:text-violet-600 transition-colors">Pricing</a></li>
-                <li><a href="#" className="hover:text-violet-600 transition-colors">Integrations</a></li>
+                <li><a href={repoUrl} target="_blank" rel="noreferrer" className="hover:text-violet-600 transition-colors">Features</a></li>
+                <li><a href={repoUrl} target="_blank" rel="noreferrer" className="hover:text-violet-600 transition-colors">Pricing</a></li>
+                <li><a href={repoUrl} target="_blank" rel="noreferrer" className="hover:text-violet-600 transition-colors">Integrations</a></li>
               </ul>
             </div>
 
             <div>
               <h4 className="font-semibold text-gray-900 mb-6">Company</h4>
               <ul className="space-y-4 text-gray-500">
-                <li><a href="#" className="hover:text-violet-600 transition-colors">About Us</a></li>
-                <li><a href="#" className="hover:text-violet-600 transition-colors">Blog</a></li>
-                <li><a href="#" className="hover:text-violet-600 transition-colors">Contact</a></li>
+                <li><a href={repoUrl} target="_blank" rel="noreferrer" className="hover:text-violet-600 transition-colors">About Us</a></li>
+                <li><a href={repoUrl} target="_blank" rel="noreferrer" className="hover:text-violet-600 transition-colors">Blog</a></li>
+                <li><a href={repoUrl} target="_blank" rel="noreferrer" className="hover:text-violet-600 transition-colors">Contact</a></li>
               </ul>
             </div>
           </div>
@@ -713,16 +715,16 @@ export function LandingPage() {
           {/* Bottom Bar */}
           <div className="border-t border-gray-100 pt-10 flex flex-col md:flex-row items-center justify-between gap-6 px-4">
             <div className="flex items-center gap-6">
-              <a href="#" className="text-gray-400 hover:text-gray-900 transition-colors">
+              <a href={repoUrl} target="_blank" rel="noreferrer" className="text-gray-400 hover:text-gray-900 transition-colors">
                 <Twitter className="w-5 h-5" />
               </a>
-              <a href="#" className="text-gray-400 hover:text-gray-900 transition-colors">
+              <a href={repoUrl} target="_blank" rel="noreferrer" className="text-gray-400 hover:text-gray-900 transition-colors">
                 <Linkedin className="w-5 h-5" />
               </a>
-              <a href="#" className="text-gray-400 hover:text-gray-900 transition-colors">
+              <a href={repoUrl} target="_blank" rel="noreferrer" className="text-gray-400 hover:text-gray-900 transition-colors">
                 <Facebook className="w-5 h-5" />
               </a>
-              <a href="#" className="text-gray-400 hover:text-gray-900 transition-colors">
+              <a href={repoUrl} target="_blank" rel="noreferrer" className="text-gray-400 hover:text-gray-900 transition-colors">
                 <Github className="w-5 h-5" />
               </a>
             </div>

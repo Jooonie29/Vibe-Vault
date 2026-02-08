@@ -17,7 +17,7 @@ export default function PublicBoardPage() {
   }
 
   if (data === null) {
-    return <div className="flex items-center justify-center min-h-screen text-gray-500">Board not found or link expired</div>;
+    return <div className="flex items-center justify-center min-h-screen text-muted-foreground">Board not found or link expired</div>;
   }
 
   // Map backend projects to frontend projects
@@ -27,7 +27,7 @@ export default function PublicBoardPage() {
   })) as Project[];
 
   return (
-    <div className="p-4 md:p-6 min-h-screen bg-gray-50">
+    <div className="p-4 md:p-6 min-h-screen bg-background">
         <div className="max-w-7xl mx-auto">
             <KanbanBoardUI 
                 projects={projects} 

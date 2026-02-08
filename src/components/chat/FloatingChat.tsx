@@ -171,26 +171,26 @@ export function FloatingChat() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="fixed bottom-6 right-6 z-50 w-[400px] max-w-[calc(100vw-48px)] h-[600px] max-h-[calc(100vh-100px)] bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-100 flex flex-col"
+            className="fixed bottom-6 right-6 z-50 w-[400px] max-w-[calc(100vw-48px)] h-[600px] max-h-[calc(100vh-100px)] bg-card rounded-2xl shadow-2xl overflow-hidden border border-border flex flex-col"
           >
             {/* Header */}
-            <div className="bg-white border-b border-gray-100 flex items-center px-4 py-3 shrink-0">
+            <div className="bg-card border-b border-border flex items-center px-4 py-3 shrink-0">
               {viewState === 'list' && (
                 <>
-                  <h2 className="text-lg font-bold text-gray-900">Messages</h2>
+                  <h2 className="text-lg font-bold text-foreground">Messages</h2>
                   <div className="flex items-center gap-2 ml-auto">
                     <button
                       onClick={() => setViewState('new-message')}
-                      className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                      className="p-2 hover:bg-muted rounded-full transition-colors"
                       title="New message"
                     >
-                      <Plus className="w-5 h-5 text-gray-700" />
+                      <Plus className="w-5 h-5 text-muted-foreground" />
                     </button>
                     <button
                       onClick={() => setIsOpen(false)}
-                      className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                      className="p-2 hover:bg-muted rounded-full transition-colors"
                     >
-                      <X className="w-5 h-5 text-gray-700" />
+                      <X className="w-5 h-5 text-muted-foreground" />
                     </button>
                   </div>
                 </>
@@ -203,9 +203,9 @@ export function FloatingChat() {
                       setViewState('list');
                       setSelectedConversationId(null);
                     }}
-                    className="p-2 -ml-2 hover:bg-gray-100 rounded-full transition-colors"
+                    className="p-2 -ml-2 hover:bg-muted rounded-full transition-colors"
                   >
-                    <ChevronLeft className="w-5 h-5 text-gray-700" />
+                    <ChevronLeft className="w-5 h-5 text-muted-foreground" />
                   </button>
                   <div className="flex items-center gap-3 ml-2 flex-1 min-w-0">
                     <div className="flex -space-x-2">
@@ -218,7 +218,7 @@ export function FloatingChat() {
                           <div
                             key={participant.userId}
                             className={cn(
-                              "w-9 h-9 rounded-full border-2 border-white flex items-center justify-center text-white text-sm font-bold bg-gradient-to-br",
+                              "w-9 h-9 rounded-full border-2 border-background flex items-center justify-center text-white text-sm font-bold bg-gradient-to-br",
                               idx === 0 ? "from-violet-500 to-fuchsia-500" : "from-blue-500 to-cyan-500"
                             )}
                           >
@@ -232,13 +232,13 @@ export function FloatingChat() {
                       )}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <h3 className="font-semibold text-gray-900 truncate">
+                      <h3 className="font-semibold text-foreground truncate">
                         {selectedConversation.isGroup 
                           ? selectedConversation.groupName 
                           : selectedConversation.participants[0]?.fullName || selectedConversation.participants[0]?.username || 'Unknown'
                         }
                       </h3>
-                      <p className="text-xs text-gray-500 truncate">
+                      <p className="text-xs text-muted-foreground truncate">
                         {selectedConversation.isGroup 
                           ? `${selectedConversation.participants.length} members`
                           : `@${selectedConversation.participants[0]?.username || 'unknown'}`
@@ -256,33 +256,33 @@ export function FloatingChat() {
                       setViewState('list');
                       setSearchQuery('');
                     }}
-                    className="p-2 -ml-2 hover:bg-gray-100 rounded-full transition-colors"
+                    className="p-2 -ml-2 hover:bg-muted rounded-full transition-colors"
                   >
-                    <ChevronLeft className="w-5 h-5 text-gray-700" />
+                    <ChevronLeft className="w-5 h-5 text-muted-foreground" />
                   </button>
-                  <h2 className="text-lg font-bold text-gray-900 ml-2">New Message</h2>
+                  <h2 className="text-lg font-bold text-foreground ml-2">New Message</h2>
                 </>
               )}
             </div>
 
             {/* Search Bar */}
             {(viewState === 'list' || viewState === 'new-message') && (
-              <div className="px-4 py-3 border-b border-gray-100">
+              <div className="px-4 py-3 border-b border-border">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder={viewState === 'new-message' ? "Search team members..." : "Search messages..."}
-                    className="w-full pl-9 pr-4 py-2 bg-gray-100 border-0 rounded-full text-sm placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-violet-500/20"
+                    className="w-full pl-9 pr-4 py-2 bg-muted/50 border-0 rounded-full text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-violet-500/20 text-foreground"
                   />
                 </div>
               </div>
             )}
 
             {/* Content */}
-            <div className="flex-1 overflow-hidden">
+            <div className="flex-1 overflow-hidden bg-card">
               {/* Conversation List */}
               {viewState === 'list' && (
                 <div className="h-full overflow-y-auto">
@@ -292,9 +292,9 @@ export function FloatingChat() {
                     </div>
                   ) : filteredConversations?.length === 0 ? (
                     <div className="flex flex-col items-center justify-center h-full text-center px-6">
-                      <MessageCircle className="w-12 h-12 text-gray-300 mb-3" />
-                      <h3 className="font-semibold text-gray-900 mb-1">No messages yet</h3>
-                      <p className="text-sm text-gray-500 mb-4">Start a conversation with your team</p>
+                      <MessageCircle className="w-12 h-12 text-muted-foreground mb-3" />
+                      <h3 className="font-semibold text-foreground mb-1">No messages yet</h3>
+                      <p className="text-sm text-muted-foreground mb-4">Start a conversation with your team</p>
                       <button
                         onClick={() => setViewState('new-message')}
                         className="px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white text-sm font-medium rounded-full transition-colors"
@@ -303,7 +303,7 @@ export function FloatingChat() {
                       </button>
                     </div>
                   ) : (
-                    <div className="divide-y divide-gray-50">
+                    <div className="divide-y divide-border">
                       {filteredConversations?.map((conversation) => (
                         <button
                           key={conversation._id}
@@ -311,7 +311,7 @@ export function FloatingChat() {
                             setSelectedConversationId(conversation._id);
                             setViewState('thread');
                           }}
-                          className="w-full px-4 py-3 hover:bg-gray-50 transition-colors flex items-center gap-3 text-left"
+                          className="w-full px-4 py-3 hover:bg-muted/50 transition-colors flex items-center gap-3 text-left"
                         >
                           <div className="flex -space-x-2 shrink-0">
                             {conversation.isGroup ? (
@@ -323,7 +323,7 @@ export function FloatingChat() {
                                 <div
                                   key={participant.userId}
                                   className={cn(
-                                    "w-11 h-11 rounded-full border-2 border-white flex items-center justify-center text-white font-bold bg-gradient-to-br",
+                                    "w-11 h-11 rounded-full border-2 border-background flex items-center justify-center text-white font-bold bg-gradient-to-br",
                                     idx === 0 ? "from-violet-500 to-fuchsia-500" : "from-blue-500 to-cyan-500"
                                   )}
                                 >
@@ -340,14 +340,14 @@ export function FloatingChat() {
                             <div className="flex items-center justify-between mb-0.5">
                               <h4 className={cn(
                                 "truncate",
-                                conversation.unreadCount > 0 ? "font-bold text-gray-900" : "font-medium text-gray-900"
+                                conversation.unreadCount > 0 ? "font-bold text-foreground" : "font-medium text-foreground"
                               )}>
                                 {conversation.isGroup 
                                   ? conversation.groupName 
                                   : conversation.participants[0]?.fullName || conversation.participants[0]?.username || 'Unknown'
                                 }
                               </h4>
-                              <span className="text-xs text-gray-400 shrink-0 ml-2">
+                              <span className="text-xs text-muted-foreground shrink-0 ml-2">
                                 {formatTime(conversation.lastMessageAt)}
                               </span>
                             </div>
@@ -506,26 +506,31 @@ export function FloatingChat() {
                   </div>
 
                   {/* Input Area */}
-                  <div className="p-3 bg-white border-t border-gray-100">
+                  <div className="p-3 bg-card border-t border-border">
                     <div className="flex items-center gap-2">
-                      <button className="p-2 hover:bg-gray-100 rounded-full text-gray-400 hover:text-gray-600 transition-colors">
+                      <button className="p-2 hover:bg-muted rounded-full text-muted-foreground hover:text-foreground transition-colors">
                         <Smile className="w-5 h-5" />
                       </button>
-                      <button className="p-2 hover:bg-gray-100 rounded-full text-gray-400 hover:text-gray-600 transition-colors">
+                      <button className="p-2 hover:bg-muted rounded-full text-muted-foreground hover:text-foreground transition-colors">
                         <Paperclip className="w-5 h-5" />
                       </button>
                       <input
                         type="text"
                         value={inputValue}
                         onChange={(e) => setInputValue(e.target.value)}
-                        onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
+                            handleSend();
+                          }
+                        }}
                         placeholder="Type a message..."
-                        className="flex-1 px-4 py-2 bg-gray-100 border-0 rounded-full text-sm placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-violet-500/20"
+                        className="flex-1 bg-muted/50 border-0 rounded-full px-4 py-2 text-sm focus:ring-2 focus:ring-violet-500/20 focus:outline-none text-foreground placeholder:text-muted-foreground"
                       />
                       <button
                         onClick={handleSend}
                         disabled={!inputValue.trim()}
-                        className="p-2.5 bg-violet-600 hover:bg-violet-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-full transition-colors"
+                        className="p-2 bg-violet-600 hover:bg-violet-700 disabled:opacity-50 disabled:hover:bg-violet-600 text-white rounded-full transition-all shadow-md hover:shadow-lg disabled:shadow-none"
                       >
                         <Send className="w-4 h-4" />
                       </button>
@@ -543,19 +548,19 @@ export function FloatingChat() {
                     </div>
                   ) : filteredTeamMembers?.length === 0 ? (
                     <div className="flex flex-col items-center justify-center h-full text-center px-6">
-                      <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-3">
-                        <Search className="w-8 h-8 text-gray-400" />
+                      <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-3">
+                        <Search className="w-8 h-8 text-muted-foreground" />
                       </div>
-                      <h3 className="font-semibold text-gray-900 mb-1">No members found</h3>
-                      <p className="text-sm text-gray-500">Try a different search term</p>
+                      <h3 className="font-semibold text-foreground mb-1">No members found</h3>
+                      <p className="text-sm text-muted-foreground">Try a different search term</p>
                     </div>
                   ) : (
-                    <div className="divide-y divide-gray-50">
+                    <div className="divide-y divide-border">
                       {filteredTeamMembers?.map((member) => (
                         <button
                           key={member.userId}
                           onClick={() => handleStartConversation(member)}
-                          className="w-full px-4 py-3 hover:bg-gray-50 transition-colors flex items-center gap-3 text-left"
+                          className="w-full px-4 py-3 hover:bg-muted/50 transition-colors flex items-center gap-3 text-left"
                         >
                           <div className="w-11 h-11 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center text-white font-bold shrink-0">
                             {member.avatarUrl ? (
@@ -565,10 +570,10 @@ export function FloatingChat() {
                             )}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <h4 className="font-semibold text-gray-900 truncate">
+                            <h4 className="font-semibold text-foreground truncate">
                               {member.fullName || member.username || 'Unknown'}
                             </h4>
-                            <p className="text-sm text-gray-500 truncate">
+                            <p className="text-sm text-muted-foreground truncate">
                               @{member.username || 'unknown'} • {member.role}
                             </p>
                           </div>

@@ -51,9 +51,9 @@ const columns: {
 ];
 
 const priorityColors = {
-  low: "bg-gray-100 text-gray-600",
-  medium: "bg-amber-100 text-amber-700",
-  high: "bg-red-100 text-red-700",
+  low: "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400",
+  medium: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
+  high: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
 };
 
 interface KanbanBoardUIProps {
@@ -108,10 +108,10 @@ export function KanbanBoardUI({
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 tracking-tight">
+          <h1 className="text-3xl font-bold text-foreground tracking-tight">
             Project Tracker
           </h1>
-          <p className="text-gray-500 mt-2 text-lg">
+          <p className="text-muted-foreground mt-2 text-lg">
             Track your project ideas from concept to completion
           </p>
         </div>
@@ -142,7 +142,7 @@ export function KanbanBoardUI({
             <Button
               onClick={onAddProject}
               icon={<Plus className="w-4 h-4" />}
-              className="bg-gray-900 hover:bg-gray-800 text-white rounded-xl shadow-lg shadow-gray-900/20"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl shadow-lg shadow-primary/20"
             >
               New Project
             </Button>
@@ -169,11 +169,11 @@ export function KanbanBoardUI({
                         className={`w-5 h-5 ${column.color.replace("bg-", "text-")}`}
                       />
                     </div>
-                    <h3 className="font-bold text-gray-900 text-lg">
+                    <h3 className="font-bold text-foreground text-lg">
                       {column.title}
                     </h3>
                   </div>
-                  <span className="text-sm font-medium text-gray-500 bg-white px-3 py-1 rounded-full shadow-sm border border-gray-100">
+                  <span className="text-sm font-medium text-muted-foreground bg-card px-3 py-1 rounded-full shadow-sm border border-border">
                     {columnProjects.length}
                   </span>
                 </div>
@@ -186,8 +186,8 @@ export function KanbanBoardUI({
                       {...provided.droppableProps}
                       className={`flex-1 min-h-[500px] p-3 rounded-[32px] transition-all duration-300 ${
                         snapshot.isDraggingOver
-                          ? "bg-violet-50 ring-2 ring-violet-200 ring-inset"
-                          : "bg-gray-50/80 border border-gray-100/50"
+                          ? "bg-violet-50 dark:bg-violet-900/10 ring-2 ring-violet-200 dark:ring-violet-800 ring-inset"
+                          : "bg-muted/50 border border-border/50"
                       }`}
                     >
                       <div className="space-y-3">
@@ -261,15 +261,15 @@ function ProjectCard({
         !isDragging && !isReadOnly ? { y: -4, scale: 1.01 } : undefined
       }
       onClick={!isReadOnly ? onClick : undefined}
-      className={`bg-white rounded-[24px] p-5 ${!isReadOnly ? "cursor-pointer" : ""} select-none transition-shadow duration-300 ${
+      className={`bg-card rounded-[24px] p-5 ${!isReadOnly ? "cursor-pointer" : ""} select-none transition-shadow duration-300 ${
         isDragging
           ? "shadow-2xl ring-2 ring-violet-500 shadow-violet-500/20"
-          : "shadow-[0_2px_8px_-2px_rgba(0,0,0,0.04)] hover:shadow-[0_12px_24px_-8px_rgba(0,0,0,0.08)] border border-gray-100/50"
+          : "shadow-[0_2px_8px_-2px_rgba(0,0,0,0.04)] hover:shadow-[0_12px_24px_-8px_rgba(0,0,0,0.08)] border border-border/50"
       }`}
     >
       {/* Header */}
       <div className="flex items-start justify-between mb-3">
-        <h4 className="font-bold text-gray-900 leading-snug line-clamp-2 pr-2">
+        <h4 className="font-bold text-card-foreground leading-snug line-clamp-2 pr-2">
           {project.title}
         </h4>
         <Badge
@@ -281,7 +281,7 @@ function ProjectCard({
 
       {/* Description */}
       {project.description && (
-        <p className="text-sm text-gray-500 mb-4 line-clamp-2 leading-relaxed">
+        <p className="text-sm text-muted-foreground mb-4 line-clamp-2 leading-relaxed">
           {project.description}
         </p>
       )}
@@ -299,15 +299,15 @@ function ProjectCard({
               e.stopPropagation();
               if (!isReadOnly && onAddNote) onAddNote();
             }}
-            className={`mb-4 p-3 bg-gray-50/80 rounded-2xl border border-gray-100 ${!isReadOnly ? "hover:border-violet-200 hover:bg-violet-50/50 cursor-pointer" : ""} transition-all group/note`}
+            className={`mb-4 p-3 bg-muted/50 rounded-2xl border border-border ${!isReadOnly ? "hover:border-violet-200 dark:hover:border-violet-800 hover:bg-violet-50/50 dark:hover:bg-violet-900/20 cursor-pointer" : ""} transition-all group/note`}
           >
             <div
-              className={`flex items-center gap-1.5 mb-1.5 text-[10px] font-bold text-gray-400 ${!isReadOnly ? "group-hover/note:text-violet-500" : ""} uppercase tracking-wider transition-colors`}
+              className={`flex items-center gap-1.5 mb-1.5 text-[10px] font-bold text-muted-foreground ${!isReadOnly ? "group-hover/note:text-violet-500 dark:group-hover/note:text-violet-400" : ""} uppercase tracking-wider transition-colors`}
             >
               <FileText className="w-3 h-3" />
               <span>Progress Note</span>
             </div>
-            <p className="text-xs text-gray-600 line-clamp-3 leading-relaxed italic">
+            <p className="text-xs text-muted-foreground line-clamp-3 leading-relaxed italic">
               "{project.notes.replace(/<[^>]*>/g, "")}"
             </p>
           </div>
@@ -315,16 +315,16 @@ function ProjectCard({
       })()}
 
       {/* Footer */}
-      <div className="flex items-center justify-between pt-3 border-t border-gray-50">
+      <div className="flex items-center justify-between pt-3 border-t border-border/50">
         <div className="flex items-center gap-2">
           {project.dueDate && (
             <span
               className={`text-xs font-semibold flex items-center gap-1.5 px-2 py-1 rounded-lg ${
                 dueDateStatus === "overdue"
-                  ? "bg-red-50 text-red-600"
+                  ? "bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400"
                   : dueDateStatus === "today"
-                    ? "bg-amber-50 text-amber-600"
-                    : "bg-gray-50 text-gray-500"
+                    ? "bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400"
+                    : "bg-muted text-muted-foreground"
               }`}
             >
               <Calendar className="w-3.5 h-3.5" />
@@ -338,7 +338,7 @@ function ProjectCard({
               startOfDay(new Date(noteUpdatedAt)).getTime() ===
                 startOfDay(new Date()).getTime();
             return isNoteFromToday ? (
-              <span className="text-[10px] font-bold flex items-center gap-1 text-green-600 bg-green-50 px-2 py-1 rounded-lg uppercase tracking-tight">
+              <span className="text-[10px] font-bold flex items-center gap-1 text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded-lg uppercase tracking-tight">
                 <CheckCircle2 className="w-3 h-3" />
                 Tracked Today
               </span>
@@ -360,7 +360,7 @@ function ProjectCard({
                 e.stopPropagation();
                 if (onAddNote) onAddNote();
               }}
-              className="flex items-center gap-1 text-[10px] font-bold text-gray-400 hover:text-violet-600 hover:bg-violet-50 px-2 py-1 rounded-lg uppercase tracking-tight transition-all"
+              className="flex items-center gap-1 text-[10px] font-bold text-muted-foreground hover:text-violet-600 dark:hover:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/20 px-2 py-1 rounded-lg uppercase tracking-tight transition-all"
             >
               <Plus className="w-3 h-3" />
               Add Note

@@ -140,15 +140,15 @@ export function Dashboard() {
         {/* Header */}
         <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
           <div>
-            <p className="text-xs text-gray-400 uppercase tracking-wider mb-1">Dashboard</p>
-            <h1 className="text-2xl font-bold text-gray-900">Project Analytics</h1>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Dashboard</p>
+            <h1 className="text-2xl font-bold text-foreground">Project Analytics</h1>
           </div>
 
           <div className="flex items-center gap-3">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input
-                className="pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-full text-sm w-56 focus:outline-none focus:ring-2 focus:ring-violet-500/20 placeholder-gray-400"
+                className="pl-10 pr-4 py-2 bg-card border border-border rounded-full text-sm w-56 focus:outline-none focus:ring-2 focus:ring-violet-500/20 placeholder-muted-foreground text-foreground"
                 placeholder="Search..."
                 type="text"
               />
@@ -156,17 +156,17 @@ export function Dashboard() {
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="inline-flex items-center px-4 py-2 bg-white border border-gray-200 text-sm text-gray-700 rounded-full hover:bg-gray-50 transition-colors">
+                <button className="inline-flex items-center px-4 py-2 bg-card border border-border text-sm text-foreground rounded-full hover:bg-muted/50 transition-colors">
                   {selectedTimeOption.label}
-                  <ChevronDown className="ml-2 w-4 h-4 text-gray-400" />
+                  <ChevronDown className="ml-2 w-4 h-4 text-muted-foreground" />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-40 rounded-xl p-1 border-gray-100">
+              <DropdownMenuContent align="end" className="w-40 rounded-xl p-1 border-border bg-card">
                 {timeOptions.map((option) => (
                   <DropdownMenuItem
                     key={option.value}
                     onClick={() => handlePeriodChange(option.value)}
-                    className="text-sm rounded-lg cursor-pointer"
+                    className="text-sm rounded-lg cursor-pointer focus:bg-muted focus:text-foreground"
                   >
                     {option.label}
                     {timePeriod === option.value && <Check className="ml-auto w-4 h-4 text-violet-600" />}
@@ -175,7 +175,7 @@ export function Dashboard() {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            <button className="p-2 bg-white border border-gray-200 rounded-full text-gray-400 hover:text-gray-600 transition-colors">
+            <button className="p-2 bg-card border border-border rounded-full text-muted-foreground hover:text-foreground transition-colors">
               <Bell className="w-5 h-5" />
             </button>
           </div>
@@ -221,7 +221,7 @@ export function Dashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
           <div className="lg:col-span-2 space-y-8">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-bold text-gray-900 dark:text-white">Quick Actions</h2>
+              <h2 className="text-lg font-bold text-foreground">Quick Actions</h2>
               <button
                 className="text-violet-600 text-sm hover:underline"
                 onClick={() => setCurrentView('projects')}
@@ -270,13 +270,13 @@ export function Dashboard() {
             </div>
 
             {/* Productivity Chart Section */}
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+            <div className="bg-card rounded-2xl p-6 shadow-sm border border-border">
               <div className="flex justify-between items-start mb-6">
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">Productivity Analytics</h3>
-                  <p className="text-sm text-gray-400 mt-1">Focusing trends</p>
+                  <h3 className="text-lg font-semibold text-card-foreground">Productivity Analytics</h3>
+                  <p className="text-sm text-muted-foreground mt-1">Focusing trends</p>
                 </div>
-                <button className="text-sm text-gray-400 hover:text-gray-600">
+                <button className="text-sm text-muted-foreground hover:text-foreground">
                   Last Month
                 </button>
               </div>
@@ -287,12 +287,12 @@ export function Dashboard() {
           {/* Sidebar Area */}
           <div className="space-y-8">
             {/* Profile Card */}
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 text-center">
+            <div className="bg-card rounded-2xl p-6 shadow-sm border border-border text-center">
               <div className="relative w-20 h-20 mx-auto mb-4">
                 {storeUser?.imageUrl ? (
                   <img 
                     alt="Profile" 
-                    className="w-full h-full rounded-full object-cover ring-2 ring-gray-100" 
+                    className="w-full h-full rounded-full object-cover ring-2 ring-border" 
                     src={storeUser.imageUrl} 
                   />
                 ) : (
@@ -300,26 +300,26 @@ export function Dashboard() {
                     {getMemberInitials(storeUser?.fullName || storeUser?.username || "User")}
                   </div>
                 )}
-                <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-gray-900 rounded-full flex items-center justify-center text-white border-2 border-white">
+                <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-gray-900 rounded-full flex items-center justify-center text-white border-2 border-card">
                   <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
                 </div>
               </div>
 
-              <h3 className="text-lg font-semibold text-gray-900">
+              <h3 className="text-lg font-semibold text-card-foreground">
                 {storeUser?.fullName || storeUser?.username || "User"}
               </h3>
-              <p className="text-sm text-gray-400 mb-6">Creative Technologist</p>
+              <p className="text-sm text-muted-foreground mb-6">Creative Technologist</p>
 
               <div className="flex justify-center gap-4">
-                <div className="flex items-center gap-1 text-sm text-gray-600">
+                <div className="flex items-center gap-1 text-sm text-muted-foreground">
                   <Users className="w-4 h-4 text-orange-500" />
                   <span>{teamMembers?.length || 0}</span>
                 </div>
-                <div className="flex items-center gap-1 text-sm text-gray-600">
+                <div className="flex items-center gap-1 text-sm text-muted-foreground">
                   <CheckCircle2 className="w-4 h-4 text-rose-500" />
                   <span>{stats?.projects || 0}</span>
                 </div>
-                <div className="flex items-center gap-1 text-sm text-gray-600">
+                <div className="flex items-center gap-1 text-sm text-muted-foreground">
                   <Zap className="w-4 h-4 text-yellow-500" />
                   <span>12</span>
                 </div>
@@ -329,18 +329,18 @@ export function Dashboard() {
             {/* Team Members List */}
             <div>
               <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">Team Members</h3>
+                <h3 className="text-lg font-semibold text-foreground">Team Members</h3>
                 <button
                   onClick={() => openModal("invite-member")}
-                  className="w-8 h-8 rounded-lg bg-gray-50 hover:bg-gray-100 flex items-center justify-center transition-colors"
+                  className="w-8 h-8 rounded-lg bg-muted/50 hover:bg-muted flex items-center justify-center transition-colors"
                 >
-                  <Plus className="w-4 h-4 text-gray-600" />
+                  <Plus className="w-4 h-4 text-muted-foreground" />
                 </button>
               </div>
 
               <div className="space-y-3">
                 {teamMembersLoading ? (
-                  <div className="text-center py-4 text-gray-400 text-sm">Loading...</div>
+                  <div className="text-center py-4 text-muted-foreground text-sm">Loading...</div>
                 ) : (
                   teamMembers?.slice(0, 4).map((member, i) => (
                     <div key={member.id} className="flex items-center justify-between py-2">
@@ -357,11 +357,11 @@ export function Dashboard() {
                           </div>
                         )}
                         <div>
-                          <h4 className="text-sm font-medium text-gray-900">{member.profile?.fullName || "Team Member"}</h4>
-                          <p className="text-xs text-gray-400">{member.role}</p>
+                          <h4 className="text-sm font-medium text-foreground">{member.profile?.fullName || "Team Member"}</h4>
+                          <p className="text-xs text-muted-foreground">{member.role}</p>
                         </div>
                       </div>
-                      <button className="p-2 rounded-lg text-gray-300 hover:text-violet-600 hover:bg-violet-50 transition-colors">
+                      <button className="p-2 rounded-lg text-muted-foreground hover:text-violet-600 hover:bg-violet-50 dark:hover:bg-violet-900/20 transition-colors">
                         <MessageSquare className="w-4 h-4" />
                       </button>
                     </div>

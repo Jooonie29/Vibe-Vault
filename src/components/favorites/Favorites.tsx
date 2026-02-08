@@ -77,13 +77,13 @@ export function Favorites() {
   const getTypeColor = (type: string) => {
     switch (type) {
       case "code":
-        return "text-blue-600 bg-blue-50";
+        return "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20";
       case "prompt":
-        return "text-purple-600 bg-purple-50";
+        return "text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/20";
       case "file":
-        return "text-amber-600 bg-amber-50";
+        return "text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20";
       default:
-        return "text-gray-600 bg-gray-50";
+        return "text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-800/50";
     }
   };
 
@@ -92,35 +92,35 @@ export function Favorites() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Favorites</h1>
-          <p className="text-gray-500 mt-1">
+          <h1 className="text-3xl font-bold text-foreground">Favorites</h1>
+          <p className="text-muted-foreground mt-1">
             Your collection of starred items across all categories
           </p>
         </div>
       </div>
 
       {/* Controls */}
-      <div className="flex flex-col md:flex-row gap-4 items-center justify-between bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+      <div className="flex flex-col md:flex-row gap-4 items-center justify-between bg-card p-4 rounded-xl shadow-sm border border-border">
         <div className="relative w-full md:w-96">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
             placeholder="Search favorites..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9 bg-gray-50 border-gray-200"
+            className="pl-9 bg-muted/50 border-border"
           />
         </div>
 
         <div className="flex items-center gap-2 w-full md:w-auto">
-          <div className="flex items-center gap-1 bg-gray-100 p-1 rounded-lg">
-            {["all", "code", "prompt", "file"].map((type) => (
+          <div className="flex items-center gap-1 bg-muted p-1 rounded-lg">
+            {["all", "code", "prompt", "file", "project"].map((type) => (
               <button
                 key={type}
                 onClick={() => setSelectedType(type as any)}
-                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
+                className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
                   selectedType === type
-                    ? "bg-white text-gray-900 shadow-sm"
-                    : "text-gray-500 hover:text-gray-700"
+                    ? "bg-card text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
                 }`}
               >
                 {type.charAt(0).toUpperCase() + type.slice(1)}
@@ -128,15 +128,15 @@ export function Favorites() {
             ))}
           </div>
 
-          <div className="h-6 w-px bg-gray-200 mx-2" />
+          <div className="h-6 w-px bg-border mx-2" />
 
-          <div className="flex items-center gap-1 bg-gray-100 p-1 rounded-lg">
+          <div className="flex items-center gap-1 bg-muted p-1 rounded-lg">
             <button
               onClick={() => setViewMode("grid")}
               className={`p-1.5 rounded-md transition-all ${
                 viewMode === "grid"
-                  ? "bg-white text-gray-900 shadow-sm"
-                  : "text-gray-500 hover:text-gray-700"
+                  ? "bg-card text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
               }`}
             >
               <LayoutGrid className="w-4 h-4" />
@@ -145,8 +145,8 @@ export function Favorites() {
               onClick={() => setViewMode("list")}
               className={`p-1.5 rounded-md transition-all ${
                 viewMode === "list"
-                  ? "bg-white text-gray-900 shadow-sm"
-                  : "text-gray-500 hover:text-gray-700"
+                  ? "bg-card text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
               }`}
             >
               <ListIcon className="w-4 h-4" />
@@ -163,14 +163,14 @@ export function Favorites() {
           ))}
         </div>
       ) : favoriteItems.length === 0 ? (
-        <div className="text-center py-20 bg-white rounded-2xl border border-dashed border-gray-200">
-          <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Star className="w-8 h-8 text-gray-300" />
+        <div className="text-center py-20 bg-card rounded-2xl border border-dashed border-border">
+          <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+            <Star className="w-8 h-8 text-muted-foreground" />
           </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-1">
+          <h3 className="text-lg font-medium text-foreground mb-1">
             No favorites yet
           </h3>
-          <p className="text-gray-500 max-w-sm mx-auto">
+          <p className="text-muted-foreground max-w-sm mx-auto">
             Star items from your Code Library, AI Prompts, or Files to see them
             here for quick access.
           </p>
@@ -192,7 +192,7 @@ export function Favorites() {
                 <motion.div key={item.id} layout>
                   <Card
                     className={`
-                      group cursor-pointer hover:shadow-md transition-all border-gray-200 hover:border-violet-200
+                      group cursor-pointer hover:shadow-md transition-all border-border hover:border-violet-200 dark:hover:border-violet-800
                       ${viewMode === "list" ? "flex items-center p-4 gap-6" : "h-full flex flex-col"}
                     `}
                     onClick={() =>
@@ -212,32 +212,32 @@ export function Favorites() {
                             </div>
                             <Badge
                               variant="secondary"
-                              className="bg-yellow-50 text-yellow-600 border-yellow-100 gap-1"
+                              className="bg-yellow-50 dark:bg-yellow-900/20 text-yellow-600 dark:text-yellow-400 border-yellow-100 dark:border-yellow-900/30 gap-1"
                             >
-                              <Star className="w-3 h-3 fill-yellow-600" />
+                              <Star className="w-3 h-3 fill-yellow-600 dark:fill-yellow-400" />
                               Favorite
                             </Badge>
                           </div>
-                          <h3 className="font-semibold text-gray-900 mb-2 line-clamp-1 group-hover:text-violet-600 transition-colors">
+                          <h3 className="font-semibold text-foreground mb-2 line-clamp-1 group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors">
                             {item.title}
                           </h3>
-                          <p className="text-sm text-gray-500 line-clamp-2 mb-4">
+                          <p className="text-sm text-muted-foreground line-clamp-2 mb-4">
                             {item.description || "No description provided"}
                           </p>
                           <div className="flex flex-wrap gap-2">
                             {item.category && (
-                              <span className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-md">
+                              <span className="text-xs px-2 py-1 bg-muted text-muted-foreground rounded-md">
                                 {item.category}
                               </span>
                             )}
                             {item.language && (
-                              <span className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-md">
+                              <span className="text-xs px-2 py-1 bg-muted text-muted-foreground rounded-md">
                                 {item.language}
                               </span>
                             )}
                           </div>
                         </div>
-                        <div className="px-5 py-3 border-t border-gray-100 bg-gray-50/50 flex items-center justify-between text-xs text-gray-400">
+                        <div className="px-5 py-3 border-t border-border bg-muted/30 flex items-center justify-between text-xs text-muted-foreground">
                           <span>
                             {format(item._creationTime, "MMM d, yyyy")}
                           </span>
@@ -249,20 +249,20 @@ export function Favorites() {
                           <TypeIcon className="w-5 h-5" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <h3 className="font-semibold text-gray-900 truncate group-hover:text-violet-600 transition-colors">
+                          <h3 className="font-semibold text-foreground truncate group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors">
                             {item.title}
                           </h3>
-                          <p className="text-sm text-gray-500 truncate">
+                          <p className="text-sm text-muted-foreground truncate">
                             {item.description || "No description provided"}
                           </p>
                         </div>
                         <div className="flex items-center gap-4 shrink-0">
                           {item.category && (
-                            <span className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-md hidden md:inline-block">
+                            <span className="text-xs px-2 py-1 bg-muted text-muted-foreground rounded-md hidden md:inline-block">
                               {item.category}
                             </span>
                           )}
-                          <span className="text-xs text-gray-400 w-24 text-right hidden sm:inline-block">
+                          <span className="text-xs text-muted-foreground w-24 text-right hidden sm:inline-block">
                             {format(item._creationTime, "MMM d, yyyy")}
                           </span>
                         </div>

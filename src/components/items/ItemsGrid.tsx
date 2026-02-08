@@ -39,22 +39,22 @@ const typeIcons = {
 
 const typeColors = {
   code: {
-    bg: "bg-blue-50",
-    text: "text-blue-600",
+    bg: "bg-blue-50 dark:bg-blue-900/20",
+    text: "text-blue-600 dark:text-blue-400",
     gradient: "from-blue-500 to-cyan-500",
-    border: "hover:border-blue-200",
+    border: "hover:border-blue-200 dark:hover:border-blue-800",
   },
   prompt: {
-    bg: "bg-purple-50",
-    text: "text-purple-600",
+    bg: "bg-purple-50 dark:bg-purple-900/20",
+    text: "text-purple-600 dark:text-purple-400",
     gradient: "from-purple-500 to-pink-500",
-    border: "hover:border-purple-200",
+    border: "hover:border-purple-200 dark:hover:border-purple-800",
   },
   file: {
-    bg: "bg-amber-50",
-    text: "text-amber-600",
+    bg: "bg-amber-50 dark:bg-amber-900/20",
+    text: "text-amber-600 dark:text-amber-400",
     gradient: "from-amber-500 to-orange-500",
-    border: "hover:border-amber-200",
+    border: "hover:border-amber-200 dark:hover:border-amber-800",
   },
 };
 
@@ -177,7 +177,7 @@ export function ItemsGrid({ type, title, description }: ItemsGridProps) {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
-          <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight flex items-center gap-4">
+          <h1 className="text-3xl font-extrabold text-foreground tracking-tight flex items-center gap-4">
             <div
               className={`w-12 h-12 rounded-2xl ${colors.bg} flex items-center justify-center shadow-sm`}
             >
@@ -185,7 +185,7 @@ export function ItemsGrid({ type, title, description }: ItemsGridProps) {
             </div>
             {title}
           </h1>
-          <p className="text-gray-500 mt-2 text-lg max-w-2xl">{description}</p>
+          <p className="text-muted-foreground mt-2 text-lg max-w-2xl">{description}</p>
         </div>
         <Button
           onClick={() => openModal("item", { type })}
@@ -199,7 +199,7 @@ export function ItemsGrid({ type, title, description }: ItemsGridProps) {
       </div>
 
       {/* Filters */}
-      <div className="bg-white dark:bg-[#0f1117] p-4 rounded-3xl shadow-sm border border-gray-100 dark:border-white/10 space-y-4">
+      <div className="bg-card p-4 rounded-3xl shadow-sm border border-border space-y-4">
         <div className="flex flex-col xl:flex-row gap-4">
           <div className="flex-1">
             <Input
@@ -207,7 +207,7 @@ export function ItemsGrid({ type, title, description }: ItemsGridProps) {
               placeholder={`Search ${type === "code" ? "snippets" : type === "prompt" ? "prompts" : "files"}...`}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="bg-gray-50 dark:bg-white/5 border-transparent focus:bg-white dark:focus:bg-white/10"
+              className="bg-muted/50 border-transparent focus:bg-card"
             />
           </div>
           <div className="flex flex-wrap items-center gap-3">
@@ -215,8 +215,8 @@ export function ItemsGrid({ type, title, description }: ItemsGridProps) {
             <button
               onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
               className={`p-3 rounded-2xl transition-all duration-300 border ${showFavoritesOnly
-                  ? "bg-amber-50 dark:bg-amber-900/20 text-amber-500 border-amber-200 dark:border-amber-700 shadow-sm"
-                  : "bg-white dark:bg-white/5 text-gray-400 border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/10 hover:text-amber-400"
+                  ? "bg-amber-50 dark:bg-amber-900/20 text-amber-500 border-amber-200 dark:border-amber-800 shadow-sm"
+                  : "bg-card text-muted-foreground border-border hover:bg-muted/50 hover:text-amber-400"
                 }`}
               title="Show Favorites"
             >
@@ -240,12 +240,12 @@ export function ItemsGrid({ type, title, description }: ItemsGridProps) {
             </div>
 
             {/* View Toggle */}
-            <div className="flex bg-gray-100 dark:bg-white/5 p-1.5 rounded-2xl">
+            <div className="flex bg-muted p-1.5 rounded-2xl">
               <button
                 onClick={() => setViewMode("grid")}
                 className={`p-2.5 rounded-xl transition-all duration-300 ${viewMode === "grid"
-                    ? "bg-white dark:bg-white/10 shadow-sm text-gray-900 dark:text-white"
-                    : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+                    ? "bg-card shadow-sm text-foreground"
+                    : "text-muted-foreground hover:text-foreground"
                   }`}
               >
                 <Grid3X3 className="w-5 h-5" />
@@ -253,8 +253,8 @@ export function ItemsGrid({ type, title, description }: ItemsGridProps) {
               <button
                 onClick={() => setViewMode("list")}
                 className={`p-2.5 rounded-xl transition-all duration-300 ${viewMode === "list"
-                    ? "bg-white dark:bg-white/10 shadow-sm text-gray-900 dark:text-white"
-                    : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+                    ? "bg-card shadow-sm text-foreground"
+                    : "text-muted-foreground hover:text-foreground"
                   }`}
               >
                 <List className="w-5 h-5" />
@@ -271,7 +271,7 @@ export function ItemsGrid({ type, title, description }: ItemsGridProps) {
               onClick={() => setSelectedCategory(cat)}
               className={`px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition-all duration-300 ${selectedCategory === cat
                   ? `bg-gradient-to-r ${colors.gradient} text-white shadow-md shadow-violet-500/25`
-                  : "bg-gray-50 dark:bg-white/5 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/10 hover:text-gray-900 dark:hover:text-white border border-transparent hover:border-gray-200 dark:hover:border-white/20"
+                  : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground border border-transparent hover:border-border"
                 }`}
             >
               {cat === "All"
@@ -296,18 +296,18 @@ export function ItemsGrid({ type, title, description }: ItemsGridProps) {
           ))}
         </div>
       ) : filteredItems.length === 0 ? (
-        <div className="text-center py-24 bg-white dark:bg-[#0f1117] rounded-[2.5rem] border border-dashed border-gray-200 dark:border-white/10 shadow-sm">
+        <div className="text-center py-24 bg-card rounded-[2.5rem] border border-dashed border-border shadow-sm">
           <div
-            className={`w-24 h-24 rounded-[2rem] ${colors.bg} dark:bg-white/5 flex items-center justify-center mx-auto mb-8 shadow-sm`}
+            className={`w-24 h-24 rounded-[2rem] ${colors.bg} flex items-center justify-center mx-auto mb-8 shadow-sm`}
           >
             <Icon className={`w-12 h-12 ${colors.text}`} />
           </div>
-          <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">
+          <h3 className="text-2xl font-bold text-foreground mb-3">
             {searchQuery || selectedCategory !== "All"
               ? "No matching items found"
               : `No ${type === "code" ? "snippets" : type === "prompt" ? "prompts" : "files"} yet`}
           </h3>
-          <p className="text-gray-500 dark:text-gray-400 mb-8 max-w-md mx-auto text-lg">
+          <p className="text-muted-foreground mb-8 max-w-md mx-auto text-lg">
             {searchQuery || selectedCategory !== "All"
               ? "Try adjusting your filters or search terms"
               : `Create your first ${type === "code" ? "code snippet" : type === "prompt" ? "AI prompt" : "file"} to get started.`}
@@ -372,19 +372,19 @@ function ItemCard({
     return (
       <div
         onClick={() => onOpen(item)}
-        className={`group flex items-center gap-5 bg-white dark:bg-[#0f1117] p-4 rounded-3xl border border-gray-100 dark:border-white/10 ${colors.border} hover:shadow-lg transition-all duration-300 cursor-pointer relative overflow-hidden`}
+        className={`group flex items-center gap-5 bg-card p-4 rounded-3xl border border-border ${colors.border} hover:shadow-lg transition-all duration-300 cursor-pointer relative overflow-hidden`}
       >
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-white/50 dark:to-white/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
 
         <div
-          className={`w-14 h-14 rounded-2xl ${colors.bg} dark:bg-white/5 flex items-center justify-center flex-shrink-0 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3`}
+          className={`w-14 h-14 rounded-2xl ${colors.bg} flex items-center justify-center flex-shrink-0 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3`}
         >
           <Icon className={`w-7 h-7 ${colors.text}`} />
         </div>
 
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-3 mb-1.5">
-            <h3 className="text-lg font-bold text-gray-900 dark:text-white truncate group-hover:text-violet-600 transition-colors">
+            <h3 className="text-lg font-bold text-foreground truncate group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors">
               {item.title}
             </h3>
             {item.isFavorite && (
@@ -392,7 +392,7 @@ function ItemCard({
             )}
           </div>
           {item.description && (
-            <p className="text-sm text-gray-500 dark:text-gray-400 truncate font-medium">
+            <p className="text-sm text-muted-foreground truncate font-medium">
               {item.description}
             </p>
           )}
@@ -409,21 +409,21 @@ function ItemCard({
               </Badge>
             )}
             {item.category && (
-              <Badge className="hidden sm:flex bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-white/10">
+              <Badge className="hidden sm:flex bg-muted text-muted-foreground border-border">
                 {item.category}
               </Badge>
             )}
           </div>
-          <div className="text-right pl-4 border-l border-gray-100 dark:border-white/10 hidden sm:block">
-            <div className="text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+          <div className="text-right pl-4 border-l border-border hidden sm:block">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
               Created
             </div>
-            <div className="text-xs font-bold text-gray-700 dark:text-gray-300">
+            <div className="text-xs font-bold text-foreground">
               {format(new Date((item as any)._creationTime), "MMM d")}
             </div>
           </div>
-          <div className="w-8 h-8 rounded-full bg-gray-50 dark:bg-white/5 flex items-center justify-center group-hover:bg-violet-50 dark:group-hover:bg-violet-900/20 transition-colors">
-            <MoreVertical className="w-4 h-4 text-gray-400 group-hover:text-violet-500" />
+          <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center group-hover:bg-violet-50 dark:group-hover:bg-violet-900/20 transition-colors">
+            <MoreVertical className="w-4 h-4 text-muted-foreground group-hover:text-violet-500" />
           </div>
         </div>
       </div>
@@ -433,7 +433,7 @@ function ItemCard({
   return (
     <div
       onClick={() => onOpen(item)}
-      className={`group h-full flex flex-col bg-white dark:bg-[#0f1117] rounded-[2rem] p-6 shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-white/10 ${colors.border} cursor-pointer relative overflow-hidden`}
+      className={`group h-full flex flex-col bg-card rounded-[2rem] p-6 shadow-sm hover:shadow-xl transition-all duration-300 border border-border ${colors.border} cursor-pointer relative overflow-hidden`}
     >
       <div
         className={`absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r ${colors.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300`}
@@ -441,7 +441,7 @@ function ItemCard({
 
       <div className="flex items-start justify-between mb-5">
         <div
-          className={`w-14 h-14 rounded-2xl ${colors.bg} dark:bg-white/5 flex items-center justify-center transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-6 shadow-sm`}
+          className={`w-14 h-14 rounded-2xl ${colors.bg} flex items-center justify-center transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-6 shadow-sm`}
         >
           <Icon className={`w-7 h-7 ${colors.text}`} />
         </div>
@@ -452,36 +452,36 @@ function ItemCard({
         )}
       </div>
 
-      <h3 className="text-xl font-bold text-gray-900 mb-3 line-clamp-1 group-hover:text-violet-600 transition-colors">
+      <h3 className="text-xl font-bold text-foreground mb-3 line-clamp-1 group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors">
         {item.title}
       </h3>
 
       {item.description && (
-        <p className="text-sm text-gray-500 mb-5 line-clamp-2 flex-1 leading-relaxed font-medium">
+        <p className="text-sm text-muted-foreground mb-5 line-clamp-2 flex-1 leading-relaxed font-medium">
           {item.description}
         </p>
       )}
 
       {item.content && (
-        <div className="bg-gray-50/80 rounded-2xl p-4 mb-5 overflow-hidden border border-gray-100 group-hover:border-violet-100 transition-colors relative">
+        <div className="bg-muted/50 rounded-2xl p-4 mb-5 overflow-hidden border border-border group-hover:border-violet-100 dark:group-hover:border-violet-900/30 transition-colors relative">
           <div className="absolute top-2 right-2 flex gap-1">
-            <div className="w-2 h-2 rounded-full bg-gray-200"></div>
-            <div className="w-2 h-2 rounded-full bg-gray-200"></div>
-            <div className="w-2 h-2 rounded-full bg-gray-200"></div>
+            <div className="w-2 h-2 rounded-full bg-gray-200 dark:bg-gray-700"></div>
+            <div className="w-2 h-2 rounded-full bg-gray-200 dark:bg-gray-700"></div>
+            <div className="w-2 h-2 rounded-full bg-gray-200 dark:bg-gray-700"></div>
           </div>
-          <pre className="text-[10px] text-gray-600 font-mono line-clamp-3 leading-relaxed opacity-80 pt-2">
+          <pre className="text-[10px] text-muted-foreground font-mono line-clamp-3 leading-relaxed opacity-80 pt-2">
             {item.content}
           </pre>
         </div>
       )}
 
-      <div className="flex items-center justify-between mt-auto pt-4 border-t border-gray-50">
+      <div className="flex items-center justify-between mt-auto pt-4 border-t border-border">
         <div className="flex gap-2">
           {item.language && item.type !== "prompt" && (
             <Badge
               variant="primary"
               size="sm"
-              className="bg-violet-50 text-violet-600 border-violet-100 shadow-none"
+              className="bg-violet-50 dark:bg-violet-900/20 text-violet-600 dark:text-violet-400 border-violet-100 dark:border-violet-900/50 shadow-none"
             >
               {item.language}
             </Badge>
@@ -489,13 +489,13 @@ function ItemCard({
           {item.category && (
             <Badge
               size="sm"
-              className="bg-gray-100 text-gray-600 hover:bg-gray-200 border-gray-200 shadow-none"
+              className="bg-muted text-muted-foreground hover:bg-muted/80 border-border shadow-none"
             >
               {item.category}
             </Badge>
           )}
         </div>
-        <div className="flex items-center gap-1.5 text-xs text-gray-400 font-bold">
+        <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-bold">
           <Clock className="w-3.5 h-3.5" />
           {format(new Date((item as any)._creationTime), "MMM d")}
         </div>

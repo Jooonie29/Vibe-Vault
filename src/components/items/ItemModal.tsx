@@ -210,40 +210,40 @@ export function ItemModal() {
   const Icon = typeIcons[itemType] || Code2;
 
   const typeColorClasses = {
-    code: 'text-blue-600 bg-blue-50 border-blue-100',
-    prompt: 'text-purple-600 bg-purple-50 border-purple-100',
-    file: 'text-amber-600 bg-amber-50 border-amber-100',
+    code: 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 border-blue-100 dark:border-blue-900/50',
+    prompt: 'text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/20 border-purple-100 dark:border-purple-900/50',
+    file: 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 border-amber-100 dark:border-amber-900/50',
   };
 
   const currentTypeStyle = typeColorClasses[itemType] || typeColorClasses.code;
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} size="xl" noPadding>
-      <div className="flex flex-col h-full overflow-hidden">
+      <div className="flex flex-col h-full overflow-hidden bg-card">
         {/* Header */}
-        <div className="px-6 py-5 border-b border-gray-100 flex items-start justify-between bg-white shrink-0">
+        <div className="px-6 py-5 border-b border-border flex items-start justify-between bg-card shrink-0">
           <div className="flex items-center gap-4">
             <div className={`w-10 h-10 rounded-xl flex items-center justify-center border shadow-sm ${currentTypeStyle}`}>
               <Icon className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <Badge variant="outline" className="uppercase tracking-wider text-[10px] font-bold bg-gray-50/50">
+                <Badge variant="outline" className="uppercase tracking-wider text-[10px] font-bold bg-muted/50">
                   {itemType === 'code' ? 'Code Snippet' : itemType === 'prompt' ? 'AI Prompt' : 'File Asset'}
                 </Badge>
                 {existingItem && (
-                  <span className="text-[11px] text-gray-400 font-medium flex items-center gap-1">
+                  <span className="text-[11px] text-muted-foreground font-medium flex items-center gap-1">
                     <Clock className="w-3 h-3" />
                     Tracked
                   </span>
                 )}
               </div>
               {!isEditing && (existingItem || formData.title) ? (
-                <h2 className="text-xl font-bold text-gray-900 tracking-tight">
+                <h2 className="text-xl font-bold text-card-foreground tracking-tight">
                   {formData.title || existingItem?.title}
                 </h2>
               ) : (
-                <h2 className="text-xl font-bold text-gray-900 tracking-tight">
+                <h2 className="text-xl font-bold text-card-foreground tracking-tight">
                   {existingItem ? 'Edit Resource' : 'New Resource'}
                 </h2>
               )}
@@ -256,8 +256,8 @@ export function ItemModal() {
                 <button
                   onClick={handleToggleFavorite}
                   className={`p-2 rounded-xl transition-all duration-200 border ${formData.isFavorite
-                    ? 'bg-yellow-50 text-yellow-600 border-yellow-200 shadow-sm'
-                    : 'bg-white text-gray-400 border-gray-200 hover:border-gray-300 hover:text-gray-600'
+                    ? 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-600 dark:text-yellow-400 border-yellow-200 dark:border-yellow-900/50 shadow-sm'
+                    : 'bg-card text-muted-foreground border-border hover:border-muted-foreground/50 hover:text-foreground'
                     }`}
                   title={formData.isFavorite ? "Remove from favorites" : "Add to favorites"}
                 >
@@ -266,7 +266,7 @@ export function ItemModal() {
                 {!isEditing && (
                   <>
                     {confirmDelete ? (
-                      <div className="flex items-center gap-1 bg-red-50 p-1 rounded-xl border border-red-100">
+                      <div className="flex items-center gap-1 bg-red-50 dark:bg-red-900/20 p-1 rounded-xl border border-red-100 dark:border-red-900/50">
                         <button
                           onClick={handleDelete}
                           className="p-1.5 rounded-lg bg-red-500 hover:bg-red-600 text-white transition-colors shadow-sm"
@@ -276,7 +276,7 @@ export function ItemModal() {
                         </button>
                         <button
                           onClick={() => setConfirmDelete(false)}
-                          className="p-1.5 rounded-lg text-red-600 hover:bg-red-100 transition-colors"
+                          className="p-1.5 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
                           title="Cancel"
                         >
                           <X className="w-3.5 h-3.5" />
@@ -285,7 +285,7 @@ export function ItemModal() {
                     ) : (
                       <button
                         onClick={() => setConfirmDelete(true)}
-                        className="p-2 rounded-xl bg-white border border-gray-200 text-gray-400 hover:text-red-500 hover:border-red-200 hover:bg-red-50 transition-all duration-200"
+                        className="p-2 rounded-xl bg-card border border-border text-muted-foreground hover:text-red-500 hover:border-red-200 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-200"
                         title="Delete Item"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -293,7 +293,7 @@ export function ItemModal() {
                     )}
                     <button
                       onClick={() => setIsEditing(true)}
-                      className="p-2 rounded-xl bg-white border border-gray-200 text-gray-400 hover:text-violet-600 hover:border-violet-200 hover:bg-violet-50 transition-all duration-200"
+                      className="p-2 rounded-xl bg-card border border-border text-muted-foreground hover:text-violet-600 dark:hover:text-violet-400 hover:border-violet-200 hover:bg-violet-50 dark:hover:bg-violet-900/20 transition-all duration-200"
                       title="Edit Item"
                     >
                       <Edit2 className="w-4 h-4" />
@@ -304,7 +304,7 @@ export function ItemModal() {
             )}
             <button
               onClick={handleClose}
-              className="p-2 rounded-xl bg-white border border-gray-200 text-gray-400 hover:text-gray-600 hover:border-gray-300 transition-all duration-200"
+              className="p-2 rounded-xl bg-card border border-border text-muted-foreground hover:text-foreground hover:border-muted-foreground/50 transition-all duration-200"
               title="Close"
             >
               <X className="w-4 h-4" />
@@ -348,7 +348,7 @@ export function ItemModal() {
               </div>
 
               <div className="space-y-2">
-                <label className="block text-sm font-bold text-gray-900 mb-1">
+                <label className="block text-sm font-bold text-foreground mb-1">
                   {itemType === 'code' ? 'Source Code' : 'Content'}
                 </label>
                 <div className="relative group">
@@ -365,8 +365,8 @@ export function ItemModal() {
           ) : (
             <>
               {existingItem?.description && (
-                <div className="bg-gray-50/50 p-4 rounded-2xl border border-gray-100 italic">
-                  <p className="text-gray-600 text-sm leading-relaxed">{existingItem.description}</p>
+                <div className="bg-muted/50 p-4 rounded-2xl border border-border italic">
+                  <p className="text-muted-foreground text-sm leading-relaxed">{existingItem.description}</p>
                 </div>
               )}
 
@@ -375,7 +375,7 @@ export function ItemModal() {
                   <Badge variant="primary" className="px-2.5 py-0.5 text-[11px] font-bold uppercase">{existingItem.language}</Badge>
                 )}
                 {existingItem?.category && (
-                  <Badge className="px-2.5 py-0.5 text-[11px] font-bold uppercase bg-gray-100/50 border-gray-200">{existingItem.category}</Badge>
+                  <Badge className="px-2.5 py-0.5 text-[11px] font-bold uppercase bg-muted border-border">{existingItem.category}</Badge>
                 )}
               </div>
 
@@ -403,8 +403,8 @@ export function ItemModal() {
 
         {/* Footer */}
         {(isEditing || !existingItem) && (
-          <div className="px-6 py-4 border-t border-gray-100 bg-gray-50/50 flex items-center justify-end gap-3 shrink-0">
-            <Button variant="ghost" onClick={handleClose} className="text-gray-500 font-medium hover:text-gray-900 transition-colors text-sm">
+          <div className="px-6 py-4 border-t border-border bg-muted/30 flex items-center justify-end gap-3 shrink-0">
+            <Button variant="ghost" onClick={handleClose} className="text-muted-foreground font-medium hover:text-foreground transition-colors text-sm">
               {existingItem ? 'Discard' : 'Cancel'}
             </Button>
             <Button

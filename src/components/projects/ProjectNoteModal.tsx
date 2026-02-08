@@ -135,7 +135,7 @@ export function ProjectNoteModal() {
             <div className="p-6 space-y-4">
                 {/* Header */}
                 <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-2 text-violet-600">
+                    <div className="flex items-center gap-2 text-violet-600 dark:text-violet-400">
                         <FileText className="w-5 h-5" />
                         <span className="font-semibold text-sm">
                             {project?.noteUpdatedAt && isToday(new Date(project.noteUpdatedAt))
@@ -144,7 +144,7 @@ export function ProjectNoteModal() {
                         </span>
                     </div>
                     {lastSaved && (
-                        <div className="flex items-center gap-1 text-xs text-gray-500">
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
                             <Clock className="w-3 h-3" />
                             <span>Saved {format(lastSaved, 'h:mm a')}</span>
                         </div>
@@ -153,28 +153,28 @@ export function ProjectNoteModal() {
 
                 {/* Templates */}
                 <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-xs text-gray-500 font-medium">Templates:</span>
+                    <span className="text-xs text-muted-foreground font-medium">Templates:</span>
                     <button
                         onClick={() => insertTemplate('daily')}
-                        className="text-xs px-3 py-1.5 bg-violet-50 text-violet-700 rounded-full hover:bg-violet-100 transition-colors"
+                        className="text-xs px-3 py-1.5 bg-violet-50 dark:bg-violet-900/20 text-violet-700 dark:text-violet-300 rounded-full hover:bg-violet-100 dark:hover:bg-violet-900/40 transition-colors"
                     >
                         📅 Daily Progress
                     </button>
                     <button
                         onClick={() => insertTemplate('meeting')}
-                        className="text-xs px-3 py-1.5 bg-blue-50 text-blue-700 rounded-full hover:bg-blue-100 transition-colors"
+                        className="text-xs px-3 py-1.5 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors"
                     >
                         🤝 Meeting Notes
                     </button>
                     <button
                         onClick={() => insertTemplate('bug')}
-                        className="text-xs px-3 py-1.5 bg-red-50 text-red-700 rounded-full hover:bg-red-100 transition-colors"
+                        className="text-xs px-3 py-1.5 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 rounded-full hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors"
                     >
                         🐛 Bug Report
                     </button>
                     <button
                         onClick={insertDateTime}
-                        className="text-xs px-3 py-1.5 bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 transition-colors flex items-center gap-1"
+                        className="text-xs px-3 py-1.5 bg-secondary text-secondary-foreground rounded-full hover:bg-secondary/80 transition-colors flex items-center gap-1"
                     >
                         <Calendar className="w-3 h-3" />
                         Insert Date
@@ -189,10 +189,10 @@ export function ProjectNoteModal() {
                 />
 
                 {/* Tips */}
-                <div className="text-xs text-gray-500 bg-gray-50 p-3 rounded-lg">
-                    <strong>💡 Tips:</strong> Use <kbd className="px-1.5 py-0.5 bg-white rounded border text-gray-600">Ctrl+B</kbd> for bold,{' '}
-                    <kbd className="px-1.5 py-0.5 bg-white rounded border text-gray-600">Ctrl+I</kbd> for italic,{' '}
-                    <kbd className="px-1.5 py-0.5 bg-white rounded border text-gray-600">Ctrl+K</kbd> for links
+                <div className="text-xs text-muted-foreground bg-muted/50 p-3 rounded-lg">
+                    <strong>💡 Tips:</strong> Use <kbd className="px-1.5 py-0.5 bg-card rounded border border-border text-muted-foreground">Ctrl+B</kbd> for bold,{' '}
+                    <kbd className="px-1.5 py-0.5 bg-card rounded border border-border text-muted-foreground">Ctrl+I</kbd> for italic,{' '}
+                    <kbd className="px-1.5 py-0.5 bg-card rounded border border-border text-muted-foreground">Ctrl+K</kbd> for links
                 </div>
 
                 {/* Actions */}

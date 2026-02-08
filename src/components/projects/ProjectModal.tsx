@@ -113,24 +113,24 @@ export function ProjectModal() {
     <Modal isOpen={isOpen} onClose={handleClose} size="lg" noPadding>
       <div className="flex flex-col h-full">
         {/* Header */}
-        <div className="px-6 py-5 border-b border-gray-100 flex items-start justify-between bg-white sticky top-0 z-10">
+        <div className="px-6 py-5 border-b border-border flex items-start justify-between bg-card sticky top-0 z-10">
           <div className="flex items-center gap-4">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center border border-violet-100 bg-violet-50 text-violet-600 shadow-sm">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center border border-violet-100 dark:border-violet-800 bg-violet-50 dark:bg-violet-900/20 text-violet-600 dark:text-violet-400 shadow-sm">
               <FolderKanban className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <Badge variant="outline" className="uppercase tracking-wider text-[10px] font-bold bg-gray-50/50">
+                <Badge variant="outline" className="uppercase tracking-wider text-[10px] font-bold bg-muted/50">
                   Project
                 </Badge>
                 {existingProject && (
-                  <span className="text-[11px] text-gray-400 font-medium flex items-center gap-1">
+                  <span className="text-[11px] text-muted-foreground font-medium flex items-center gap-1">
                     <Clock className="w-3 h-3" />
                     Active
                   </span>
                 )}
               </div>
-              <h2 className="text-xl font-bold text-gray-900 tracking-tight">
+              <h2 className="text-xl font-bold text-foreground tracking-tight">
                 {isEditing ? 'Edit Project' : 'New Project'}
               </h2>
             </div>
@@ -139,7 +139,7 @@ export function ProjectModal() {
           <div className="flex items-center gap-2">
             {isEditing && existingProject && (
               confirmDelete ? (
-                <div className="flex items-center gap-1 bg-red-50 p-1 rounded-xl border border-red-100">
+                <div className="flex items-center gap-1 bg-red-50 dark:bg-red-900/20 p-1 rounded-xl border border-red-100 dark:border-red-800">
                   <button
                     onClick={handleDelete}
                     className="p-1.5 rounded-lg bg-red-500 hover:bg-red-600 text-white transition-colors shadow-sm"
@@ -149,7 +149,7 @@ export function ProjectModal() {
                   </button>
                   <button
                     onClick={() => setConfirmDelete(false)}
-                    className="p-1.5 rounded-lg text-red-600 hover:bg-red-100 transition-colors"
+                    className="p-1.5 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors"
                     title="Cancel"
                   >
                     <X className="w-3.5 h-3.5" />
@@ -158,7 +158,7 @@ export function ProjectModal() {
               ) : (
                 <button
                   onClick={() => setConfirmDelete(true)}
-                  className="p-2 rounded-xl bg-white border border-gray-200 text-gray-400 hover:text-red-500 hover:border-red-200 hover:bg-red-50 transition-all duration-200"
+                  className="p-2 rounded-xl bg-card border border-border text-muted-foreground hover:text-red-500 hover:border-red-200 dark:hover:border-red-800 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-200"
                   title="Delete Project"
                 >
                   <Trash2 className="w-4 h-4" />
@@ -167,7 +167,7 @@ export function ProjectModal() {
             )}
             <button
               onClick={handleClose}
-              className="p-2 rounded-xl bg-white border border-gray-200 text-gray-400 hover:text-gray-600 hover:border-gray-300 transition-all duration-200"
+              className="p-2 rounded-xl bg-card border border-border text-muted-foreground hover:text-foreground hover:border-border transition-all duration-200"
               title="Close"
             >
               <X className="w-4 h-4" />
@@ -207,12 +207,12 @@ export function ProjectModal() {
             />
           </div>
 
-          <div className="bg-gray-50/50 p-4 rounded-2xl border border-gray-100 space-y-4">
+          <div className="bg-muted/50 p-4 rounded-2xl border border-border space-y-4">
             <div className="flex items-center justify-between">
-              <label className="text-sm font-bold text-gray-900 tracking-tight">Project Progress</label>
-              <span className="text-sm font-bold text-violet-600">{formData.progress}%</span>
+              <label className="text-sm font-bold text-foreground tracking-tight">Project Progress</label>
+              <span className="text-sm font-bold text-violet-600 dark:text-violet-400">{formData.progress}%</span>
             </div>
-            <div className="relative h-5 w-full bg-white rounded-full overflow-hidden shadow-inner border border-gray-100 p-0.5">
+            <div className="relative h-5 w-full bg-card rounded-full overflow-hidden shadow-inner border border-border p-0.5">
               <div
                 className="absolute top-0 left-0 h-full bg-gradient-to-r from-violet-500 via-fuchsia-500 to-rose-500 rounded-full transition-all duration-300 shadow-sm"
                 style={{ width: `${formData.progress}%` }}
@@ -226,7 +226,7 @@ export function ProjectModal() {
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
               />
             </div>
-            <div className="flex justify-between text-[10px] text-gray-400 font-semibold uppercase tracking-wide">
+            <div className="flex justify-between text-[10px] text-muted-foreground font-semibold uppercase tracking-wide">
               <span>Not Started</span>
               <span>Halfway</span>
               <span>Complete</span>
@@ -243,14 +243,14 @@ export function ProjectModal() {
             />
 
             <div>
-              <label className="block text-sm font-bold text-gray-900 mb-2">Color Theme</label>
+              <label className="block text-sm font-bold text-foreground mb-2">Color Theme</label>
               <div className="flex gap-2 flex-wrap">
                 {colorOptions.map((color) => (
                   <button
                     key={color}
                     onClick={() => setFormData({ ...formData, color })}
                     className={`w-8 h-8 rounded-xl transition-all shadow-sm flex items-center justify-center border-2 ${formData.color === color
-                        ? 'border-white ring-2 ring-violet-500/20 scale-105 shadow-md z-10'
+                        ? 'border-card ring-2 ring-violet-500/20 scale-105 shadow-md z-10'
                         : 'border-transparent hover:scale-105 hover:shadow-md'
                       }`}
                     style={{ backgroundColor: color }}
@@ -264,8 +264,8 @@ export function ProjectModal() {
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-gray-100 bg-gray-50/50 flex items-center justify-end gap-3 mt-auto">
-          <Button variant="ghost" onClick={handleClose} className="text-gray-500 font-medium hover:text-gray-900 transition-colors text-sm">
+        <div className="px-6 py-4 border-t border-border bg-muted/30 flex items-center justify-end gap-3 mt-auto">
+          <Button variant="ghost" onClick={handleClose} className="text-muted-foreground font-medium hover:text-foreground transition-colors text-sm">
             Cancel
           </Button>
           <Button

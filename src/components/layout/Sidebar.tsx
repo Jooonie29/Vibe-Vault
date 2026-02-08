@@ -182,7 +182,7 @@ export function Sidebar() {
               key={item.id}
               onClick={() => setCurrentView(item.id as any)}
               className={`w-full flex items-center gap-3 p-2.5 rounded-xl transition-all duration-200 group relative ${sidebarCollapsed ? 'justify-center' : ''} ${isActive
-                ? 'bg-black text-white shadow-lg shadow-black/20'
+                ? 'bg-sidebar-accent dark:bg-white/10 text-sidebar-foreground shadow-sm'
                 : 'text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground'
                 }`}
             >
@@ -272,7 +272,7 @@ export function Sidebar() {
           <button
             onClick={() => setCurrentView('settings')}
             className={`w-full flex items-center gap-3 p-2.5 rounded-xl transition-all duration-200 group ${sidebarCollapsed ? 'justify-center' : ''} ${currentView === 'settings'
-              ? 'bg-violet-600 text-white shadow-lg shadow-violet-600/20'
+              ? 'bg-sidebar-accent dark:bg-white/10 text-sidebar-foreground shadow-sm'
               : 'text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground'
               }`}
           >
@@ -286,13 +286,13 @@ export function Sidebar() {
               <div className="w-full flex items-center justify-between bg-sidebar-accent/50 p-1.5 rounded-xl border border-sidebar-border/30">
                 <button
                   onClick={() => setTheme('light')}
-                  className={`flex-1 flex items-center justify-center py-1 rounded-lg transition-all ${theme === 'light' ? 'bg-white shadow-sm text-amber-500' : 'text-muted-foreground hover:text-sidebar-foreground'}`}
+                  className={`flex-1 flex items-center justify-center py-1 rounded-lg transition-all ${theme === 'light' ? 'bg-background shadow-sm text-amber-500' : 'text-muted-foreground hover:text-sidebar-foreground'}`}
                 >
                   <Sun className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => setTheme('dark')}
-                  className={`flex-1 flex items-center justify-center py-1 rounded-lg transition-all ${theme === 'dark' ? 'bg-white shadow-sm text-indigo-500' : 'text-muted-foreground hover:text-sidebar-foreground'}`}
+                  className={`flex-1 flex items-center justify-center py-1 rounded-lg transition-all ${theme === 'dark' ? 'bg-background shadow-sm text-indigo-500' : 'text-muted-foreground hover:text-sidebar-foreground'}`}
                 >
                   <Moon className="w-4 h-4" />
                 </button>
@@ -311,27 +311,27 @@ export function Sidebar() {
 
       {/* Learn More Dialog */}
       <Dialog open={showLearnMore} onOpenChange={setShowLearnMore}>
-        <DialogContent className="max-w-md bg-white rounded-[32px] p-0 overflow-hidden shadow-2xl border-0">
+        <DialogContent className="max-w-md bg-card rounded-[32px] p-0 overflow-hidden shadow-2xl border-0">
           <DialogHeader className="p-8 pb-4">
-            <DialogTitle className="text-2xl font-bold text-gray-900 tracking-tight flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-violet-100 flex items-center justify-center">
-                <Info className="w-5 h-5 text-violet-600" />
+            <DialogTitle className="text-2xl font-bold text-card-foreground tracking-tight flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center">
+                <Info className="w-5 h-5 text-violet-600 dark:text-violet-400" />
               </div>
               Free Plan Limits
             </DialogTitle>
           </DialogHeader>
           <div className="p-8 pt-2 space-y-6">
-            <p className="text-gray-500 leading-relaxed">
+            <p className="text-muted-foreground leading-relaxed">
               You're currently on the Free plan. Here's your current usage to help you manage your resources.
             </p>
 
             <div className="space-y-4">
-              <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100">
+              <div className="p-4 bg-muted/50 rounded-2xl border border-border">
                 <div className="flex justify-between items-center mb-3">
-                  <span className="text-sm font-semibold text-gray-700">Workspaces</span>
-                  <span className="text-sm font-bold text-gray-900">{workspacesUsed}/{workspacesLimit}</span>
+                  <span className="text-sm font-semibold text-muted-foreground">Workspaces</span>
+                  <span className="text-sm font-bold text-foreground">{workspacesUsed}/{workspacesLimit}</span>
                 </div>
-                <div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
+                <div className="h-2 w-full bg-secondary rounded-full overflow-hidden">
                   <motion.div
                     animate={{ width: `${workspacesPercent}%` }}
                     className="h-full bg-gradient-to-r from-amber-300 to-orange-400 rounded-full"
@@ -339,12 +339,12 @@ export function Sidebar() {
                 </div>
               </div>
 
-              <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100">
+              <div className="p-4 bg-muted/50 rounded-2xl border border-border">
                 <div className="flex justify-between items-center mb-3">
-                  <span className="text-sm font-semibold text-gray-700">Storage</span>
-                  <span className="text-sm font-bold text-gray-900">{storageUsed}MB / {storageLimit}MB</span>
+                  <span className="text-sm font-semibold text-muted-foreground">Storage</span>
+                  <span className="text-sm font-bold text-foreground">{storageUsed}MB / {storageLimit}MB</span>
                 </div>
-                <div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
+                <div className="h-2 w-full bg-secondary rounded-full overflow-hidden">
                   <motion.div
                     initial={{ width: 0 }}
                     animate={{ width: `${storagePercent}%` }}
@@ -354,8 +354,8 @@ export function Sidebar() {
               </div>
             </div>
 
-            <div className="pt-4 border-t border-gray-100">
-              <h4 className="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2 uppercase tracking-wider">
+            <div className="pt-4 border-t border-border">
+              <h4 className="text-sm font-bold text-foreground mb-4 flex items-center gap-2 uppercase tracking-wider">
                 <Crown className="w-4 h-4 text-amber-500" />
                 Pro Features
               </h4>
@@ -367,9 +367,9 @@ export function Sidebar() {
                   '24/7 priority support',
                   'Enhanced collaboration tools',
                 ].map((feature, i) => (
-                  <li key={i} className="flex items-center gap-3 text-sm text-gray-600 font-medium">
-                    <div className="w-5 h-5 rounded-full bg-emerald-50 flex items-center justify-center shrink-0">
-                      <Check className="w-3 h-3 text-emerald-600" />
+                  <li key={i} className="flex items-center gap-3 text-sm text-muted-foreground font-medium">
+                    <div className="w-5 h-5 rounded-full bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center shrink-0">
+                      <Check className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
                     </div>
                     {feature}
                   </li>

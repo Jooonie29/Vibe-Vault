@@ -2,7 +2,8 @@ import React, { useEffect, useState, useRef } from 'react';
 import {
   Users, ArrowRight, Plus, KeyRound, LogOut, Search, Bell, Grid, List,
   MoreHorizontal, Layout, Star, BookOpen, MessageCircle, HelpCircle,
-  Video, MessageSquare, Heart, Image as ImageIcon, X, Loader2, Shield
+  Video, MessageSquare, Heart, Image as ImageIcon, X, Loader2, Shield, Sun, Moon,
+  Zap, Crown, ChevronRight, Settings
 } from 'lucide-react';
 import { useMutation, useQuery } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
@@ -13,6 +14,10 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Modal } from '@/components/ui/Modal';
 import { ImageUpload } from '@/components/ui/ImageUpload';
+import { Switch } from '@/components/ui/switch';
+import { useTheme } from '@/components/theme-provider';
+import { motion } from 'framer-motion';
+import { PricingModal } from '@/components/pricing/PricingModal';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -42,15 +47,27 @@ import { ChatSupport } from '@/components/support/ChatSupport';
 import { Community } from '@/components/support/Community';
 import { Referral } from '@/components/support/Referral';
 import { HelpCenter } from '@/components/support/HelpCenter';
+import { SettingsPage } from '@/components/settings/SettingsPage';
 
 
 export function TeamOnboarding() {
   const { user, profile, signOut } = useAuthStore();
   const { addToast, setActiveTeamId } = useUIStore();
+  const { theme, setTheme } = useTheme();
   const userId = user?.id || '';
   const displayName = profile?.fullName || profile?.username || user?.email?.split('@')[0] || 'User';
 
   const teams = useQuery(api.teams.getTeamsForUser, userId ? { userId } : 'skip');
+  const usage = useQuery(api.usage.getPlanUsage, userId ? { userId } : "skip");
+
+  const workspacesLimit = usage?.workspaces.limit || 3;
+  const workspacesUsed = usage?.workspaces.used || 0;
+  const workspacesPercent = Math.min((workspacesUsed / workspacesLimit) * 100, 100);
+
+  const storageLimit = usage?.storage.limitMB || 200;
+  const storageUsed = usage?.storage.usedMB || 0;
+  const storagePercent = Math.min((storageUsed / storageLimit) * 100, 100);
+
   const createTeam = useMutation(api.teams.createTeam);
   const updateTeam = useMutation(api.teams.updateTeam);
   const deleteTeam = useMutation(api.teams.deleteTeam);
@@ -70,6 +87,7 @@ export function TeamOnboarding() {
   const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+  const [showLearnMore, setShowLearnMore] = useState(false);
 
   // Management state
   const [editingTeam, setEditingTeam] = useState<any>(null);
@@ -255,7 +273,8 @@ export function TeamOnboarding() {
       <aside className="w-64 bg-sidebar border-r border-sidebar-border flex flex-col fixed left-0 top-0 bottom-0 z-30 text-sidebar-foreground">
         {/* Logo */}
         <div className="p-6 flex items-center gap-3">
-          <img src="/logo-black.png" alt="Vibe Vault" className="w-8 h-8 object-contain" />
+          <img src="/logo-black.png" alt="Vibe Vault" className="w-8 h-8 object-contain dark:hidden" />
+          <img src="/vibe logo white.png" alt="Vibe Vault" className="w-8 h-8 object-contain hidden dark:block" />
           <span className="font-extrabold text-2xl text-sidebar-foreground tracking-tighter">Vibe Vault</span>
         </div>
 
@@ -264,8 +283,7 @@ export function TeamOnboarding() {
           <div>
             <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 px-2">Applications</h3>
             <div className="space-y-1">
-              <SidebarItem id="all-workspaces" label="Dashboard" icon={Layout} />
-              <SidebarItem id="favorites" label="Favorites" icon={Star} />
+              <SidebarItem id="all-workspaces" label="Workspaces" icon={Layout} />
             </div>
           </div>
 
@@ -287,6 +305,95 @@ export function TeamOnboarding() {
               <SidebarItem id="referral" label="Refer a friend" icon={Heart} />
               <SidebarItem id="help" label="Help" icon={HelpCircle} />
             </div>
+          </div>
+        </div>
+
+        {/* Theme Toggle Footer */}
+        <div className="p-4 border-t border-sidebar-border mt-auto bg-sidebar">
+          {/* Plan Card */}
+          <div className="bg-gradient-to-br from-black via-violet-950 to-violet-800 rounded-2xl p-4 shadow-xl shadow-black/40 mb-4 border border-violet-500/30 overflow-hidden relative group">
+            {/* Noise texture overlay */}
+            <div
+              className="absolute inset-0 opacity-20 mix-blend-soft-light pointer-events-none"
+              style={{
+                backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+              }}
+            />
+            <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:scale-110 transition-transform duration-500">
+              <Zap className="w-16 h-16 text-violet-400" />
+            </div>
+
+            <div className="relative z-10">
+              <div className="flex items-center gap-2 text-white mb-3">
+                <Crown className="w-4 h-4 text-amber-300" />
+                <h3 className="text-xs font-bold">Free Plan Limits</h3>
+              </div>
+
+              <div className="w-full space-y-3">
+                <div>
+                  <div className="flex justify-between text-[10px] font-medium text-white/90 mb-1">
+                    <span>Workspaces</span>
+                    <span>{workspacesUsed}/{workspacesLimit}</span>
+                  </div>
+                  <div className="h-1.5 w-full bg-black/20 rounded-full overflow-hidden backdrop-blur-sm shadow-inner">
+                    <motion.div
+                      animate={{ width: `${workspacesPercent}%` }}
+                      className="h-full bg-gradient-to-r from-amber-300 to-orange-400 rounded-full"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex justify-between text-[10px] font-medium text-white/90 mb-1">
+                    <span>Storage</span>
+                    <span>{storageUsed}MB / {storageLimit}MB</span>
+                  </div>
+                  <div className="h-1.5 w-full bg-black/20 rounded-full overflow-hidden backdrop-blur-sm shadow-inner">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${storagePercent}%` }}
+                      className="h-full bg-gradient-to-r from-emerald-300 to-teal-400 rounded-full"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 gap-2 mt-4 pt-1">
+                <button
+                  onClick={() => setShowLearnMore(true)}
+                  className="w-full py-2 bg-white/10 hover:bg-white/20 text-white text-[10px] font-bold rounded-lg transition-colors border border-white/10 backdrop-blur-sm"
+                >
+                  Learn more
+                </button>
+                <PricingModal>
+                  <button className="w-full py-2 bg-white text-violet-600 text-[10px] font-bold rounded-lg hover:bg-violet-50 transition-colors flex items-center justify-center gap-1 shadow-lg shadow-black/10">
+                    Upgrade plan
+                    <ChevronRight className="w-3 h-3" />
+                  </button>
+                </PricingModal>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/50 transition-all duration-200 cursor-pointer" onClick={() => setActiveSection('settings')}>
+            <Settings className="w-4 h-4" />
+            <span className="text-sm font-medium">Account Settings</span>
+          </div>
+
+          {/* Theme Toggle */}
+          <div className="flex items-center justify-between bg-sidebar-accent/50 p-1.5 rounded-xl border border-sidebar-border/30">
+            <button
+              onClick={() => setTheme('light')}
+              className={`flex-1 flex items-center justify-center py-1.5 rounded-lg transition-all ${theme === 'light' ? 'bg-background shadow-sm text-amber-500' : 'text-muted-foreground hover:text-sidebar-foreground'}`}
+            >
+              <Sun className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setTheme('dark')}
+              className={`flex-1 flex items-center justify-center py-1.5 rounded-lg transition-all ${theme === 'dark' ? 'bg-background shadow-sm text-indigo-500' : 'text-muted-foreground hover:text-sidebar-foreground'}`}
+            >
+              <Moon className="w-4 h-4" />
+            </button>
           </div>
         </div>
       </aside>
@@ -407,22 +514,22 @@ export function TeamOnboarding() {
               <section>
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-3">
-                    <h2 className="text-xl font-bold text-gray-900">Your Workspaces</h2>
-                    <span className="px-2.5 py-0.5 rounded-full bg-gray-100 text-xs font-medium text-gray-600">
+                    <h2 className="text-xl font-bold text-gray-900 dark:text-white">Your Workspaces</h2>
+                    <span className="px-2.5 py-0.5 rounded-full bg-gray-100 dark:bg-white/10 text-xs font-medium text-gray-600 dark:text-gray-300">
                       {teams?.length || 0}
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-2 bg-white rounded-lg border border-gray-200 p-1">
+                  <div className="flex items-center gap-2 bg-white dark:bg-card rounded-lg border border-gray-200 dark:border-white/10 p-1">
                     <button
                       onClick={() => setViewMode('list')}
-                      className={`p-1.5 rounded ${viewMode === 'list' ? 'bg-gray-100 text-gray-900' : 'text-gray-400 hover:text-gray-600'}`}
+                      className={`p-1.5 rounded ${viewMode === 'list' ? 'bg-gray-100 dark:bg-white/10 text-gray-900 dark:text-white' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'}`}
                     >
                       <List className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => setViewMode('grid')}
-                      className={`p-1.5 rounded ${viewMode === 'grid' ? 'bg-gray-100 text-gray-900' : 'text-gray-400 hover:text-gray-600'}`}
+                      className={`p-1.5 rounded ${viewMode === 'grid' ? 'bg-gray-100 dark:bg-white/10 text-gray-900 dark:text-white' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'}`}
                     >
                       <Grid className="w-4 h-4" />
                     </button>
@@ -434,12 +541,12 @@ export function TeamOnboarding() {
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-violet-600"></div>
                   </div>
                 ) : teams.length === 0 ? (
-                  <div className="text-center py-12 bg-white rounded-2xl border border-gray-100">
-                    <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <Layout className="w-8 h-8 text-gray-300" />
+                  <div className="text-center py-12 bg-white dark:bg-card rounded-2xl border border-gray-100 dark:border-white/10">
+                    <div className="w-16 h-16 bg-gray-50 dark:bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Layout className="w-8 h-8 text-gray-300 dark:text-gray-600" />
                     </div>
-                    <h3 className="text-lg font-medium text-gray-900">No workspaces yet</h3>
-                    <p className="text-gray-500 mt-1">Create one above to get started.</p>
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-white">No workspaces yet</h3>
+                    <p className="text-gray-500 dark:text-gray-400 mt-1">Create one above to get started.</p>
                   </div>
                 ) : (
                   <div className={`grid gap-6 ${viewMode === 'grid' ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1'}`}>
@@ -447,7 +554,7 @@ export function TeamOnboarding() {
                       <div
                         key={team._id}
                         className={`
-                                group relative bg-white border border-gray-200 hover:border-violet-500/50 hover:shadow-2xl hover:shadow-violet-500/10 transition-all duration-300 text-left cursor-pointer
+                                group relative bg-white dark:bg-card border border-gray-200 dark:border-white/10 hover:border-violet-500/50 hover:shadow-2xl hover:shadow-violet-500/10 transition-all duration-300 text-left cursor-pointer
                                 ${viewMode === 'grid'
                             ? 'rounded-3xl p-5 flex flex-col h-[300px] hover:-translate-y-1'
                             : 'rounded-2xl p-4 flex items-center gap-6'}
@@ -500,9 +607,9 @@ export function TeamOnboarding() {
                         {/* Content Area */}
                         <div className="flex-1 min-w-0 flex flex-col justify-between">
                           <div>
-                            <h3 className="font-extrabold text-gray-900 truncate text-lg group-hover:text-violet-600 transition-colors duration-300">{team.name}</h3>
+                            <h3 className="font-extrabold text-gray-900 dark:text-white truncate text-lg group-hover:text-violet-600 transition-colors duration-300">{team.name}</h3>
                             {team.description && (
-                              <p className="text-sm text-gray-500 line-clamp-2 mt-1 leading-relaxed">{team.description}</p>
+                              <p className="text-sm text-gray-500 dark:text-muted-foreground line-clamp-2 mt-1 leading-relaxed">{team.description}</p>
                             )}
                           </div>
 
@@ -511,7 +618,7 @@ export function TeamOnboarding() {
                               "flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider",
                               team.role === 'admin'
                                 ? "bg-violet-100 text-violet-700 dark:bg-violet-500/10 dark:text-violet-400"
-                                : "bg-gray-100 text-gray-700"
+                                : "bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-gray-300"
                             )}>
                               {team.role === 'admin' ? <Shield className="w-3 h-3" /> : <Users className="w-3 h-3" />}
                               {team.role}
@@ -522,28 +629,28 @@ export function TeamOnboarding() {
                                 {team.members?.map((member: any, i: number) => (
                                   <div
                                     key={member.userId}
-                                    className="relative w-6 h-6 rounded-full border-2 border-white bg-gray-100 flex items-center justify-center overflow-hidden"
+                                    className="relative w-6 h-6 rounded-full border-2 border-white dark:border-gray-800 bg-gray-100 dark:bg-gray-700 flex items-center justify-center overflow-hidden"
                                     style={{ zIndex: 10 - i }}
                                     title={member.fullName || member.username}
                                   >
                                     {member.avatarUrl ? (
                                       <img src={member.avatarUrl} alt="" className="w-full h-full object-cover" />
                                     ) : (
-                                      <span className="text-[8px] font-bold text-gray-500 uppercase">
+                                      <span className="text-[8px] font-bold text-gray-500 dark:text-gray-400 uppercase">
                                         {(member.fullName || member.username || '?').substring(0, 1)}
                                       </span>
                                     )}
                                   </div>
                                 ))}
                                 {team.memberCount > 5 && (
-                                  <div className="relative w-6 h-6 rounded-full border-2 border-white bg-gray-100 flex items-center justify-center z-0">
-                                    <span className="text-[8px] font-bold text-gray-500">
+                                  <div className="relative w-6 h-6 rounded-full border-2 border-white dark:border-gray-800 bg-gray-100 dark:bg-gray-700 flex items-center justify-center z-0">
+                                    <span className="text-[8px] font-bold text-gray-500 dark:text-gray-400">
                                       +{team.memberCount - 5}
                                     </span>
                                   </div>
                                 )}
                               </div>
-                              <span className="text-[10px] font-bold text-gray-500 uppercase tracking-tight">
+                              <span className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-tight">
                                 {team.memberCount === 1 ? '1 member' : `${team.memberCount} members`}
                               </span>
                             </div>
@@ -564,6 +671,7 @@ export function TeamOnboarding() {
           {activeSection === 'community' && <Community />}
           {activeSection === 'referral' && <Referral />}
           {activeSection === 'help' && <HelpCenter />}
+          {activeSection === 'settings' && <SettingsPage />}
         </div>
       </main>
 
@@ -596,7 +704,7 @@ export function TeamOnboarding() {
             />
           </div>
           <div className="flex justify-end gap-3">
-            <Button variant="ghost" onClick={() => setIsCreateModalOpen(false)} className="font-bold text-gray-500">Cancel</Button>
+            <Button variant="ghost" onClick={() => setIsCreateModalOpen(false)} className="font-bold text-muted-foreground">Cancel</Button>
             <Button onClick={handleCreateTeam} loading={creating} className="min-w-[160px] font-black py-6 rounded-2xl shadow-lg shadow-violet-500/10">Create Workspace</Button>
           </div>
         </div>
@@ -635,7 +743,7 @@ export function TeamOnboarding() {
             />
           </div>
           <div className="flex justify-end gap-3">
-            <Button variant="ghost" onClick={() => setIsEditModalOpen(false)} className="font-bold text-gray-500">Cancel</Button>
+            <Button variant="ghost" onClick={() => setIsEditModalOpen(false)} className="font-bold text-muted-foreground">Cancel</Button>
             <Button onClick={handleUpdateWorkspace} loading={updating} className="min-w-[160px] font-black py-6 rounded-2xl shadow-lg shadow-violet-500/10">Save Changes</Button>
           </div>
         </div>
@@ -645,13 +753,13 @@ export function TeamOnboarding() {
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent className="rounded-[32px] p-8 border-none shadow-2xl">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-2xl font-black tracking-tight text-gray-900">Delete Workspace</AlertDialogTitle>
-            <AlertDialogDescription className="text-base text-gray-500 mt-2">
-              Are you sure you want to delete <span className="font-bold text-gray-900">"{teamToDelete?.name}"</span>? This action cannot be undone and will remove access for all team members.
+            <AlertDialogTitle className="text-2xl font-black tracking-tight text-gray-900 dark:text-white">Delete Workspace</AlertDialogTitle>
+            <AlertDialogDescription className="text-base text-gray-500 dark:text-muted-foreground mt-2">
+              Are you sure you want to delete <span className="font-bold text-gray-900 dark:text-white">"{teamToDelete?.name}"</span>? This action cannot be undone and will remove access for all team members.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="mt-8 gap-3">
-            <AlertDialogCancel disabled={deleting} className="rounded-2xl font-bold py-6 border-gray-200">Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={deleting} className="rounded-2xl font-bold py-6 border-gray-200 dark:border-white/10">Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={(e) => {
                 e.preventDefault();

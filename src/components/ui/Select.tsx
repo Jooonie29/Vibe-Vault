@@ -12,7 +12,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
     return (
       <div className="w-full">
         {label && (
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
             {label}
           </label>
         )}
@@ -20,22 +20,22 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
           <select
             ref={ref}
             className={`
-              w-full px-4 py-3 rounded-2xl border border-gray-200 bg-white shadow-sm
-              text-gray-900 appearance-none cursor-pointer
-              focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500
+              w-full px-4 py-3 rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 shadow-sm
+              text-gray-900 dark:text-white appearance-none cursor-pointer
+              focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 dark:focus:border-violet-500/50
               transition-all duration-200
-              ${error ? 'border-red-500 focus:ring-red-500/20 focus:border-red-500' : 'hover:border-gray-300'}
+              ${error ? 'border-red-500 focus:ring-red-500/20 focus:border-red-500' : 'hover:border-gray-300 dark:hover:border-white/20'}
               ${className}
             `}
             {...props}
           >
             {options.map((option) => (
-              <option key={option.value} value={option.value}>
+              <option key={option.value} value={option.value} className="bg-white dark:bg-gray-900 text-gray-900 dark:text-white">
                 {option.label}
               </option>
             ))}
           </select>
-          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
+          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500 pointer-events-none" />
         </div>
         {error && (
           <p className="mt-1.5 text-sm text-red-500">{error}</p>

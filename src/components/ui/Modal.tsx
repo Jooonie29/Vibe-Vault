@@ -69,7 +69,7 @@ export function Modal({
             exit={{ opacity: 0, scale: 0.98, y: 10 }}
             transition={{ type: 'spring', damping: 25, stiffness: 400 }}
             className={cn(
-              "relative w-full bg-white dark:bg-[#0f1117] rounded-[32px] shadow-2xl max-h-[90vh] overflow-hidden flex flex-col dark:border dark:border-white/10",
+              "relative w-full bg-card rounded-[32px] shadow-2xl max-h-[90vh] overflow-hidden flex flex-col border border-border",
               sizes[size as keyof typeof sizes],
               className
             )}
@@ -82,7 +82,7 @@ export function Modal({
               )}>
                 <div className="flex-1">
                   {title && (
-                    <h3 className="text-2xl font-extrabold text-gray-900 dark:text-white leading-tight tracking-tight">
+                    <h3 className="text-2xl font-extrabold text-foreground leading-tight tracking-tight">
                       {title}
                     </h3>
                   )}
@@ -96,8 +96,8 @@ export function Modal({
                   <button
                     onClick={onClose}
                     className={cn(
-                      "p-2 text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/5 rounded-2xl transition-all duration-200",
-                      noPadding && "bg-white/80 dark:bg-black/80 backdrop-blur-md shadow-sm border border-gray-100 dark:border-white/10"
+                      "p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-2xl transition-all duration-200",
+                      noPadding && "bg-background/80 backdrop-blur-md shadow-sm border border-border"
                     )}
                   >
                     <X className="w-5 h-5" />

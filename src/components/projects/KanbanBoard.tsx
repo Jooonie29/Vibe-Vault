@@ -112,19 +112,19 @@ function BoardShareModal({ open, onOpenChange, userId, teamId }: { open: boolean
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md bg-white rounded-[32px] p-0 overflow-hidden shadow-2xl border-0">
+      <DialogContent className="sm:max-w-md bg-card rounded-[32px] p-0 overflow-hidden shadow-2xl border-0">
         <DialogHeader className="p-8 pb-4">
-          <DialogTitle className="text-2xl font-bold text-gray-900 tracking-tight">Share Project Board</DialogTitle>
-          <DialogDescription className="text-base text-gray-500 mt-2">
+          <DialogTitle className="text-2xl font-bold text-foreground tracking-tight">Share Project Board</DialogTitle>
+          <DialogDescription className="text-base text-muted-foreground mt-2">
             Anyone with the link can view this board and all its projects.
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-8 p-8 pt-2">
-          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100">
+          <div className="flex items-center justify-between p-4 bg-muted/50 rounded-2xl border border-border">
             <div className="space-y-0.5">
-              <Label className="text-base font-semibold text-gray-900">Public Link</Label>
-              <p className="text-sm text-gray-500">
+              <Label className="text-base font-semibold text-foreground">Public Link</Label>
+              <p className="text-sm text-muted-foreground">
                 Allow access via a unique link
               </p>
             </div>
@@ -146,13 +146,12 @@ function BoardShareModal({ open, onOpenChange, userId, teamId }: { open: boolean
                   id="link"
                   defaultValue={`${window.location.origin}/share/board/${share.token}`}
                   readOnly
-                  className="h-12 rounded-xl bg-gray-50 border-gray-200 text-gray-600 font-medium"
+                  className="h-12 rounded-xl bg-muted/50 border-border text-muted-foreground font-medium"
                 />
               </div>
               <Button
                 type="button"
-                size="sm"
-                className="h-12 w-12 rounded-xl bg-violet-100 text-violet-600 hover:bg-violet-200 hover:text-violet-700 shadow-none p-0 flex items-center justify-center"
+                className="h-12 w-12 rounded-xl bg-violet-100 dark:bg-violet-900/20 text-violet-600 dark:text-violet-400 hover:bg-violet-200 dark:hover:bg-violet-900/40 hover:text-violet-700 dark:hover:text-violet-300 shadow-none p-0 flex items-center justify-center"
                 onClick={copyLink}
               >
                 <span className="sr-only">Copy</span>
