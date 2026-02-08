@@ -10,6 +10,8 @@ interface UIState {
   activeModal: ModalType;
   modalData: any;
   activeTeamId: string | null;
+  floatingChatOpen: boolean;
+  floatingChatTargetUserId: string | null;
   searchQuery: string;
   initializedViews: Set<string>;
   toasts: Toast[];
@@ -18,6 +20,10 @@ interface UIState {
   openModal: (type: ModalType, data?: any) => void;
   closeModal: () => void;
   setActiveTeamId: (teamId: string | null) => void;
+  openFloatingChat: () => void;
+  closeFloatingChat: () => void;
+  openFloatingChatWithUser: (userId: string) => void;
+  clearFloatingChatTarget: () => void;
   setSearchQuery: (query: string) => void;
   markViewInitialized: (view: View) => void;
   addToast: (toast: Omit<Toast, 'id'>) => void;
@@ -39,6 +45,8 @@ export const useUIStore = create<UIState>()(
       activeModal: null,
       modalData: null,
       activeTeamId: null,
+      floatingChatOpen: false,
+      floatingChatTargetUserId: null,
       searchQuery: '',
       initializedViews: new Set<string>(),
       toasts: [],
@@ -58,6 +66,14 @@ export const useUIStore = create<UIState>()(
       closeModal: () => set({ activeModal: null, modalData: null }),
 
       setActiveTeamId: (teamId) => set({ activeTeamId: teamId }),
+
+      openFloatingChat: () => set({ floatingChatOpen: true }),
+
+      closeFloatingChat: () => set({ floatingChatOpen: false, floatingChatTargetUserId: null }),
+
+      openFloatingChatWithUser: (userId) => set({ floatingChatOpen: true, floatingChatTargetUserId: userId }),
+
+      clearFloatingChatTarget: () => set({ floatingChatTargetUserId: null }),
 
       setSearchQuery: (query) => set({ searchQuery: query }),
 

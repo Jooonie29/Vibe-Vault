@@ -9,7 +9,6 @@ import {
   ChevronLeft,
   Plus,
   Search,
-  MoreHorizontal,
   Check,
   CheckCheck,
   Edit3,
@@ -27,8 +26,6 @@ import {
   useAvailableTeamMembers,
   useEditMessage,
   useDeleteMessage,
-  Conversation,
-  Message,
   TeamMember
 } from '@/hooks/useMessaging';
 
@@ -44,7 +41,7 @@ export function FloatingChat() {
   const [editText, setEditText] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { user } = useAuthStore();
-  const { activeTeamId } = useUIStore();
+  const { activeTeamId, floatingChatOpen, floatingChatTargetUserId, openFloatingChat, closeFloatingChat, clearFloatingChatTarget } = useUIStore();
   
   const { data: conversations, isLoading: conversationsLoading } = useConversations();
   const { data: messages, isLoading: messagesLoading } = useMessages(selectedConversationId);
@@ -64,6 +61,30 @@ export function FloatingChat() {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  useEffect(() => {
+    if (floatingChatOpen) {
+      setIsOpen(true);
+    }
+  }, [floatingChatOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    if (!floatingChatTargetUserId) return;
+    if (!activeTeamId) return;
+
+    const run = async () => {
+      try {
+        const conversationId = await getOrCreateDirectConversation(activeTeamId, floatingChatTargetUserId);
+        setSelectedConversationId(conversationId);
+        setViewState('thread');
+      } finally {
+        clearFloatingChatTarget();
+      }
+    };
+
+    run();
+  }, [isOpen, floatingChatTargetUserId, activeTeamId, getOrCreateDirectConversation, clearFloatingChatTarget]);
 
   // Mark conversation as read when opened
   useEffect(() => {
@@ -150,7 +171,10 @@ export function FloatingChat() {
             exit={{ scale: 0, opacity: 0 }}
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
-            onClick={() => setIsOpen(true)}
+            onClick={() => {
+              openFloatingChat();
+              setIsOpen(true);
+            }}
             className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-violet-600 hover:bg-violet-700 text-white rounded-full shadow-lg shadow-violet-600/30 flex items-center justify-center transition-colors"
           >
             <MessageCircle className="w-6 h-6" />
@@ -187,7 +211,10 @@ export function FloatingChat() {
                       <Plus className="w-5 h-5 text-muted-foreground" />
                     </button>
                     <button
-                      onClick={() => setIsOpen(false)}
+                      onClick={() => {
+                        closeFloatingChat();
+                        setIsOpen(false);
+                      }}
                       className="p-2 hover:bg-muted rounded-full transition-colors"
                     >
                       <X className="w-5 h-5 text-muted-foreground" />

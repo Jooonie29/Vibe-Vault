@@ -184,7 +184,7 @@ export function KanbanBoardUI({
                     <div
                       ref={provided.innerRef}
                       {...provided.droppableProps}
-                      className={`flex-1 min-h-[500px] p-3 rounded-[32px] transition-all duration-300 ${
+                      className={`flex-1 min-h-[700px] p-3 rounded-[32px] transition-all duration-300 ${
                         snapshot.isDraggingOver
                           ? "bg-violet-50 dark:bg-violet-900/10 ring-2 ring-violet-200 dark:ring-violet-800 ring-inset"
                           : "bg-muted/50 border border-border/50"

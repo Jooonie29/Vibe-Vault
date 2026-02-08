@@ -7,10 +7,12 @@ import { useUIStore } from '@/store/uiStore';
 
 export function useItems(type?: ItemType) {
   const { user } = useAuthStore();
+  const { activeTeamId } = useUIStore();
   const userId = user?.id || "";
 
   const items = useQuery(api.items.getItems, {
     userId,
+    teamId: activeTeamId ? (activeTeamId as any) : undefined,
     type
   });
 
@@ -40,7 +42,7 @@ export function useItem(id: string | null) {
 export function useCreateItem() {
   const createItemMutation = useMutation(api.items.createItem);
   const { user } = useAuthStore();
-  const { addToast } = useUIStore();
+  const { addToast, activeTeamId } = useUIStore();
   const [isPending, setIsPending] = useState(false);
 
   const mutate = async (item: Partial<Item>) => {
@@ -49,6 +51,7 @@ export function useCreateItem() {
     try {
       const id = await createItemMutation({
         userId: user.id,
+        teamId: activeTeamId ? (activeTeamId as any) : undefined,
         type: item.type as any,
         title: item.title || "Untitled",
         description: item.description || undefined,
@@ -188,9 +191,10 @@ export function useToggleFavorite() {
 
 export function useStats() {
   const { user } = useAuthStore();
+  const { activeTeamId } = useUIStore();
   const userId = user?.id || "";
 
-  const stats = useQuery(api.items.getStats, { userId });
+  const stats = useQuery(api.items.getStats, { userId, teamId: activeTeamId ? (activeTeamId as any) : undefined });
 
   return {
     data: stats,
@@ -201,9 +205,10 @@ export function useStats() {
 
 export function useTags() {
   const { user } = useAuthStore();
+  const { activeTeamId } = useUIStore();
   const userId = user?.id || "";
 
-  const tags = useQuery(api.tags.getTags, { userId });
+  const tags = useQuery(api.tags.getTags, { userId, teamId: activeTeamId ? (activeTeamId as any) : undefined });
 
   return {
     data: (tags as any[] | undefined)?.map(tag => ({ ...tag, id: tag._id })),
@@ -215,6 +220,7 @@ export function useTags() {
 export function useCreateTag() {
   const createTagMutation = useMutation(api.tags.createTag);
   const { user } = useAuthStore();
+  const { activeTeamId } = useUIStore();
   const [isPending, setIsPending] = useState(false);
 
   const mutate = async ({ name, color }: { name: string; color?: string }) => {
@@ -223,6 +229,7 @@ export function useCreateTag() {
     try {
       return await createTagMutation({
         userId: user.id,
+        teamId: activeTeamId ? (activeTeamId as any) : undefined,
         name,
         color: color || '#6366F1',
       });

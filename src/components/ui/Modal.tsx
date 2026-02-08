@@ -13,6 +13,7 @@ interface ModalProps {
   className?: string;
   showCloseButton?: boolean;
   noPadding?: boolean;
+  bodyScroll?: boolean;
 }
 
 const sizes = {
@@ -34,7 +35,8 @@ export function Modal({
   size = 'md',
   className,
   showCloseButton = true,
-  noPadding = false
+  noPadding = false,
+  bodyScroll = true
 }: ModalProps) {
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -107,7 +109,8 @@ export function Modal({
             )}
 
             <div className={cn(
-              "flex-1 flex flex-col min-h-0 h-full",
+              "flex-1 flex flex-col min-h-0 h-full overflow-hidden",
+              bodyScroll && "overflow-y-auto overscroll-contain",
               !noPadding && "p-8"
             )}>
               {children}

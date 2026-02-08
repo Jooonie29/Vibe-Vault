@@ -182,7 +182,7 @@ export function Sidebar() {
               key={item.id}
               onClick={() => setCurrentView(item.id as any)}
               className={`w-full flex items-center gap-3 p-2.5 rounded-xl transition-all duration-200 group relative ${sidebarCollapsed ? 'justify-center' : ''} ${isActive
-                ? 'bg-sidebar-accent dark:bg-white/10 text-sidebar-foreground shadow-sm'
+                ? 'bg-gray-200/50 dark:bg-white/10 text-black dark:text-white shadow-sm font-semibold'
                 : 'text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground'
                 }`}
             >
@@ -191,7 +191,7 @@ export function Sidebar() {
               {isActive && !sidebarCollapsed && (
                 <motion.div
                   layoutId="active-indicator"
-                  className="absolute left-0 w-1 h-5 bg-white rounded-r-full"
+                  className="absolute left-0 w-1 h-5 bg-black dark:bg-white rounded-r-full"
                 />
               )}
             </button>
@@ -272,7 +272,7 @@ export function Sidebar() {
           <button
             onClick={() => setCurrentView('settings')}
             className={`w-full flex items-center gap-3 p-2.5 rounded-xl transition-all duration-200 group ${sidebarCollapsed ? 'justify-center' : ''} ${currentView === 'settings'
-              ? 'bg-sidebar-accent dark:bg-white/10 text-sidebar-foreground shadow-sm'
+              ? 'bg-gray-200/50 dark:bg-white/10 text-black dark:text-white shadow-sm font-semibold'
               : 'text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground'
               }`}
           >

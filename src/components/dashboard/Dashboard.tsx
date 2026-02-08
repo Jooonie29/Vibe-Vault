@@ -1,5 +1,4 @@
 import React, { useMemo, useState } from "react";
-import { motion } from "framer-motion";
 import {
   Code2,
   MessageSquare,
@@ -15,7 +14,6 @@ import {
   BarChart3,
   Search,
   Bell,
-  Timer,
   CheckCircle2,
   RefreshCw,
   ArrowUpRight,
@@ -29,6 +27,8 @@ import {
   Layout,
   Zap
 } from "lucide-react";
+import { useQuery } from "convex/react";
+import { api } from "../../../convex/_generated/api";
 import { useStats, useItems } from "@/hooks/useItems";
 import { useProjects } from "@/hooks/useProjects";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
@@ -50,8 +50,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { NotificationsPanel } from "@/components/notifications/NotificationsPanel";
 import { DashboardStatCard } from "./DashboardStatCard";
-import { ProductivityChart } from "./ProductivityChart";
+import { ProductivityChart, ProductivityData } from "./ProductivityChart";
 
 export type TimePeriod = "7days" | "30days" | "3months" | "6months" | "1year";
 
@@ -77,9 +78,21 @@ export function Dashboard() {
   const { data: projects } = useProjects();
   const { data: teamMembers, isLoading: teamMembersLoading } = useTeamMembers();
   const { user: storeUser } = useAuthStore();
-  const { openModal, initializedViews, markViewInitialized, setCurrentView } =
+  const { openModal, initializedViews, markViewInitialized, openFloatingChatWithUser, activeTeamId } =
     useUIStore();
   const [timePeriod, setTimePeriod] = useState<TimePeriod>("30days");
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const notificationButtonRef = React.useRef<HTMLButtonElement>(null);
+
+  const teams = useQuery(api.teams.getTeamsForUser, storeUser ? { userId: storeUser.id } : "skip");
+  const activeTeam = teams?.find(t => t._id === activeTeamId);
+  const workspaceName = activeTeam?.name || "Personal Space";
+
+  const notifications = useQuery(
+    api.notifications.getNotifications,
+    storeUser?.id ? { userId: storeUser.id } : "skip"
+  );
+  const unreadCount = notifications?.filter((n) => !n.read).length || 0;
 
   const recentItems = useMemo(() => {
     const all = [...(snippets || []), ...(prompts || []), ...(files || [])];
@@ -90,6 +103,88 @@ export function Dashboard() {
 
   const itemsLoading = !snippets || !prompts || !files;
   const hasInitialized = initializedViews.has("dashboard");
+
+  // Calculate chart data based on selected time period
+  const chartData = useMemo<ProductivityData[]>(() => {
+    if (!snippets || !prompts || !files || !projects) return [];
+
+    const allItems = [...snippets, ...prompts, ...files];
+    const dataPoints: ProductivityData[] = [];
+    const now = new Date();
+    
+    // Determine number of points and interval based on timePeriod
+    let points = 6;
+    let interval: 'day' | 'month' = 'month';
+    
+    switch (timePeriod) {
+      case "7days":
+        points = 7;
+        interval = 'day';
+        break;
+      case "30days":
+        points = 30;
+        interval = 'day';
+        break;
+      case "3months":
+        points = 3;
+        interval = 'month';
+        break;
+      case "6months":
+        points = 6;
+        interval = 'month';
+        break;
+      case "1year":
+        points = 12;
+        interval = 'month';
+        break;
+    }
+
+    // Generate data points
+    for (let i = points - 1; i >= 0; i--) {
+      const date = new Date();
+      let label = '';
+      let filterFn: (date: Date) => boolean;
+
+      if (interval === 'month') {
+        date.setMonth(now.getMonth() - i);
+        label = date.toLocaleString('default', { month: 'short' });
+        const monthIndex = date.getMonth();
+        const year = date.getFullYear();
+        filterFn = (d) => d.getMonth() === monthIndex && d.getFullYear() === year;
+      } else {
+        date.setDate(now.getDate() - i);
+        label = date.toLocaleString('default', { weekday: 'short', day: 'numeric' });
+        // For "Last 7 days" specifically, use just the day name if it fits better
+        if (timePeriod === "7days") {
+          label = date.toLocaleString('default', { weekday: 'short' });
+        }
+        const day = date.getDate();
+        const month = date.getMonth();
+        const year = date.getFullYear();
+        filterFn = (d) => d.getDate() === day && d.getMonth() === month && d.getFullYear() === year;
+      }
+
+      // Count items for this period
+      const itemsCount = allItems.filter(item => {
+        const itemDate = new Date((item as any)._creationTime);
+        return filterFn(itemDate);
+      }).length;
+
+      // Count projects for this period
+      const projectsCount = projects.filter(project => {
+        const projectDate = new Date((project as any)._creationTime);
+        return filterFn(projectDate);
+      }).length;
+
+      dataPoints.push({
+        name: label,
+        items: itemsCount,
+        projects: projectsCount
+      });
+    }
+
+    return dataPoints;
+  }, [snippets, prompts, files, projects, timePeriod]);
 
   React.useEffect(() => {
     if (!hasInitialized) {
@@ -140,17 +235,18 @@ export function Dashboard() {
         {/* Header */}
         <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
           <div>
-            <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Dashboard</p>
-            <h1 className="text-2xl font-bold text-foreground">Project Analytics</h1>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Workspace</p>
+            <h1 className="text-2xl font-bold text-foreground">{workspaceName}</h1>
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="relative">
+            <div className="relative" onClick={() => openModal('command')}>
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input
-                className="pl-10 pr-4 py-2 bg-card border border-border rounded-full text-sm w-56 focus:outline-none focus:ring-2 focus:ring-violet-500/20 placeholder-muted-foreground text-foreground"
+                className="pl-10 pr-4 py-2 bg-card border border-border rounded-full text-sm w-56 focus:outline-none focus:ring-2 focus:ring-violet-500/20 placeholder-muted-foreground text-foreground cursor-pointer"
                 placeholder="Search..."
                 type="text"
+                readOnly
               />
             </div>
 
@@ -175,9 +271,24 @@ export function Dashboard() {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            <button className="p-2 bg-card border border-border rounded-full text-muted-foreground hover:text-foreground transition-colors">
+            <button
+              ref={notificationButtonRef}
+              onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
+              className="p-2 bg-card border border-border rounded-full text-muted-foreground hover:text-foreground transition-colors relative"
+            >
               <Bell className="w-5 h-5" />
+              {unreadCount > 0 && (
+                <span className="absolute top-0 right-0 min-w-[16px] h-[16px] bg-red-500 rounded-full border-2 border-card flex items-center justify-center text-[10px] font-bold text-white transform translate-x-1 -translate-y-1">
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </span>
+              )}
             </button>
+
+            <NotificationsPanel
+              isOpen={isNotificationsOpen}
+              onClose={() => setIsNotificationsOpen(false)}
+              anchorRef={notificationButtonRef}
+            />
           </div>
         </header>
 
@@ -220,67 +331,18 @@ export function Dashboard() {
         {/* Main Content Areas */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
           <div className="lg:col-span-2 space-y-8">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-bold text-foreground">Quick Actions</h2>
-              <button
-                className="text-violet-600 text-sm hover:underline"
-                onClick={() => setCurrentView('projects')}
-              >
-                View All
-              </button>
-            </div>
-
-            {/* Gradient Action Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <motion.div
-                whileHover={{ scale: 1.01 }}
-                whileTap={{ scale: 0.99 }}
-                onClick={() => openModal('project')}
-                className="bg-gradient-to-br from-[#FFB4A2] to-[#FF9E8E] p-6 rounded-3xl relative overflow-hidden flex flex-col justify-between h-56 cursor-pointer group"
-              >
-                <div className="flex justify-between items-start">
-                  <h3 className="text-lg font-semibold text-gray-900">Prioritized<br />Tasks</h3>
-                  <div className="w-10 h-10 rounded-xl bg-white/40 backdrop-blur-sm flex items-center justify-center">
-                    <Timer className="w-5 h-5 text-gray-900" />
-                  </div>
-                </div>
-                <div>
-                  <div className="text-4xl font-bold text-gray-900 mb-1">83%</div>
-                  <p className="text-gray-900/70 text-sm">Avg. Completed</p>
-                </div>
-              </motion.div>
-
-              <motion.div
-                whileHover={{ scale: 1.01 }}
-                whileTap={{ scale: 0.99 }}
-                onClick={() => setCurrentView('projects')}
-                className="bg-gradient-to-br from-[#6EE7B7] to-[#3B82F6] p-6 rounded-3xl relative overflow-hidden flex flex-col justify-between h-56 cursor-pointer group"
-              >
-                <div className="flex justify-between items-start">
-                  <h3 className="text-lg font-semibold text-gray-900">Additional<br />Tasks</h3>
-                  <div className="w-10 h-10 rounded-xl bg-white/40 backdrop-blur-sm flex items-center justify-center">
-                    <CheckCircle2 className="w-5 h-5 text-gray-900" />
-                  </div>
-                </div>
-                <div>
-                  <div className="text-4xl font-bold text-gray-900 mb-1">56%</div>
-                  <p className="text-gray-900/70 text-sm">Avg. Completed</p>
-                </div>
-              </motion.div>
-            </div>
-
             {/* Productivity Chart Section */}
             <div className="bg-card rounded-2xl p-6 shadow-sm border border-border">
               <div className="flex justify-between items-start mb-6">
                 <div>
-                  <h3 className="text-lg font-semibold text-card-foreground">Productivity Analytics</h3>
-                  <p className="text-sm text-muted-foreground mt-1">Focusing trends</p>
+                  <h3 className="text-lg font-semibold text-card-foreground">Workspace Activity</h3>
+                  <p className="text-sm text-muted-foreground mt-1">Resources vs Projects created</p>
                 </div>
                 <button className="text-sm text-muted-foreground hover:text-foreground">
-                  Last Month
+                  {selectedTimeOption.label}
                 </button>
               </div>
-              <ProductivityChart />
+              <ProductivityChart data={chartData} isLoading={itemsLoading} />
             </div>
           </div>
 
@@ -361,9 +423,14 @@ export function Dashboard() {
                           <p className="text-xs text-muted-foreground">{member.role}</p>
                         </div>
                       </div>
-                      <button className="p-2 rounded-lg text-muted-foreground hover:text-violet-600 hover:bg-violet-50 dark:hover:bg-violet-900/20 transition-colors">
-                        <MessageSquare className="w-4 h-4" />
-                      </button>
+                      {member.userId !== storeUser?.id && (
+                        <button
+                          onClick={() => openFloatingChatWithUser(member.userId)}
+                          className="p-2 rounded-lg text-muted-foreground hover:text-violet-600 hover:bg-violet-50 dark:hover:bg-violet-900/20 transition-colors"
+                        >
+                          <MessageSquare className="w-4 h-4" />
+                        </button>
+                      )}
                     </div>
                   ))
                 )}

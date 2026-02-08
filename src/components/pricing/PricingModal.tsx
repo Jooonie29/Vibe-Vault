@@ -7,13 +7,16 @@ import { CheckoutProvider } from '@clerk/clerk-react/experimental';
 import { CheckoutDrawer } from './CheckoutDrawer';
 
 interface PricingModalProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
+  trigger?: React.ReactNode;
 }
 
-export function PricingModal({ children }: PricingModalProps) {
+export function PricingModal({ children, trigger }: PricingModalProps) {
   const [open, setOpen] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'quarterly'>('monthly');
+
+  const triggerElement = trigger || children;
 
   const plans = [
     {
@@ -78,7 +81,7 @@ export function PricingModal({ children }: PricingModalProps) {
   return (
     <>
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger asChild>{children}</DialogTrigger>
+        <DialogTrigger asChild>{triggerElement}</DialogTrigger>
         <DialogContent className="max-w-5xl w-[95vw] p-6 bg-[#FDFBFF] dark:bg-[#0a0a0f] border-none shadow-2xl overflow-y-auto max-h-[90vh]" onClick={e => e.stopPropagation()}>
           <div className="flex flex-col items-center text-center mb-6">
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2 tracking-tight">Upgrade your workspace</h2>

@@ -96,7 +96,7 @@ export function UserProfileDropdown({ isOpen, onClose, anchorRef }: UserProfileD
                             <div className="w-12 h-12 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 p-[2px]">
                                 <div className="w-full h-full rounded-full bg-white p-[2px] overflow-hidden">
                                     <img
-                                        src={`https://api.dicebear.com/9.x/notionists/svg?seed=${displayName}`}
+                                        src={user?.imageUrl}
                                         alt="Profile"
                                         className="w-full h-full object-cover"
                                     />

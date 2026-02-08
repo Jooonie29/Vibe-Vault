@@ -3,7 +3,7 @@ import {
   Users, ArrowRight, Plus, KeyRound, LogOut, Search, Bell, Grid, List,
   MoreHorizontal, Layout, Star, BookOpen, MessageCircle, HelpCircle,
   Video, MessageSquare, Heart, Image as ImageIcon, X, Loader2, Shield, Sun, Moon,
-  Zap, Crown, ChevronRight, Settings
+  Zap, Crown, ChevronRight, Settings, Info, Check
 } from 'lucide-react';
 import { useMutation, useQuery } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
@@ -13,6 +13,12 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Modal } from '@/components/ui/Modal';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { ImageUpload } from '@/components/ui/ImageUpload';
 import { Switch } from '@/components/ui/switch';
 import { useTheme } from '@/components/theme-provider';
@@ -47,7 +53,7 @@ import { ChatSupport } from '@/components/support/ChatSupport';
 import { Community } from '@/components/support/Community';
 import { Referral } from '@/components/support/Referral';
 import { HelpCenter } from '@/components/support/HelpCenter';
-import { SettingsPage } from '@/components/settings/SettingsPage';
+import { Settings as SettingsComponent } from '@/components/settings/Settings';
 
 
 export function TeamOnboarding() {
@@ -365,23 +371,23 @@ export function TeamOnboarding() {
                 >
                   Learn more
                 </button>
-                <PricingModal>
+                <PricingModal trigger={
                   <button className="w-full py-2 bg-white text-violet-600 text-[10px] font-bold rounded-lg hover:bg-violet-50 transition-colors flex items-center justify-center gap-1 shadow-lg shadow-black/10">
                     Upgrade plan
                     <ChevronRight className="w-3 h-3" />
                   </button>
-                </PricingModal>
+                } />
               </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/50 transition-all duration-200 cursor-pointer" onClick={() => setActiveSection('settings')}>
+          <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/50 transition-all duration-200 cursor-pointer mt-4" onClick={() => setActiveSection('settings')}>
             <Settings className="w-4 h-4" />
             <span className="text-sm font-medium">Account Settings</span>
           </div>
 
           {/* Theme Toggle */}
-          <div className="flex items-center justify-between bg-sidebar-accent/50 p-1.5 rounded-xl border border-sidebar-border/30">
+          <div className="flex items-center justify-between bg-sidebar-accent/50 p-1.5 rounded-xl border border-sidebar-border/30 mt-2">
             <button
               onClick={() => setTheme('light')}
               className={`flex-1 flex items-center justify-center py-1.5 rounded-lg transition-all ${theme === 'light' ? 'bg-background shadow-sm text-amber-500' : 'text-muted-foreground hover:text-sidebar-foreground'}`}
@@ -444,7 +450,7 @@ export function TeamOnboarding() {
             >
               <div className="w-full h-full rounded-full bg-background p-[2px] overflow-hidden">
                 <img
-                  src={`https://api.dicebear.com/9.x/notionists/svg?seed=${displayName}`}
+                  src={user?.imageUrl}
                   alt="Profile"
                   className="w-full h-full object-cover"
                 />
@@ -671,7 +677,7 @@ export function TeamOnboarding() {
           {activeSection === 'community' && <Community />}
           {activeSection === 'referral' && <Referral />}
           {activeSection === 'help' && <HelpCenter />}
-          {activeSection === 'settings' && <SettingsPage />}
+          {activeSection === 'settings' && <SettingsComponent />}
         </div>
       </main>
 
@@ -827,6 +833,87 @@ export function TeamOnboarding() {
           </div>
         </div>
       </Modal>
+
+      {/* Learn More Dialog */}
+      <Dialog open={showLearnMore} onOpenChange={setShowLearnMore}>
+        <DialogContent className="max-w-md bg-card rounded-[32px] p-0 overflow-hidden shadow-2xl border-0">
+          <DialogHeader className="p-8 pb-4">
+            <DialogTitle className="text-2xl font-bold text-card-foreground tracking-tight flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center">
+                <Info className="w-5 h-5 text-violet-600 dark:text-violet-400" />
+              </div>
+              Free Plan Limits
+            </DialogTitle>
+          </DialogHeader>
+          <div className="p-8 pt-2 space-y-6">
+            <p className="text-muted-foreground leading-relaxed">
+              You're currently on the Free plan. Here's your current usage to help you manage your resources.
+            </p>
+
+            <div className="space-y-4">
+              <div className="p-4 bg-muted/50 rounded-2xl border border-border">
+                <div className="flex justify-between items-center mb-3">
+                  <span className="text-sm font-semibold text-muted-foreground">Workspaces</span>
+                  <span className="text-sm font-bold text-foreground">{workspacesUsed}/{workspacesLimit}</span>
+                </div>
+                <div className="h-2 w-full bg-secondary rounded-full overflow-hidden">
+                  <motion.div
+                    animate={{ width: `${workspacesPercent}%` }}
+                    className="h-full bg-gradient-to-r from-amber-300 to-orange-400 rounded-full"
+                  />
+                </div>
+              </div>
+
+              <div className="p-4 bg-muted/50 rounded-2xl border border-border">
+                <div className="flex justify-between items-center mb-3">
+                  <span className="text-sm font-semibold text-muted-foreground">Storage</span>
+                  <span className="text-sm font-bold text-foreground">{storageUsed}MB / {storageLimit}MB</span>
+                </div>
+                <div className="h-2 w-full bg-secondary rounded-full overflow-hidden">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${storagePercent}%` }}
+                    className="h-full bg-gradient-to-r from-emerald-300 to-teal-400 rounded-full"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-4 border-t border-border">
+              <h4 className="text-sm font-bold text-foreground mb-4 flex items-center gap-2 uppercase tracking-wider">
+                <Crown className="w-4 h-4 text-amber-500" />
+                Pro Features
+              </h4>
+              <ul className="grid grid-cols-1 gap-3">
+                {[
+                  'Unlimited workspaces',
+                  '10GB cloud storage',
+                  'Advanced team analytics',
+                  '24/7 priority support',
+                  'Enhanced collaboration tools',
+                ].map((feature, i) => (
+                  <li key={i} className="flex items-center gap-3 text-sm text-muted-foreground font-medium">
+                    <div className="w-5 h-5 rounded-full bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center shrink-0">
+                      <Check className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+                    </div>
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <PricingModal trigger={
+              <Button
+                className="w-full h-14 rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white font-bold text-base shadow-xl shadow-violet-600/20 mt-2"
+                onClick={() => setShowLearnMore(false)}
+              >
+                <Zap className="w-4 h-4 mr-2" />
+                Upgrade to Pro
+              </Button>
+            } />
+          </div>
+        </DialogContent>
+      </Dialog>
     </div >
   );
 }

@@ -49,6 +49,8 @@ const MissingEnvError = ({ name }: { name: string }) => (
 );
 
 
+import { UserSync } from "./components/auth/UserSync";
+
 const App = () => {
   const CONVEX_URL = import.meta.env.VITE_CONVEX_URL;
   const CLERK_PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
@@ -62,6 +64,7 @@ const App = () => {
     <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY}>
       <ThemeProvider defaultTheme="light">
         <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
+          <UserSync />
           <QueryClientProvider client={queryClient}>
             <TooltipProvider>
               <Sonner />

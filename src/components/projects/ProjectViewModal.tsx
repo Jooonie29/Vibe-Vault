@@ -97,7 +97,7 @@ export function ProjectViewModal() {
 
     if (!project) return null;
 
-    const currentStatusConfig = project.status ? statusConfig[project.status] : statusConfig.ideation;
+    const currentStatusConfig = (project.status && statusConfig[project.status]) ? statusConfig[project.status] : statusConfig.ideation;
     const StatusIcon = currentStatusConfig.icon;
     const priorityColor = project.priority ? priorityColors[project.priority] : priorityColors.medium;
     const progress = typeof project.progress === 'number' ? project.progress : 0;
@@ -118,13 +118,15 @@ export function ProjectViewModal() {
         <Modal
             isOpen={isOpen}
             onClose={closeModal}
-            title="Project Overview"
             size="md"
+            showCloseButton={false}
+            noPadding={true}
+            bodyScroll={false}
         >
-            <div className="flex flex-col h-full bg-card">
-                <div className="p-0 overflow-y-auto max-h-[80vh]">
+            <div className="flex flex-col h-full">
+                <div className="flex-1 overflow-y-auto p-8">
                     {/* Main Content Area */}
-                    <div className="p-8 space-y-8">
+                    <div className="space-y-8">
                         {/* Title Section */}
                         <div className="space-y-4">
                             <div className="flex items-start justify-between">
@@ -308,7 +310,7 @@ export function ProjectViewModal() {
                 </div>
 
                 {/* Footer Actions - Buttons moved to top */}
-                <div className="mt-auto p-6 bg-muted/30 border-t border-border flex items-center justify-end">
+                <div className="mt-auto p-6 bg-muted/30 border-t border-border flex items-center justify-end shrink-0">
                     <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground">
                         Updated {hasValidCreatedAt ? format(createdAt as Date, 'MMM d, yyyy') : 'Unknown'}
                     </p>

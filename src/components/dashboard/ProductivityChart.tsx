@@ -9,32 +9,41 @@ import {
     ResponsiveContainer,
 } from 'recharts';
 
-interface ProductivityData {
+export interface ProductivityData {
     name: string;
-    focus: number;
-    unfocused: number;
+    items: number;
+    projects: number;
 }
 
-const data: ProductivityData[] = [
-    { name: 'Aug', focus: 35, unfocused: 25 },
-    { name: 'Sep', focus: 45, unfocused: 30 },
-    { name: 'Oct', focus: 30, unfocused: 50 },
-    { name: 'Nov', focus: 60, unfocused: 40 },
-    { name: 'Dec', focus: 50, unfocused: 65 },
-    { name: 'Jan', focus: 40, unfocused: 55 },
-];
+interface ProductivityChartProps {
+    data?: ProductivityData[];
+    isLoading?: boolean;
+}
 
-export function ProductivityChart() {
+export function ProductivityChart({ data = [], isLoading }: ProductivityChartProps) {
+    if (isLoading) {
+        return (
+            <div className="w-full h-[450px] flex items-center justify-center bg-muted/5 rounded-2xl animate-pulse">
+                <div className="flex flex-col items-center gap-2">
+                    <div className="w-8 h-8 border-2 border-violet-500 border-t-transparent rounded-full animate-spin" />
+                    <p className="text-xs text-muted-foreground">Loading analytics...</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (!data.length) {
+        return (
+            <div className="w-full h-[450px] flex items-center justify-center bg-muted/5 rounded-2xl">
+                <p className="text-sm text-muted-foreground">No data available for this period</p>
+            </div>
+        );
+    }
+
     return (
         <div className="w-full">
             {/* Chart Container */}
-            <div className="relative h-64">
-                {/* Floating Badge */}
-                <div className="absolute top-4 left-1/4 bg-white shadow-lg border border-gray-100 px-3 py-2 rounded-xl z-10">
-                    <p className="text-xs font-semibold text-gray-900">Week 8</p>
-                    <p className="text-[10px] text-gray-500">Unbalanced</p>
-                </div>
-
+            <div className="relative h-[450px]">
                 <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={data} margin={{ top: 40, right: 20, left: 0, bottom: 0 }}>
                         <CartesianGrid
@@ -51,7 +60,7 @@ export function ProductivityChart() {
                         />
                         <YAxis
                             hide={true}
-                            domain={[0, 100]}
+                            domain={[0, 'auto']}
                         />
                         <Tooltip
                             content={({ active, payload }) => {
@@ -61,12 +70,12 @@ export function ProductivityChart() {
                                             <p className="text-xs font-semibold text-gray-900 mb-1">{payload[0].payload.name}</p>
                                             <div className="space-y-1">
                                                 <div className="flex items-center gap-2">
-                                                    <div className="w-2 h-2 rounded-full bg-rose-400" />
-                                                    <span className="text-xs text-gray-600">{payload[0].value}% Focus</span>
+                                                    <div className="w-2 h-2 rounded-full bg-violet-500" />
+                                                    <span className="text-xs text-gray-600">{payload[0].value} Items</span>
                                                 </div>
                                                 <div className="flex items-center gap-2">
-                                                    <div className="w-2 h-2 rounded-full bg-indigo-500" />
-                                                    <span className="text-xs text-gray-600">{payload[1].value}% Flow</span>
+                                                    <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                                                    <span className="text-xs text-gray-600">{payload[1].value} Projects</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -77,21 +86,21 @@ export function ProductivityChart() {
                         />
                         <Line
                             type="monotone"
-                            dataKey="focus"
-                            stroke="#F87171"
+                            dataKey="items"
+                            stroke="#8b5cf6" // violet-500
                             strokeWidth={2}
-                            dot={{ fill: '#F87171', strokeWidth: 0, r: 4 }}
-                            activeDot={{ r: 6, stroke: '#F87171', strokeWidth: 2, fill: '#fff' }}
+                            dot={{ fill: '#8b5cf6', strokeWidth: 0, r: 4 }}
+                            activeDot={{ r: 6, stroke: '#8b5cf6', strokeWidth: 2, fill: '#fff' }}
                             isAnimationActive={true}
                         />
                         <Line
                             type="monotone"
-                            dataKey="unfocused"
-                            stroke="#6366F1"
+                            dataKey="projects"
+                            stroke="#10b981" // emerald-500
                             strokeWidth={2}
                             strokeDasharray="6 6"
-                            dot={{ fill: '#6366F1', strokeWidth: 0, r: 4 }}
-                            activeDot={{ r: 6, stroke: '#6366F1', strokeWidth: 2, fill: '#fff' }}
+                            dot={{ fill: '#10b981', strokeWidth: 0, r: 4 }}
+                            activeDot={{ r: 6, stroke: '#10b981', strokeWidth: 2, fill: '#fff' }}
                             isAnimationActive={true}
                         />
                     </LineChart>
@@ -101,12 +110,12 @@ export function ProductivityChart() {
             {/* Legend */}
             <div className="flex items-center gap-6 mt-4">
                 <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-rose-400"></span>
-                    <span className="text-xs text-gray-500">Focus</span>
+                    <span className="w-2 h-2 rounded-full bg-violet-500"></span>
+                    <span className="text-xs text-gray-500">Items (Code, Prompts, Files)</span>
                 </div>
                 <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-indigo-500"></span>
-                    <span className="text-xs text-gray-500">Lack of focus</span>
+                    <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    <span className="text-xs text-gray-500">Active Projects</span>
                 </div>
             </div>
         </div>

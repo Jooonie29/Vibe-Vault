@@ -218,7 +218,7 @@ export function ItemModal() {
   const currentTypeStyle = typeColorClasses[itemType] || typeColorClasses.code;
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} size="xl" noPadding>
+    <Modal isOpen={isOpen} onClose={handleClose} size="xl" noPadding bodyScroll={false}>
       <div className="flex flex-col h-full overflow-hidden bg-card">
         {/* Header */}
         <div className="px-6 py-5 border-b border-border flex items-start justify-between bg-card shrink-0">
@@ -312,7 +312,7 @@ export function ItemModal() {
           </div>
         </div>
 
-        <div className="px-6 py-6 space-y-4 overflow-y-auto flex-1 custom-scrollbar">
+        <div className={isEditing ? "px-6 py-6 space-y-4 overflow-y-auto flex-1 custom-scrollbar" : "px-6 py-6 flex flex-col gap-4 overflow-hidden flex-1 min-h-0"}>
           {isEditing ? (
             <>
               <Input
@@ -380,7 +380,7 @@ export function ItemModal() {
               </div>
 
               {existingItem?.content && (
-                <div className="relative rounded-2xl bg-gray-950 border border-gray-800 p-4 shadow-xl">
+                <div className="relative rounded-2xl bg-gray-950 border border-gray-800 p-4 shadow-xl flex flex-col flex-1 min-h-0 overflow-hidden">
                   <div className="absolute top-3 right-3 z-10">
                     <Button
                       size="sm"
@@ -392,7 +392,7 @@ export function ItemModal() {
                       {copied ? 'Copied!' : 'Copy'}
                     </Button>
                   </div>
-                  <pre className="text-gray-100 whitespace-pre-wrap break-words font-mono text-sm pr-14 leading-relaxed">
+                  <pre className="text-gray-100 whitespace-pre-wrap break-words font-mono text-sm pr-14 leading-relaxed flex-1 min-h-0 overflow-y-auto custom-scrollbar">
                     <code>{existingItem.content}</code>
                   </pre>
                 </div>

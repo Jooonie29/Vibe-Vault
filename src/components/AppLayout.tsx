@@ -37,7 +37,7 @@ import { FloatingChat } from '@/components/chat/FloatingChat';
 const AppLayout: React.FC = () => {
   const { isLoaded, isSignedIn, user: clerkUser } = useUser();
   const { getToken } = useAuth();
-  const { user: storeUser, loading: storeLoading, initialized, initialize, postAuthLoading, setUser } = useAuthStore();
+  const { user: storeUser, loading: storeLoading, initialized, initialize, postAuthLoading, setUser, fetchProfile } = useAuthStore();
   const { currentView, sidebarCollapsed, activeTeamId, setActiveTeamId, addToast } = useUIStore();
   const isMobile = useIsMobile();
   
@@ -65,27 +65,62 @@ const AppLayout: React.FC = () => {
 
 
   const updateProfile = useMutation(api.profiles.updateProfile);
+  const migrateLegacyOwnerItemsToTeam = useMutation(api.items.migrateLegacyOwnerItemsToTeam);
+  const migrateLegacyOwnerTagsToTeam = useMutation(api.tags.migrateLegacyOwnerTagsToTeam);
 
   useEffect(() => {
     const syncProfile = async () => {
       if (isLoaded && isSignedIn && clerkUser) {
         setUser(clerkUser as any);
         try {
+          const email =
+            clerkUser.primaryEmailAddress?.emailAddress ||
+            clerkUser.emailAddresses?.[0]?.emailAddress ||
+            undefined;
+
           await updateProfile({
             userId: clerkUser.id,
             updates: {
               username: clerkUser.username || clerkUser.firstName || 'User',
               fullName: clerkUser.fullName || (clerkUser.firstName + ' ' + clerkUser.lastName).trim(),
               avatarUrl: clerkUser.imageUrl,
+              email,
             }
           });
+          await fetchProfile();
         } catch (error) {
           console.error('Failed to sync profile:', error);
         }
       }
     };
     syncProfile();
-  }, [isLoaded, isSignedIn, clerkUser, setUser, updateProfile]);
+  }, [isLoaded, isSignedIn, clerkUser, setUser, updateProfile, fetchProfile]);
+
+  useEffect(() => {
+    if (!isLoaded || !isSignedIn || !clerkUser || !activeTeamId) return;
+
+    const run = async () => {
+      try {
+        const [migratedItems, migratedTags] = await Promise.all([
+          migrateLegacyOwnerItemsToTeam({ userId: clerkUser.id, teamId: activeTeamId as any }),
+          migrateLegacyOwnerTagsToTeam({ userId: clerkUser.id, teamId: activeTeamId as any }),
+        ]);
+
+        const total = (migratedItems || 0) + (migratedTags || 0);
+        if (total > 0) {
+          addToast({
+            type: 'success',
+            title: 'Workspace synced',
+            message: `Migrated ${migratedItems} items and ${migratedTags} tags to this workspace.`,
+          });
+        }
+      } catch (error) {
+        console.error('Failed to migrate legacy workspace data:', error);
+      }
+    };
+
+    run();
+  }, [isLoaded, isSignedIn, clerkUser, activeTeamId, migrateLegacyOwnerItemsToTeam, migrateLegacyOwnerTagsToTeam, addToast]);
 
   useEffect(() => {
     if (initialized && !storeLoading && !storeUser && !isSignedIn) {

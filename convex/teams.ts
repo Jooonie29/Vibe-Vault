@@ -269,6 +269,25 @@ export const inviteMember = mutation({
       expiresAt: args.expiresAt,
     });
 
+    // Check if user exists with this email and notify them directly
+    const existingUser = await ctx.db
+      .query("profiles")
+      .withIndex("by_email", (q) => q.eq("email", email))
+      .first();
+
+    if (existingUser) {
+       await ctx.db.insert("notifications", {
+        userId: existingUser.userId,
+        teamId: args.teamId,
+        type: "invite",
+        title: "Team Invitation",
+        message: `You have been invited to join a workspace.`,
+        read: false,
+        metadata: { inviteId, email, teamId: args.teamId, invitedBy: args.userId },
+      });
+    }
+
+    // Notify existing team members (optional, keep if desired)
     const members = await ctx.db
       .query("teamMembers")
       .withIndex("by_teamId", (q) => q.eq("teamId", args.teamId))
@@ -279,7 +298,7 @@ export const inviteMember = mutation({
         ctx.db.insert("notifications", {
           userId: member.userId,
           teamId: args.teamId,
-          type: "invite",
+          type: "team", // Changed from "invite" to "team" to avoid confusion for existing members
           title: "New team invite",
           message: `${email} was invited to the team.`,
           read: false,
@@ -289,6 +308,81 @@ export const inviteMember = mutation({
     );
 
     return { inviteId, code, token };
+  },
+});
+
+export const respondToInvite = mutation({
+  args: {
+    inviteId: v.id("teamInvites"),
+    accept: v.boolean(),
+    userId: v.string(), // The user responding
+  },
+  handler: async (ctx, args) => {
+    const invite = await ctx.db.get(args.inviteId);
+    if (!invite || invite.status !== "pending") {
+      throw new Error("Invite not found or no longer valid");
+    }
+
+    if (isExpired(invite.expiresAt)) {
+        await ctx.db.patch(invite._id, { status: "expired" });
+        throw new Error("Invite expired");
+    }
+
+    // Verify the responding user owns the invited email
+    const profile = await ctx.db
+        .query("profiles")
+        .withIndex("by_userId", (q) => q.eq("userId", args.userId))
+        .first();
+    
+    if (!profile || profile.email !== invite.email) {
+        throw new Error("This invite is for a different email address");
+    }
+
+    if (args.accept) {
+        // Add to team members
+         const existing = await ctx.db
+            .query("teamMembers")
+            .withIndex("by_teamId_userId", (q) => q.eq("teamId", invite.teamId).eq("userId", args.userId))
+            .first();
+
+        if (!existing) {
+            await ctx.db.insert("teamMembers", {
+                teamId: invite.teamId,
+                userId: args.userId,
+                role: invite.role,
+                joinedAt: new Date().toISOString(),
+            });
+        }
+        await ctx.db.patch(invite._id, { status: "accepted" });
+
+        // Notify team
+        const members = await ctx.db
+            .query("teamMembers")
+            .withIndex("by_teamId", (q) => q.eq("teamId", invite.teamId))
+            .collect();
+            
+        await Promise.all(
+            members.map((member) =>
+                ctx.db.insert("notifications", {
+                    userId: member.userId,
+                    teamId: invite.teamId,
+                    type: "team",
+                    title: "New team member",
+                    message: `${profile.fullName || profile.username || profile.email} joined the team.`,
+                    read: false,
+                    metadata: { userId: args.userId, teamId: invite.teamId },
+                })
+            )
+        );
+
+    } else {
+        // Decline
+        await ctx.db.patch(invite._id, { status: "revoked" }); // Using revoked as declined for now or add "declined" to schema if needed. 
+        // Schema has: pending, accepted, revoked, expired. "revoked" is close enough or I can just leave it pending/delete it. 
+        // Let's stick to 'revoked' to indicate it's done but not accepted.
+    }
+
+    return invite.teamId;
   },
 });
 

@@ -7,10 +7,15 @@ export default defineSchema({
         username: v.optional(v.string()),
         fullName: v.optional(v.string()),
         avatarUrl: v.optional(v.string()),
-    }).index("by_userId", ["userId"]),
+        email: v.optional(v.string()),
+    })
+        .index("by_userId", ["userId"])
+        .index("by_email", ["email"])
+        .searchIndex("search_email", { searchField: "email" }),
 
     items: defineTable({
         userId: v.string(),
+        teamId: v.optional(v.id("teams")),
         type: v.union(v.literal("code"), v.literal("prompt"), v.literal("file")),
         title: v.string(),
         description: v.optional(v.string()),
@@ -25,14 +30,19 @@ export default defineSchema({
         isFavorite: v.boolean(),
     })
         .index("by_userId", ["userId"])
+        .index("by_teamId", ["teamId"])
         .index("by_type", ["type"])
-        .index("by_userId_type", ["userId", "type"]),
+        .index("by_userId_type", ["userId", "type"])
+        .index("by_teamId_type", ["teamId", "type"]),
 
     tags: defineTable({
         userId: v.string(),
+        teamId: v.optional(v.id("teams")),
         name: v.string(),
         color: v.string(),
-    }).index("by_userId", ["userId"]),
+    })
+        .index("by_userId", ["userId"])
+        .index("by_teamId", ["teamId"]),
 
     itemTags: defineTable({
         itemId: v.id("items"),
