@@ -8,6 +8,16 @@ export const getItems = query({
         type: v.optional(v.union(v.literal("code"), v.literal("prompt"), v.literal("file")))
     },
     handler: async (ctx, args) => {
+        const enrichItemsWithUrls = async (items: any[]) => {
+            return await Promise.all(items.map(async (item) => {
+                if (item.type === "file" && item.metadata?.storageId) {
+                    const url = await ctx.storage.getUrl(item.metadata.storageId);
+                    return { ...item, fileUrl: url || undefined };
+                }
+                return item;
+            }));
+        };
+
         if (args.teamId) {
             const member = await ctx.db
                 .query("teamMembers")
@@ -42,10 +52,11 @@ export const getItems = query({
                 }
 
                 const legacyItems = await legacyQ.order("desc").collect();
-                return [...teamItems, ...legacyItems].sort((a, b) => b._creationTime - a._creationTime);
+                const allItems = [...teamItems, ...legacyItems].sort((a, b) => b._creationTime - a._creationTime);
+                return await enrichItemsWithUrls(allItems);
             }
 
-            return teamItems;
+            return await enrichItemsWithUrls(teamItems);
         }
 
         let q = ctx.db
@@ -63,7 +74,7 @@ export const getItems = query({
         }
 
         const items = await q.order("desc").collect();
-        return items;
+        return await enrichItemsWithUrls(items);
     },
 });
 
