@@ -1,7 +1,7 @@
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
 
-const roles = ["admin", "member", "viewer"] as const;
+// const roles = ["admin", "member", "viewer"] as const;
 
 function isExpired(expiresAt?: string) {
   if (!expiresAt) return false;

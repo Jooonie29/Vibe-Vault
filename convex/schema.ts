@@ -189,9 +189,14 @@ export default defineSchema({
         text: v.string(),
         attachments: v.optional(v.array(v.object({
             type: v.string(), // 'image', 'file'
-            url: v.string(),
+            storageId: v.string(),
             name: v.optional(v.string()),
+            url: v.optional(v.string()), // For backward compatibility or if we want to store public URL? No, let's rely on storageId
         }))),
+        // Legacy fields for backward compatibility
+        attachmentId: v.optional(v.string()),
+        attachmentType: v.optional(v.string()),
+        
         replyToId: v.optional(v.id("messages")),
         editedAt: v.optional(v.number()),
         deletedAt: v.optional(v.number()),

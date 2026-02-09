@@ -9,6 +9,11 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import PublicSharePage from "./pages/PublicShare";
 import PublicBoardPage from "./pages/PublicBoard";
+import ExtensionAuthComplete from "./pages/ExtensionAuthComplete";
+import Privacy from "./pages/Privacy";
+import AboutUs from "./pages/AboutUs";
+import Blog from "./pages/Blog";
+import Contact from "./pages/Contact";
 
 import { ClerkProvider, useAuth } from "@clerk/clerk-react";
 import { ConvexProviderWithClerk } from "convex/react-clerk";
@@ -73,6 +78,11 @@ const App = () => {
                   <Route path="/" element={<Index />} />
                   <Route path="/share/:token" element={<PublicSharePage />} />
                   <Route path="/share/board/:token" element={<PublicBoardPage />} />
+                  <Route path="/extension-auth-complete" element={<ExtensionAuthComplete />} />
+                  <Route path="/privacy" element={<Privacy />} />
+                  <Route path="/about" element={<AboutUs />} />
+                  <Route path="/blog" element={<Blog />} />
+                  <Route path="/contact" element={<Contact />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </BrowserRouter>

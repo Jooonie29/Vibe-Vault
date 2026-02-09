@@ -6,11 +6,11 @@ export const getPlanUsage = query({
     handler: async (ctx, args) => {
         // 1. Calculate Workspaces (Teams created by user)
         // Note: The schema for teams has `by_createdBy` index.
-        const personalTeam = await ctx.db
+        /* const personalTeam = await ctx.db
             .query("teams")
             .withIndex("by_createdBy", (q) => q.eq("createdBy", args.userId))
             .filter((q) => q.eq(q.field("isPersonal"), true))
-            .first();
+            .first(); */
 
         const teamsCreated = await ctx.db
             .query("teams")

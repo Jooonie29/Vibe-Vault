@@ -34,7 +34,12 @@ export interface Message {
     type: string;
     url: string;
     name?: string;
+    storageId: string;
   }[];
+  // Deprecated fields kept for backward compatibility
+  attachmentId?: string;
+  attachmentType?: string;
+  attachmentUrl?: string;
   replyToId?: string;
   editedAt?: number;
   deletedAt?: number;
@@ -88,13 +93,19 @@ export function useSendMessage() {
   const sendMessageMutation = useMutation(api.messages.sendMessage);
 
   return useCallback(
-    async (conversationId: string, text: string, replyToId?: string) => {
+    async (
+      conversationId: string, 
+      text: string, 
+      replyToId?: string, 
+      attachments?: { type: string, storageId: string, name?: string }[]
+    ) => {
       if (!user) throw new Error('Not authenticated');
       await sendMessageMutation({
         conversationId: conversationId as any,
         userId: user.id,
         text,
         replyToId: replyToId as any,
+        attachments,
       });
     },
     [sendMessageMutation, user]

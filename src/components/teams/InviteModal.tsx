@@ -36,11 +36,12 @@ export function InviteModal() {
   
   // Using useQuery for search would be reactive. Let's use useQuery.
   const debouncedEmail = useDebounce(email, 300);
-  const users = useQuery(api.profiles.searchUsers, { query: debouncedEmail }) || [];
+  const usersQuery = useQuery(api.profiles.searchUsers, { query: debouncedEmail });
 
   const filteredUsers = useMemo(() => {
-    return (users || []).filter((u: any) => typeof u?.email === 'string' && u.email.trim().length > 0);
-  }, [users]);
+    const users = usersQuery || [];
+    return users.filter((u: any) => typeof u?.email === 'string' && u.email.trim().length > 0);
+  }, [usersQuery]);
 
   useEffect(() => {
     const shouldShow = email.trim().length >= 2 && filteredUsers.length > 0;

@@ -1,0 +1,119 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 98%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    --primary: 263 70% 50%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 263 70% 50%;
+
+    --radius: 0.75rem;
+
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 215 25% 27%;
+    --sidebar-primary: 263 70% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 14% 96%;
+    --sidebar-accent-foreground: 215 25% 27%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 263 70% 50%;
+  }
+
+  .dark {
+    /* Main Background: Darker Charcoal/Black */
+    --background: 220 20% 7%; 
+    /* Text: High contrast off-white */
+    --foreground: 210 40% 98%;
+
+    /* Cards: Slightly lighter than background */
+    --card: 220 20% 9%;
+    --card-foreground: 210 40% 98%;
+
+    /* Popovers: Same as card */
+    --popover: 220 20% 9%;
+    --popover-foreground: 210 40% 98%;
+
+    /* Primary: Lighter violet for dark mode */
+    --primary: 263 70% 60%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    /* Secondary: Darker gray/blue */
+    --secondary: 217 19% 27%;
+    --secondary-foreground: 210 40% 98%;
+
+    /* Muted: Subtle gray */
+    --muted: 217 19% 27%;
+    --muted-foreground: 215 20.2% 75.1%;
+
+    /* Accent: Hover states */
+    --accent: 217 19% 27%;
+    --accent-foreground: 210 40% 98%;
+
+    /* Destructive: Red */
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    /* Borders: Dark gray */
+    --border: 217 19% 20%;
+    --input: 217 19% 20%;
+    --ring: 263 70% 60%;
+
+    /* Sidebar: #0f1115 -> HSL approx 220 17% 7% */
+    --sidebar-background: 220 17% 7%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 263 70% 60%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 17% 12%; /* Slightly lighter than bg */
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 217 19% 20%;
+    --sidebar-ring: 263 70% 60%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  ::-webkit-scrollbar {
+    @apply w-[6px] h-[6px];
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-muted-foreground/20 rounded-full hover:bg-muted-foreground/40 transition-colors;
+  }
+}

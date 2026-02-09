@@ -1,3 +1,5 @@
+import { useMutation } from 'convex/react';
+import { api } from '../../../convex/_generated/api';
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import EmojiPicker, { EmojiClickData, Theme } from 'emoji-picker-react';
@@ -44,6 +46,8 @@ export function FloatingChat() {
   const [editText, setEditText] = useState('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [deleteConfirmationId, setDeleteConfirmationId] = useState<string | null>(null);
+  const [pendingAttachments, setPendingAttachments] = useState<{ file: File; previewUrl: string }[]>([]);
+  const [isSending, setIsSending] = useState(false);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -61,6 +65,7 @@ export function FloatingChat() {
   const editMessage = useEditMessage();
   const deleteMessage = useDeleteMessage();
   const deleteConversation = useDeleteConversation();
+  const generateUploadUrl = useMutation(api.files.generateUploadUrl);
 
   const selectedConversation = conversations?.find(c => c._id === selectedConversationId);
 
@@ -117,11 +122,92 @@ export function FloatingChat() {
     }
   }, [selectedConversationId, selectedConversation?.unreadCount, markAsRead]);
 
-  const handleSend = async () => {
-    if (!inputValue.trim() || !selectedConversationId) return;
+  useEffect(() => {
+    return () => {
+      pendingAttachments.forEach(att => URL.revokeObjectURL(att.previewUrl));
+    };
+  }, []); // Only on unmount
 
-    await sendMessage(selectedConversationId, inputValue);
-    setInputValue('');
+  const clearFileSelection = () => {
+    pendingAttachments.forEach(att => URL.revokeObjectURL(att.previewUrl));
+    setPendingAttachments([]);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const removeAttachment = (index: number) => {
+    URL.revokeObjectURL(pendingAttachments[index].previewUrl);
+    setPendingAttachments(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleSend = async () => {
+    if ((!inputValue.trim() && pendingAttachments.length === 0) || !selectedConversationId) return;
+    if (isSending) return;
+
+    setIsSending(true);
+    try {
+      const attachments: { type: string, storageId: string, name?: string }[] = [];
+
+      // Upload all files
+      if (pendingAttachments.length > 0) {
+        const uploadPromises = pendingAttachments.map(async (att) => {
+          const storageId = await uploadFile(att.file);
+          if (storageId) {
+            return {
+              type: att.file.type.startsWith('image/') ? 'image' : 'file',
+              storageId,
+              name: att.file.name
+            };
+          }
+          return null;
+        });
+
+        const results = await Promise.all(uploadPromises);
+        const successfulUploads = results.filter((res): res is NonNullable<typeof res> => res !== null);
+        
+        if (successfulUploads.length !== pendingAttachments.length) {
+          addToast({
+            type: "warning",
+            title: "Partial upload",
+            message: "Some files failed to upload.",
+          });
+        }
+        
+        attachments.push(...successfulUploads);
+      }
+
+      // If we had attachments but all failed, and no text, don't send empty message
+      if (pendingAttachments.length > 0 && attachments.length === 0 && !inputValue.trim()) {
+        addToast({
+          type: "error",
+          title: "Send failed",
+          message: "Failed to upload files. Message not sent.",
+        });
+        return;
+      }
+
+      const text = inputValue.trim() || (attachments.length > 0 ? (attachments.length === 1 ? `[Attachment]` : `[${attachments.length} Attachments]`) : '');
+
+      await sendMessage(
+        selectedConversationId, 
+        text,
+        undefined,
+        attachments
+      );
+      
+      setInputValue('');
+      clearFileSelection();
+    } catch (error) {
+      console.error("Failed to send message:", error);
+      addToast({
+        type: "error",
+        title: "Send failed",
+        message: "Could not send message. Please try again.",
+      });
+    } finally {
+      setIsSending(false);
+    }
   };
 
   const handleStartConversation = async (member: TeamMember) => {
@@ -148,12 +234,76 @@ export function FloatingChat() {
     setInputValue((prev) => prev + emojiData.emoji);
   };
 
+  const uploadFile = async (file: File) => {
+    try {
+      // Step 1: Get a short-lived upload URL from Convex
+      const postUrl = await generateUploadUrl();
+
+      // Step 2: POST the file to the URL
+      const result = await fetch(postUrl, {
+        method: "POST",
+        headers: { "Content-Type": file.type },
+        body: file,
+      });
+      const { storageId } = await result.json();
+
+      return storageId;
+    } catch (error) {
+      console.error("Upload failed:", error);
+      addToast({
+        type: "error",
+        title: "Upload failed",
+        message: "Could not upload file. Please try again.",
+      });
+      return null;
+    }
+  };
+
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
+    const files = event.target.files;
+    if (files && files.length > 0) {
+      const fileList = Array.from(files);
+      const currentCount = pendingAttachments.length;
+      const remaining = 3 - currentCount;
+      
+      if (remaining <= 0) {
+        addToast({ type: 'error', title: 'Limit reached', message: 'Maximum 3 files allowed.' });
+        if (fileInputRef.current) fileInputRef.current.value = '';
+        return;
+      }
+
+      const toAdd = fileList.slice(0, remaining);
+      if (fileList.length > remaining) {
+        addToast({ type: 'warning', title: 'Limit reached', message: `Only added ${remaining} files. Maximum 3 allowed.` });
+      }
+
+      const newAttachments = toAdd.map(file => ({
+        file,
+        previewUrl: URL.createObjectURL(file)
+      }));
+
+      setPendingAttachments(prev => [...prev, ...newAttachments]);
+    }
+    // Reset input so same file can be selected again if needed (though we clear it on clearFileSelection too)
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const handlePaste = (e: React.ClipboardEvent) => {
+    const items = e.clipboardData.items;
+    const file = Array.from(items).find(item => item.type.indexOf('image') !== -1)?.getAsFile();
+    
     if (file) {
-      // In a real app, you would upload the file here and get a URL
-      // For now, we'll just append the file name to the message
-      setInputValue((prev) => prev + ` [File: ${file.name}] `);
+      e.preventDefault();
+      
+      if (pendingAttachments.length >= 3) {
+        addToast({ type: 'error', title: 'Limit reached', message: 'Maximum 3 files allowed.' });
+        return;
+      }
+
+      setPendingAttachments(prev => [...prev, {
+        file,
+        previewUrl: URL.createObjectURL(file)
+      }]);
     }
   };
 
@@ -372,7 +522,7 @@ export function FloatingChat() {
             )}
 
             {/* Content */}
-            <div className="flex-1 overflow-hidden bg-card relative">
+            <div className="flex-1 overflow-hidden bg-card relative flex flex-col">
               {/* Delete Confirmation Overlay */}
               <AnimatePresence>
                 {deleteConfirmationId && (
@@ -423,7 +573,7 @@ export function FloatingChat() {
 
               {/* Conversation List */}
               {viewState === 'list' && (
-                <div className="h-full overflow-y-auto">
+                <div className="flex-1 overflow-y-auto">
                   {conversationsLoading ? (
                     <div className="flex items-center justify-center h-full">
                       <div className="animate-spin w-6 h-6 border-2 border-violet-600 border-t-transparent rounded-full" />
@@ -520,7 +670,7 @@ export function FloatingChat() {
               {/* Message Thread */}
               {viewState === 'thread' && selectedConversation && (
                 <>
-                  <div className="h-[calc(100%-72px)] overflow-y-auto p-4 space-y-4">
+                  <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-0">
                     {messagesLoading ? (
                       <div className="flex items-center justify-center h-full">
                         <div className="animate-spin w-6 h-6 border-2 border-violet-600 border-t-transparent rounded-full" />
@@ -605,6 +755,42 @@ export function FloatingChat() {
                                           ? "bg-violet-600 text-white rounded-br-md" 
                                           : "bg-gray-100 text-gray-900 rounded-bl-md"
                                       )}>
+                                        {/* Display attachments */}
+                                        {message.attachments && message.attachments.length > 0 && (
+                                          <div className="flex flex-wrap gap-2 mb-2">
+                                            {message.attachments.map((att, attIdx) => (
+                                              <div key={attIdx} className="relative rounded-lg overflow-hidden max-w-[200px]">
+                                                {att.type === 'image' ? (
+                                                  <a href={att.url} target="_blank" rel="noopener noreferrer">
+                                                    <img src={att.url} alt={att.name || "Attachment"} className="w-full h-auto object-cover rounded-lg" />
+                                                  </a>
+                                                ) : (
+                                                  <a 
+                                                    href={att.url} 
+                                                    target="_blank" 
+                                                    rel="noopener noreferrer"
+                                                    className="flex items-center gap-2 p-2 bg-black/10 rounded-lg hover:bg-black/20 transition-colors"
+                                                  >
+                                                    <div className="p-1 bg-white/20 rounded">
+                                                      <Paperclip className="w-4 h-4" />
+                                                    </div>
+                                                    <span className="truncate max-w-[150px] text-xs underline">
+                                                      {att.name || "File"}
+                                                    </span>
+                                                  </a>
+                                                )}
+                                              </div>
+                                            ))}
+                                          </div>
+                                        )}
+                                        
+                                        {/* Legacy single attachment support */}
+                                        {message.attachmentUrl && (!message.attachments || message.attachments.length === 0) && (
+                                          <div className="mb-2 rounded-lg overflow-hidden max-w-[200px]">
+                                            <img src={message.attachmentUrl} alt="Attachment" className="w-full h-auto object-cover" />
+                                          </div>
+                                        )}
+                                        
                                         <p>{message.text}</p>
                                         <div className={cn(
                                           "flex items-center gap-1.5 mt-1 text-[10px]",
@@ -630,7 +816,53 @@ export function FloatingChat() {
                   </div>
 
                   {/* Input Area */}
-                  <div className="p-3 bg-card border-t border-border">
+                  <div className="p-3 bg-card border-t border-border shrink-0">
+                    <AnimatePresence>
+                      {pendingAttachments.length > 0 && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 10, height: 0 }}
+                          animate={{ opacity: 1, y: 0, height: 'auto' }}
+                          exit={{ opacity: 0, y: 10, height: 0 }}
+                          className="mb-3 flex flex-wrap gap-2"
+                        >
+                          {pendingAttachments.map((att, index) => (
+                            <div key={index} className="relative inline-block group">
+                              {att.file.type.startsWith('image/') ? (
+                                <div className="relative rounded-lg overflow-hidden border border-border shadow-sm">
+                                  <img 
+                                    src={att.previewUrl} 
+                                    alt="Preview" 
+                                    className="h-20 w-auto object-cover max-w-[120px]" 
+                                  />
+                                </div>
+                              ) : (
+                                <div className="flex items-center gap-2 p-2 bg-muted rounded-lg border border-border shadow-sm max-w-[160px]">
+                                  <div className="w-8 h-8 rounded-lg bg-violet-100 flex items-center justify-center shrink-0">
+                                    <Paperclip className="w-4 h-4 text-violet-600" />
+                                  </div>
+                                  <div className="min-w-0">
+                                    <p className="text-xs font-medium text-foreground truncate max-w-[100px]">
+                                      {att.file.name}
+                                    </p>
+                                    <p className="text-[10px] text-muted-foreground">
+                                      {(att.file.size / 1024).toFixed(0)} KB
+                                    </p>
+                                  </div>
+                                </div>
+                              )}
+                              
+                              <button
+                                onClick={() => removeAttachment(index)}
+                                className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center shadow-md transition-colors z-10"
+                              >
+                                <X className="w-3 h-3" />
+                              </button>
+                            </div>
+                          ))}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+
                     <div className="flex items-center gap-2 relative">
                       <div className="relative" ref={emojiPickerRef}>
                         <button 
@@ -669,12 +901,14 @@ export function FloatingChat() {
                         ref={fileInputRef}
                         className="hidden"
                         onChange={handleFileUpload}
+                        multiple
                       />
                       
                       <input
                         type="text"
                         value={inputValue}
                         onChange={(e) => setInputValue(e.target.value)}
+                        onPaste={handlePaste}
                         onKeyDown={(e) => {
                           if (e.key === 'Enter' && !e.shiftKey) {
                             e.preventDefault();
@@ -686,10 +920,14 @@ export function FloatingChat() {
                       />
                       <button
                         onClick={handleSend}
-                        disabled={!inputValue.trim()}
-                        className="p-2 bg-violet-600 hover:bg-violet-700 disabled:opacity-50 disabled:hover:bg-violet-600 text-white rounded-full transition-all shadow-md hover:shadow-lg disabled:shadow-none"
+                        disabled={(!inputValue.trim() && pendingAttachments.length === 0) || isSending}
+                        className="p-2 bg-violet-600 hover:bg-violet-700 disabled:opacity-50 disabled:hover:bg-violet-600 text-white rounded-full transition-all shadow-md hover:shadow-lg disabled:shadow-none flex items-center justify-center"
                       >
-                        <Send className="w-4 h-4" />
+                        {isSending ? (
+                          <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        ) : (
+                          <Send className="w-4 h-4" />
+                        )}
                       </button>
                     </div>
                   </div>
@@ -698,7 +936,7 @@ export function FloatingChat() {
 
               {/* New Message - Team Members List */}
               {viewState === 'new-message' && (
-                <div className="h-full overflow-y-auto">
+                <div className="flex-1 overflow-y-auto">
                   {membersLoading ? (
                     <div className="flex items-center justify-center h-full">
                       <div className="animate-spin w-6 h-6 border-2 border-violet-600 border-t-transparent rounded-full" />

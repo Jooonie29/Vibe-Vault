@@ -29,13 +29,13 @@ import {
   Plus,
   ChevronDown,
   Linkedin,
-  Facebook
+  Facebook,
+  Save
 } from 'lucide-react';
 import { useUIStore } from '@/store/uiStore';
 import { Button } from '@/components/ui/Button';
 import { SignedIn, SignedOut, SignInButton, SignUpButton, UserButton } from '@clerk/clerk-react';
-
-const repoUrl = 'https://github.com/Jooonie29/Vibe-Vault.git';
+import { InteractiveCodeBackground } from './InteractiveCodeBackground';
 
 const faqs = [
   {
@@ -274,23 +274,39 @@ export function LandingPage() {
               initial={{ opacity: 0, x: -50 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.5, duration: 0.6 }}
-              className="absolute left-4 md:left-12 top-1/4 bg-white rounded-2xl shadow-xl shadow-gray-200/50 border border-gray-100 p-4 w-56 md:w-64"
+              className="absolute left-4 md:left-12 top-1/4 z-10"
             >
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center border border-gray-200">
-                  <Code2 className="w-5 h-5 text-gray-900" />
+              <motion.div
+                animate={{ y: [0, -12, 0] }}
+                transition={{ 
+                  duration: 5, 
+                  repeat: Infinity, 
+                  ease: "easeInOut",
+                  delay: 0
+                }}
+                whileHover={{ 
+                  scale: 1.05, 
+                  rotate: -2,
+                  boxShadow: "0 20px 40px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)"
+                }}
+                className="bg-white rounded-2xl shadow-xl shadow-gray-200/50 border border-gray-100 p-4 w-56 md:w-64 cursor-default"
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center border border-gray-200">
+                    <Code2 className="w-5 h-5 text-gray-900" />
+                  </div>
+                  <div>
+                    <div className="text-sm font-semibold text-gray-900">React Hook</div>
+                    <div className="text-xs text-gray-500">useDebounce.ts</div>
+                  </div>
                 </div>
-                <div>
-                  <div className="text-sm font-semibold text-gray-900">React Hook</div>
-                  <div className="text-xs text-gray-500">useDebounce.ts</div>
+                <div className="bg-gray-50 border border-gray-100 rounded-lg p-3 text-xs font-mono text-gray-600">
+                  <span className="text-gray-900 font-semibold">export</span>{' '}
+                  <span className="text-gray-900">function</span>{' '}
+                  <span className="text-gray-900">useDebounce</span>
+                  <span className="text-gray-400">{'(...)'}</span>
                 </div>
-              </div>
-              <div className="bg-gray-50 border border-gray-100 rounded-lg p-3 text-xs font-mono text-gray-600">
-                <span className="text-gray-900 font-semibold">export</span>{' '}
-                <span className="text-gray-900">function</span>{' '}
-                <span className="text-gray-900">useDebounce</span>
-                <span className="text-gray-400">{'(...)'}</span>
-              </div>
+              </motion.div>
             </motion.div>
 
             {/* Prompt Card - Right */}
@@ -298,20 +314,36 @@ export function LandingPage() {
               initial={{ opacity: 0, x: 50 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.6, duration: 0.6 }}
-              className="absolute right-4 md:right-12 top-1/3 bg-white rounded-2xl shadow-xl shadow-gray-200/50 border border-gray-100 p-4 w-56 md:w-64"
+              className="absolute right-4 md:right-12 top-1/3 z-10"
             >
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center border border-gray-200">
-                  <MessageSquare className="w-5 h-5 text-gray-900" />
+              <motion.div
+                animate={{ y: [0, -15, 0] }}
+                transition={{ 
+                  duration: 6, 
+                  repeat: Infinity, 
+                  ease: "easeInOut",
+                  delay: 1 
+                }}
+                whileHover={{ 
+                  scale: 1.05, 
+                  rotate: 2,
+                  boxShadow: "0 20px 40px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)"
+                }}
+                className="bg-white rounded-2xl shadow-xl shadow-gray-200/50 border border-gray-100 p-4 w-56 md:w-64 cursor-default"
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center border border-gray-200">
+                    <MessageSquare className="w-5 h-5 text-gray-900" />
+                  </div>
+                  <div>
+                    <div className="text-sm font-semibold text-gray-900">AI Prompt</div>
+                    <div className="text-xs text-gray-500">Code Review</div>
+                  </div>
                 </div>
-                <div>
-                  <div className="text-sm font-semibold text-gray-900">AI Prompt</div>
-                  <div className="text-xs text-gray-500">Code Review</div>
+                <div className="text-xs text-gray-600 bg-gray-50 border border-gray-100 rounded-lg p-3 italic">
+                  "Review this code for performance optimization and best practices..."
                 </div>
-              </div>
-              <div className="text-xs text-gray-600 bg-gray-50 border border-gray-100 rounded-lg p-3 italic">
-                "Review this code for performance optimization and best practices..."
-              </div>
+              </motion.div>
             </motion.div>
 
             {/* Project Card - Bottom */}
@@ -319,23 +351,38 @@ export function LandingPage() {
               initial={{ opacity: 0, y: 50 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.7, duration: 0.6 }}
-              className="absolute left-1/2 -translate-x-1/2 bottom-0 bg-white rounded-2xl shadow-xl shadow-gray-200/50 border border-gray-100 p-4 w-64 md:w-80"
+              className="absolute left-1/2 -translate-x-1/2 bottom-0 z-20"
             >
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center border border-gray-200">
-                    <Kanban className="w-5 h-5 text-gray-900" />
+              <motion.div
+                animate={{ y: [0, -8, 0] }}
+                transition={{ 
+                  duration: 4.5, 
+                  repeat: Infinity, 
+                  ease: "easeInOut",
+                  delay: 0.5 
+                }}
+                whileHover={{ 
+                  scale: 1.05,
+                  boxShadow: "0 20px 40px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)"
+                }}
+                className="bg-white rounded-2xl shadow-xl shadow-gray-200/50 border border-gray-100 p-4 w-64 md:w-80 cursor-default"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center border border-gray-200">
+                      <Kanban className="w-5 h-5 text-gray-900" />
+                    </div>
+                    <div>
+                      <div className="text-sm font-semibold text-gray-900">Mobile App</div>
+                      <div className="text-xs text-gray-500">In Progress</div>
+                    </div>
                   </div>
-                  <div>
-                    <div className="text-sm font-semibold text-gray-900">Mobile App</div>
-                    <div className="text-xs text-gray-500">In Progress</div>
-                  </div>
+                  <span className="text-xs font-medium text-gray-600 bg-gray-100 px-2 py-1 rounded-full border border-gray-200">75%</span>
                 </div>
-                <span className="text-xs font-medium text-gray-600 bg-gray-100 px-2 py-1 rounded-full border border-gray-200">75%</span>
-              </div>
-              <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-                <div className="w-3/4 h-full bg-gray-900 rounded-full" />
-              </div>
+                <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                  <div className="w-3/4 h-full bg-gray-900 rounded-full" />
+                </div>
+              </motion.div>
             </motion.div>
           </motion.div>
         </div>
@@ -396,14 +443,16 @@ export function LandingPage() {
                   key={feature.title}
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
+                  whileHover="hover"
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.1 }}
-                  className="bg-gray-50/50 rounded-[2.5rem] border border-white shadow-[8px_8px_16px_rgba(0,0,0,0.03),-8px_-8px_16px_rgba(255,255,255,0.8)] overflow-hidden transition-all hover:-translate-y-1"
+                  variants={{ hover: { y: -8 } }}
+                  className="bg-gray-50/50 rounded-[2.5rem] border border-white shadow-[8px_8px_16px_rgba(0,0,0,0.03),-8px_-8px_16px_rgba(255,255,255,0.8)] overflow-hidden transition-all hover:border-violet-200 hover:shadow-xl hover:shadow-violet-500/10"
                 >
                   {/* Feature Content */}
                   <div className="p-8">
-                    <div className="w-12 h-12 rounded-2xl bg-white shadow-[4px_4px_10px_rgba(0,0,0,0.02),-4px_-4px_10px_rgba(255,255,255,0.9)] border border-gray-100/50 flex items-center justify-center mb-6">
-                      <Icon className="w-6 h-6 text-gray-900" />
+                    <div className="w-12 h-12 rounded-2xl bg-violet-50 shadow-sm border border-violet-100 flex items-center justify-center mb-6">
+                      <Icon className="w-6 h-6 text-violet-600" />
                     </div>
                     <h3 className="text-xl font-bold text-gray-900 mb-2">{feature.title}</h3>
                     <p className="text-gray-600 leading-relaxed">{feature.description}</p>
@@ -415,49 +464,62 @@ export function LandingPage() {
                       {index === 0 && (
                         <div className="space-y-3">
                           <div className="flex items-center gap-2 text-xs text-gray-400">
-                            <div className="w-2 h-2 rounded-full bg-gray-200" />
-                            <div className="w-2 h-2 rounded-full bg-gray-200" />
-                            <div className="w-2 h-2 rounded-full bg-gray-200" />
+                            <div className="w-2 h-2 rounded-full bg-violet-200" />
+                            <div className="w-2 h-2 rounded-full bg-violet-200" />
+                            <div className="w-2 h-2 rounded-full bg-violet-200" />
                             <span className="ml-2 font-mono">useAuth.ts</span>
                           </div>
-                          <div className="bg-gray-50 border border-gray-100 rounded-xl p-4 font-mono text-xs text-gray-600">
-                            <span className="text-gray-900 font-semibold">export const</span>{' '}
+                          <motion.div 
+                            variants={{ hover: { x: 10, scale: 1.02 } }}
+                            transition={{ duration: 0.3 }}
+                            className="bg-gray-50 border border-gray-100 rounded-xl p-4 font-mono text-xs text-gray-600"
+                          >
+                            <span className="text-violet-600 font-semibold">export const</span>{' '}
                             <span className="text-gray-900">useAuth</span>{' '}
                             <span className="text-gray-400">= () {'=>'} {'{'}</span>
                             <br />
                             <span className="text-gray-400 pl-4">...</span>
                             <br />
                             <span className="text-gray-400">{'}'}</span>
-                          </div>
+                          </motion.div>
                         </div>
                       )}
                       {index === 1 && (
                         <div className="space-y-3">
                           <div className="flex items-center gap-3 mb-3">
-                            <div className="w-10 h-10 rounded-xl bg-gray-100 border border-gray-200 flex items-center justify-center">
-                              <Sparkles className="w-5 h-5 text-gray-400" />
+                            <div className="w-10 h-10 rounded-xl bg-violet-50 border border-violet-100 flex items-center justify-center">
+                              <Sparkles className="w-5 h-5 text-violet-500" />
                             </div>
                             <div className="text-sm font-semibold text-gray-900">Refactor Code</div>
                           </div>
-                          <div className="bg-white border border-gray-100 rounded-xl p-4 text-sm text-gray-600 italic">
+                          <motion.div 
+                            variants={{ hover: { rotate: -2, scale: 1.05 } }}
+                            transition={{ duration: 0.3 }}
+                            className="bg-white border border-gray-100 rounded-xl p-4 text-sm text-gray-600 italic"
+                          >
                             "Refactor this component to use React hooks and improve performance..."
-                          </div>
+                          </motion.div>
                           <div className="flex gap-2">
-                            <span className="text-xs bg-gray-50 border border-gray-200 px-3 py-1 rounded-full text-gray-500">React</span>
-                            <span className="text-xs bg-gray-50 border border-gray-200 px-3 py-1 rounded-full text-gray-500">Performance</span>
+                            <span className="text-xs bg-violet-50 border border-violet-100 px-3 py-1 rounded-full text-violet-600">React</span>
+                            <span className="text-xs bg-violet-50 border border-violet-100 px-3 py-1 rounded-full text-violet-600">Performance</span>
                           </div>
                         </div>
                       )}
                       {index === 2 && (
                         <div className="flex gap-4">
                           <div className="w-16 h-16 bg-white shadow-[4px_4px_10px_rgba(0,0,0,0.02),-4px_-4px_10px_rgba(255,255,255,0.9)] border border-gray-100 rounded-2xl flex items-center justify-center">
-                            <FolderOpen className="w-8 h-8 text-gray-900" />
+                            <FolderOpen className="w-8 h-8 text-violet-600" />
                           </div>
                           <div className="flex-1 space-y-2">
                             <div className="text-sm font-semibold text-gray-900">design-system.fig</div>
                             <div className="text-xs text-gray-400">2.4 MB • Updated yesterday</div>
                             <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-                              <div className="w-2/3 h-full bg-gray-900 rounded-full" />
+                              <motion.div 
+                                className="h-full bg-violet-600 rounded-full"
+                                initial={{ width: "66%" }}
+                                variants={{ hover: { width: "90%" } }}
+                                transition={{ duration: 0.5, ease: "easeOut" }}
+                              />
                             </div>
                           </div>
                         </div>
@@ -466,14 +528,22 @@ export function LandingPage() {
                         <div className="space-y-4">
                           <div className="flex items-center justify-between mb-2">
                             <div className="text-sm font-semibold text-gray-900">Project Board</div>
-                            <button className="text-[10px] uppercase tracking-wider font-bold bg-gray-100 text-gray-600 border border-gray-200 px-3 py-1 rounded-full">New Task</button>
+                            <motion.button 
+                              variants={{ hover: { scale: 1.05, backgroundColor: "#f5f3ff", borderColor: "#ddd6fe" } }}
+                              className="text-[10px] uppercase tracking-wider font-bold bg-violet-50 text-violet-600 border border-violet-100 px-3 py-1 rounded-full transition-colors"
+                            >
+                              New Task
+                            </motion.button>
                           </div>
                           <div className="space-y-2">
                             {['Design System', 'API Integration', 'User Testing'].map((task, i) => (
                               <div key={task} className="flex items-center gap-3 p-3 bg-white rounded-xl border border-gray-100 shadow-sm">
-                                <div className={`w-2 h-2 rounded-full ${i === 2 ? 'bg-gray-200' : 'bg-gray-900'}`} />
+                                <motion.div 
+                                  variants={{ hover: { scale: 1.5 } }}
+                                  className={`w-2 h-2 rounded-full ${i === 2 ? 'bg-gray-200' : 'bg-violet-600'}`} 
+                                />
                                 <span className="text-sm font-medium text-gray-700 flex-1">{task}</span>
-                                <span className={`text-[10px] font-bold uppercase transition-colors ${i === 2 ? 'text-gray-400' : 'text-gray-900'}`}>{i === 0 ? 'Done' : i === 1 ? 'In Progress' : 'Todo'}</span>
+                                <span className={`text-[10px] font-bold uppercase transition-colors ${i === 2 ? 'text-gray-400' : 'text-violet-700'}`}>{i === 0 ? 'Done' : i === 1 ? 'In Progress' : 'Todo'}</span>
                               </div>
                             ))}
                           </div>
@@ -488,8 +558,132 @@ export function LandingPage() {
         </div>
       </section>
 
+      {/* Extension Support Section */}
+      <section className="py-24 bg-gradient-to-b from-white to-violet-50/50 px-4 sm:px-6 lg:px-8 border-t border-gray-100 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-violet-100/30 to-transparent pointer-events-none" />
+        <div className="max-w-7xl mx-auto relative z-10">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            {/* Content */}
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+            >
+              <div className="flex items-center gap-2 mb-6">
+                <div className="bg-violet-100 text-violet-700 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
+                  New
+                </div>
+                <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Browser Extension</span>
+              </div>
+              
+              <h2 className="text-4xl font-bold text-gray-900 mb-6 leading-tight">
+                Save Prompts & Code <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-blue-600">
+                  Directly from your Browser
+                </span>
+              </h2>
+              
+              <p className="text-lg text-gray-600 mb-8 leading-relaxed">
+                Never lose a genius prompt or useful code snippet again. With the Vault Vibe extension, 
+                you can capture content from ChatGPT, Claude, Stack Overflow, or any website with a single click.
+              </p>
+
+              <div className="space-y-6 mb-10">
+                {[
+                  { title: 'One-Click Capture', desc: 'Instantly save selected text as a prompt or snippet.' },
+                  { title: 'Auto-Tagging', desc: 'Automatically detects language and context.' },
+                  { title: 'Seamless Sync', desc: 'Content is immediately available in your Vault.' }
+                ].map((item, i) => (
+                  <div key={i} className="flex gap-4">
+                    <div className="mt-1 w-10 h-10 rounded-xl bg-violet-50 flex items-center justify-center shrink-0">
+                      <Check className="w-5 h-5 text-violet-600" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-gray-900">{item.title}</h4>
+                      <p className="text-gray-600 text-sm">{item.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <button className="bg-violet-600 text-white px-8 py-3.5 rounded-full text-base font-medium hover:bg-violet-700 transition-all flex items-center gap-2 shadow-lg shadow-violet-500/20">
+                <Globe className="w-4 h-4" />
+                Add to Chrome
+              </button>
+            </motion.div>
+
+            {/* Visual */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="relative"
+            >
+              {/* Decorative Blur */}
+              <div className="absolute -inset-4 bg-violet-500/20 blur-3xl rounded-full opacity-50 -z-10" />
+
+              {/* Browser Mockup */}
+              <div className="bg-gray-900 rounded-xl p-2 shadow-2xl relative z-10">
+                <div className="bg-gray-800 rounded-lg p-4 flex items-center gap-4 mb-2">
+                  <div className="flex gap-2">
+                    <div className="w-3 h-3 rounded-full bg-red-500" />
+                    <div className="w-3 h-3 rounded-full bg-yellow-500" />
+                    <div className="w-3 h-3 rounded-full bg-green-500" />
+                  </div>
+                  <div className="bg-gray-900 flex-1 rounded-md h-8 mx-4" />
+                </div>
+                <div className="bg-white rounded-lg p-6 h-[400px] relative overflow-hidden flex flex-col justify-center items-center">
+                  
+                    {/* Website Content Placeholder */}
+                    <div className="absolute top-6 left-6 right-6 space-y-4 opacity-20">
+                      <div className="h-8 bg-gray-900 rounded w-3/4" />
+                      <div className="h-4 bg-gray-900 rounded w-full" />
+                      <div className="h-4 bg-gray-900 rounded w-5/6" />
+                      <div className="h-4 bg-gray-900 rounded w-4/5" />
+                    </div>
+
+                    {/* Notification/Popup Visual */}
+                    <motion.div 
+                      initial={{ scale: 0.9, opacity: 0 }}
+                      whileInView={{ scale: 1, opacity: 1 }}
+                      transition={{ delay: 0.5 }}
+                      className="relative z-10 bg-white rounded-2xl shadow-2xl border border-violet-100 p-6 w-72"
+                    >
+                      <div className="flex items-center gap-4 mb-4">
+                        <div className="w-12 h-12 bg-violet-100 rounded-xl flex items-center justify-center">
+                          <Save className="w-6 h-6 text-violet-600" />
+                        </div>
+                        <div>
+                          <div className="font-bold text-gray-900">Snippet Saved</div>
+                          <div className="text-xs text-gray-500">Added to "Personal Projects"</div>
+                        </div>
+                      </div>
+                      
+                      <div className="bg-gray-50 rounded-lg p-3 mb-4 border border-gray-100">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Code2 className="w-4 h-4 text-gray-400" />
+                          <span className="text-xs font-mono text-gray-600">helper.ts</span>
+                        </div>
+                        <div className="space-y-1">
+                          <div className="h-2 bg-gray-200 rounded w-3/4" />
+                          <div className="h-2 bg-gray-200 rounded w-1/2" />
+                        </div>
+                      </div>
+
+                      <button className="w-full bg-violet-600 text-white text-xs font-bold py-2 rounded-lg hover:bg-violet-700 transition-colors">
+                        View in Vault
+                      </button>
+                    </motion.div>
+
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
       {/* Stats Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-50/50" >
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-violet-50/30" >
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {stats.map((stat, index) => (
@@ -501,8 +695,8 @@ export function LandingPage() {
                 transition={{ delay: index * 0.1 }}
                 className="text-center"
               >
-                <div className="text-4xl md:text-5xl font-bold text-gray-900 mb-2">{stat.value}</div>
-                <div className="text-sm text-gray-500">{stat.label}</div>
+                <div className="text-4xl md:text-5xl font-bold text-violet-600 mb-2">{stat.value}</div>
+                <div className="text-sm text-violet-900/60 font-medium">{stat.label}</div>
               </motion.div>
             ))}
           </div>
@@ -602,14 +796,14 @@ export function LandingPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
             {/* FAQ Header */}
             <div className="lg:col-span-1">
-              <span className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 block">FAQ</span>
+              <span className="text-xs font-bold text-violet-600 uppercase tracking-wider mb-4 block">FAQ</span>
               <h2 className="text-3xl font-bold text-gray-900 mb-4">
                 Everything You Need to Know
               </h2>
               <p className="text-gray-600 mb-6">
                 Still have questions? Reach out to our customer service team.
               </p>
-              <button className="text-sm font-medium text-gray-900 border border-gray-300 px-4 py-2 rounded-full hover:bg-gray-50 transition-colors">
+              <button className="text-sm font-medium text-violet-600 border border-violet-200 px-4 py-2 rounded-full hover:bg-violet-50 transition-colors">
                 Contact us
               </button>
             </div>
@@ -623,15 +817,15 @@ export function LandingPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.1 }}
-                  className="border border-gray-200 rounded-2xl overflow-hidden"
+                  className="border border-gray-200 rounded-2xl overflow-hidden hover:border-violet-200 transition-colors"
                 >
                   <button
                     onClick={() => setOpenFaq(openFaq === index ? null : index)}
-                    className="w-full flex items-center justify-between p-5 text-left hover:bg-gray-50 transition-colors"
+                    className="w-full flex items-center justify-between p-5 text-left hover:bg-violet-50/50 transition-colors"
                   >
-                    <span className="font-medium text-gray-900 pr-8">{faq.question}</span>
+                    <span className={`font-medium pr-8 transition-colors ${openFaq === index ? 'text-violet-900' : 'text-gray-900'}`}>{faq.question}</span>
                     <ChevronDown
-                      className={`w-5 h-5 text-gray-400 shrink-0 transition-transform ${openFaq === index ? 'rotate-180' : ''}`}
+                      className={`w-5 h-5 shrink-0 transition-transform duration-300 ${openFaq === index ? 'rotate-180 text-violet-600' : 'text-gray-400'}`}
                     />
                   </button>
                   {openFaq === index && (
@@ -656,12 +850,10 @@ export function LandingPage() {
         <div className="max-w-7xl mx-auto">
 
           {/* CTA Box */}
-          <div className="relative overflow-hidden bg-[#0A0C14] rounded-[3rem] p-12 md:p-24 text-center mb-24">
-            {/* Abstract Background Circles */}
-            <div className="absolute top-0 right-0 w-[500px] h-[500px] border border-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
-            <div className="absolute top-0 right-0 w-[400px] h-[400px] border border-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
-            <div className="absolute bottom-0 left-0 w-[300px] h-[300px] border border-white/5 rounded-full translate-y-1/2 -translate-x-1/2" />
-
+          <div className="relative overflow-hidden bg-[#0A0C14] rounded-[3rem] p-12 md:p-24 text-center mb-24 group">
+            {/* Interactive Code Background */}
+            <InteractiveCodeBackground />
+            
             <div className="relative z-10 max-w-2xl mx-auto">
               <motion.h2
                 initial={{ opacity: 0, y: 20 }}
@@ -700,18 +892,19 @@ export function LandingPage() {
             <div>
               <h4 className="font-semibold text-gray-900 mb-6">Products</h4>
               <ul className="space-y-4 text-gray-500">
-                <li><a href={repoUrl} target="_blank" rel="noreferrer" className="hover:text-violet-600 transition-colors">Features</a></li>
-                <li><a href={repoUrl} target="_blank" rel="noreferrer" className="hover:text-violet-600 transition-colors">Pricing</a></li>
-                <li><a href={repoUrl} target="_blank" rel="noreferrer" className="hover:text-violet-600 transition-colors">Integrations</a></li>
+                <li><a href="#" className="hover:text-violet-600 transition-colors">Features</a></li>
+                <li><a href="#" className="hover:text-violet-600 transition-colors">Pricing</a></li>
+                <li><a href="#" className="hover:text-violet-600 transition-colors">Integrations</a></li>
               </ul>
             </div>
 
             <div>
               <h4 className="font-semibold text-gray-900 mb-6">Company</h4>
               <ul className="space-y-4 text-gray-500">
-                <li><a href={repoUrl} target="_blank" rel="noreferrer" className="hover:text-violet-600 transition-colors">About Us</a></li>
-                <li><a href={repoUrl} target="_blank" rel="noreferrer" className="hover:text-violet-600 transition-colors">Blog</a></li>
-                <li><a href={repoUrl} target="_blank" rel="noreferrer" className="hover:text-violet-600 transition-colors">Contact</a></li>
+                <li><a href="/about" className="hover:text-violet-600 transition-colors">About Us</a></li>
+                <li><a href="/blog" className="hover:text-violet-600 transition-colors">Blog</a></li>
+                <li><a href="/contact" className="hover:text-violet-600 transition-colors">Contact</a></li>
+                <li><a href="/privacy" className="hover:text-violet-600 transition-colors">Privacy</a></li>
               </ul>
             </div>
           </div>
@@ -719,16 +912,16 @@ export function LandingPage() {
           {/* Bottom Bar */}
           <div className="border-t border-gray-100 pt-10 flex flex-col md:flex-row items-center justify-between gap-6 px-4">
             <div className="flex items-center gap-6">
-              <a href={repoUrl} target="_blank" rel="noreferrer" className="text-gray-400 hover:text-gray-900 transition-colors">
+              <a href="#" className="text-gray-400 hover:text-gray-900 transition-colors">
                 <Twitter className="w-5 h-5" />
               </a>
-              <a href={repoUrl} target="_blank" rel="noreferrer" className="text-gray-400 hover:text-gray-900 transition-colors">
+              <a href="#" className="text-gray-400 hover:text-gray-900 transition-colors">
                 <Linkedin className="w-5 h-5" />
               </a>
-              <a href={repoUrl} target="_blank" rel="noreferrer" className="text-gray-400 hover:text-gray-900 transition-colors">
+              <a href="#" className="text-gray-400 hover:text-gray-900 transition-colors">
                 <Facebook className="w-5 h-5" />
               </a>
-              <a href="https://github.com/Jooonie29" target="_blank" rel="noreferrer" className="text-gray-400 hover:text-gray-900 transition-colors">
+              <a href="#" className="text-gray-400 hover:text-gray-900 transition-colors">
                 <Github className="w-5 h-5" />
               </a>
             </div>

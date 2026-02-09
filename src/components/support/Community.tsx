@@ -1,8 +1,6 @@
 import React from 'react';
 import { Users, Github, Twitter, MessageCircle, Heart, Globe } from 'lucide-react';
 
-const repoUrl = 'https://github.com/Jooonie29/Vibe-Vault.git';
-
 export const Community = () => {
   return (
     <div className="max-w-5xl mx-auto space-y-8">
@@ -22,7 +20,7 @@ export const Community = () => {
             members="12.5k Members"
             description="Chat with the team, get help, and showcase your projects."
             action="Join Server"
-            href={repoUrl}
+            href="#"
         />
         
         {/* Twitter */}
@@ -33,7 +31,7 @@ export const Community = () => {
             members="@vibevault"
             description="Follow us for the latest updates, tips, and feature drops."
             action="Follow Us"
-            href={repoUrl}
+            href="#"
         />
 
         {/* GitHub */}
@@ -44,7 +42,7 @@ export const Community = () => {
             members="Open Source"
             description="Contribute to the codebase, report bugs, or request features."
             action="Star Repo"
-            href="https://github.com/Jooonie29"
+            href="#"
         />
       </div>
 
@@ -58,9 +56,7 @@ export const Community = () => {
                 </p>
             </div>
             <a
-                href={repoUrl}
-                target="_blank"
-                rel="noreferrer"
+                href="#"
                 className="px-6 py-3 bg-white text-violet-600 font-bold rounded-xl hover:bg-gray-50 transition-colors shadow-lg"
             >
                 Explore Showcase

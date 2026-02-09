@@ -84,8 +84,30 @@ export const getMessages = query({
           .withIndex("by_userId", (q) => q.eq("userId", msg.senderId))
           .unique();
 
+        let attachmentsWithUrls = undefined;
+        if (msg.attachments) {
+          attachmentsWithUrls = await Promise.all(
+            msg.attachments.map(async (att) => ({
+              ...att,
+              url: (await ctx.storage.getUrl(att.storageId)) || "",
+            }))
+          );
+        } else if (msg.attachmentId) {
+          // Backward compatibility for messages created with attachmentId
+          const url = await ctx.storage.getUrl(msg.attachmentId);
+          if (url) {
+            attachmentsWithUrls = [{
+              type: msg.attachmentType || "file",
+              storageId: msg.attachmentId,
+              url,
+              name: "Attachment"
+            }];
+          }
+        }
+
         return {
           ...msg,
+          attachments: attachmentsWithUrls,
           sender: {
             userId: msg.senderId,
             username: profile?.username,
@@ -172,6 +194,11 @@ export const sendMessage = mutation({
     userId: v.string(),
     text: v.string(),
     replyToId: v.optional(v.id("messages")),
+    attachments: v.optional(v.array(v.object({
+      type: v.string(),
+      storageId: v.string(),
+      name: v.optional(v.string()),
+    }))),
   },
   handler: async (ctx, args) => {
     // Verify user is participant
@@ -187,6 +214,7 @@ export const sendMessage = mutation({
       senderId: args.userId,
       text: args.text,
       replyToId: args.replyToId,
+      attachments: args.attachments,
     });
 
     // Update conversation with last message info and increment unread counts
