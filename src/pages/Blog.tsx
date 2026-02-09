@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft, ArrowRight, Calendar, User, Tag, Twitter, Github, Linkedin } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 
 const Blog = () => {
   const posts = [
@@ -33,6 +34,10 @@ const Blog = () => {
 
   return (
     <div className="min-h-screen bg-white selection:bg-violet-100 selection:text-violet-900">
+      <Helmet>
+        <title>Blog - Vault Vibe</title>
+        <meta name="description" content="Latest updates, productivity tips, and engineering insights from the Vault Vibe team." />
+      </Helmet>
       {/* Header */}
       <header className="border-b border-gray-100 bg-white/80 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">

@@ -1,5 +1,6 @@
 
 import { createRoot } from 'react-dom/client'
+import { HelmetProvider } from 'react-helmet-async';
 import App from './App.tsx'
 import './index.css'
 
@@ -13,7 +14,11 @@ if (!rootElement) {
   try {
     const root = createRoot(rootElement);
     console.log("[Vault Vibe] React root created, calling render...");
-    root.render(<App />);
+    root.render(
+      <HelmetProvider>
+        <App />
+      </HelmetProvider>
+    );
     console.log("[Vault Vibe] Render called successfully");
   } catch (error) {
     console.error("[Vault Vibe] Fatal: Failed to render React app:", error);

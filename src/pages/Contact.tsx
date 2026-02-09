@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Mail, MapPin, Send, CheckCircle2, MessageSquare, Twitter, Github, Linkedin } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 
 const Contact = () => {
   const [submitted, setSubmitted] = useState(false);
@@ -13,6 +14,10 @@ const Contact = () => {
 
   return (
     <div className="min-h-screen bg-white selection:bg-violet-100 selection:text-violet-900">
+      <Helmet>
+        <title>Contact Us - Vault Vibe</title>
+        <meta name="description" content="Get in touch with the Vault Vibe team. We're here to help with support, feedback, and inquiries." />
+      </Helmet>
       <header className="border-b border-gray-100 bg-white/80 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <Link to="/" className="group flex items-center gap-2 text-gray-600 hover:text-violet-600 transition-colors">

@@ -2,10 +2,15 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Users, Zap, Shield, Heart, Github, Twitter, Linkedin } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 
 const AboutUs = () => {
   return (
     <div className="min-h-screen bg-white selection:bg-violet-100 selection:text-violet-900">
+      <Helmet>
+        <title>About Us - Vault Vibe</title>
+        <meta name="description" content="We're on a mission to help developers organize their digital brain. Learn more about Vault Vibe, our values, and the team behind the tool." />
+      </Helmet>
       {/* Header */}
       <header className="border-b border-gray-100 bg-white/80 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">

@@ -36,6 +36,7 @@ import { useUIStore } from '@/store/uiStore';
 import { Button } from '@/components/ui/Button';
 import { SignedIn, SignedOut, SignInButton, SignUpButton, UserButton } from '@clerk/clerk-react';
 import { InteractiveCodeBackground } from './InteractiveCodeBackground';
+import { Helmet } from 'react-helmet-async';
 
 const faqs = [
   {
@@ -147,6 +148,13 @@ export function LandingPage() {
 
   return (
     <div className="min-h-screen bg-white overflow-x-hidden">
+      <Helmet>
+        <title>Vault Vibe - The Central Vault for every Vibe Coder</title>
+        <meta name="description" content="Clean infrastructure to organize your prompts, assets, and code snippets. Built for the modern vibe coder who values clarity over noise." />
+        <meta property="og:title" content="Vault Vibe - The Central Vault for every Vibe Coder" />
+        <meta property="og:description" content="Clean infrastructure to organize your prompts, assets, and code snippets. Built for the modern vibe coder who values clarity over noise." />
+        <meta property="og:type" content="website" />
+      </Helmet>
       {/* Header */}
       <header className="absolute top-0 left-0 right-0 z-50 border-b border-transparent">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -606,9 +614,9 @@ export function LandingPage() {
                 ))}
               </div>
 
-              <button className="bg-violet-600 text-white px-8 py-3.5 rounded-full text-base font-medium hover:bg-violet-700 transition-all flex items-center gap-2 shadow-lg shadow-violet-500/20">
+              <button className="bg-gray-200 text-gray-500 px-8 py-3.5 rounded-full text-base font-medium cursor-not-allowed flex items-center gap-2 shadow-none">
                 <Globe className="w-4 h-4" />
-                Add to Chrome
+                Coming Soon
               </button>
             </motion.div>
 
