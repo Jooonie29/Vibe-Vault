@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import EmojiPicker, { EmojiClickData, Theme } from 'emoji-picker-react';
 import { 
   MessageCircle, 
   X, 
@@ -12,7 +13,8 @@ import {
   Check,
   CheckCheck,
   Edit3,
-  Trash2
+  Trash2,
+  AlertTriangle
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/store/authStore';
@@ -26,6 +28,7 @@ import {
   useAvailableTeamMembers,
   useEditMessage,
   useDeleteMessage,
+  useDeleteConversation,
   TeamMember
 } from '@/hooks/useMessaging';
 
@@ -39,7 +42,13 @@ export function FloatingChat() {
   const [searchQuery, setSearchQuery] = useState('');
   const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
   const [editText, setEditText] = useState('');
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [deleteConfirmationId, setDeleteConfirmationId] = useState<string | null>(null);
+  
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const emojiPickerRef = useRef<HTMLDivElement>(null);
+  
   const { user } = useAuthStore();
   const { activeTeamId, floatingChatOpen, floatingChatTargetUserId, openFloatingChat, closeFloatingChat, clearFloatingChatTarget } = useUIStore();
   
@@ -51,6 +60,7 @@ export function FloatingChat() {
   const getOrCreateDirectConversation = useGetOrCreateDirectConversation();
   const editMessage = useEditMessage();
   const deleteMessage = useDeleteMessage();
+  const deleteConversation = useDeleteConversation();
 
   const selectedConversation = conversations?.find(c => c._id === selectedConversationId);
 
@@ -61,6 +71,20 @@ export function FloatingChat() {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  useEffect(() => {
+    // Click outside handler for emoji picker
+    const handleClickOutside = (event: MouseEvent) => {
+      if (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target as Node)) {
+        setShowEmojiPicker(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   useEffect(() => {
     if (floatingChatOpen) {
@@ -118,6 +142,31 @@ export function FloatingChat() {
 
   const handleDeleteMessage = async (messageId: string) => {
     await deleteMessage(messageId);
+  };
+
+  const handleEmojiClick = (emojiData: EmojiClickData) => {
+    setInputValue((prev) => prev + emojiData.emoji);
+  };
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // In a real app, you would upload the file here and get a URL
+      // For now, we'll just append the file name to the message
+      setInputValue((prev) => prev + ` [File: ${file.name}] `);
+    }
+  };
+
+  const handleDeleteConversation = async (e: React.MouseEvent, conversationId: string) => {
+    e.stopPropagation();
+    setDeleteConfirmationId(conversationId);
+  };
+
+  const confirmDeleteConversation = async () => {
+    if (deleteConfirmationId) {
+      await deleteConversation(deleteConfirmationId);
+      setDeleteConfirmationId(null);
+    }
   };
 
   const formatTime = (timestamp: number) => {
@@ -309,7 +358,52 @@ export function FloatingChat() {
             )}
 
             {/* Content */}
-            <div className="flex-1 overflow-hidden bg-card">
+            <div className="flex-1 overflow-hidden bg-card relative">
+              {/* Delete Confirmation Overlay */}
+              <AnimatePresence>
+                {deleteConfirmationId && (
+                  <motion.div 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="absolute inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center p-6"
+                  >
+                    <motion.div 
+                      initial={{ scale: 0.9, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      exit={{ scale: 0.9, opacity: 0 }}
+                      className="bg-card border border-border rounded-xl shadow-xl p-6 max-w-sm w-full"
+                    >
+                      <div className="flex flex-col items-center text-center gap-4">
+                        <div className="w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/20 flex items-center justify-center text-red-600 dark:text-red-400">
+                          <AlertTriangle className="w-6 h-6" />
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-semibold text-foreground">Delete conversation?</h3>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            This action cannot be undone. The conversation will be removed from your list.
+                          </p>
+                        </div>
+                        <div className="flex gap-3 w-full mt-2">
+                          <button 
+                            onClick={() => setDeleteConfirmationId(null)}
+                            className="flex-1 px-4 py-2 bg-muted hover:bg-muted/80 text-foreground text-sm font-medium rounded-lg transition-colors"
+                          >
+                            Cancel
+                          </button>
+                          <button 
+                            onClick={confirmDeleteConversation}
+                            className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-colors"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </div>
+                    </motion.div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
               {/* Conversation List */}
               {viewState === 'list' && (
                 <div className="h-full overflow-y-auto">
@@ -332,65 +426,74 @@ export function FloatingChat() {
                   ) : (
                     <div className="divide-y divide-border">
                       {filteredConversations?.map((conversation) => (
-                        <button
-                          key={conversation._id}
-                          onClick={() => {
-                            setSelectedConversationId(conversation._id);
-                            setViewState('thread');
-                          }}
-                          className="w-full px-4 py-3 hover:bg-muted/50 transition-colors flex items-center gap-3 text-left"
-                        >
-                          <div className="flex -space-x-2 shrink-0">
-                            {conversation.isGroup ? (
-                              <div className="w-11 h-11 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center text-white font-bold">
-                                {conversation.groupName?.[0] || 'G'}
-                              </div>
-                            ) : (
-                              conversation.participants.slice(0, 2).map((participant, idx) => (
-                                <div
-                                  key={participant.userId}
-                                  className={cn(
-                                    "w-11 h-11 rounded-full border-2 border-background flex items-center justify-center text-white font-bold bg-gradient-to-br",
-                                    idx === 0 ? "from-violet-500 to-fuchsia-500" : "from-blue-500 to-cyan-500"
-                                  )}
-                                >
-                                  {participant.avatarUrl ? (
-                                    <img src={participant.avatarUrl} alt="" className="w-full h-full rounded-full object-cover" />
-                                  ) : (
-                                    participant.fullName?.[0] || participant.username?.[0] || '?'
-                                  )}
+                        <div key={conversation._id} className="relative group">
+                          <button
+                            onClick={() => {
+                              setSelectedConversationId(conversation._id);
+                              setViewState('thread');
+                            }}
+                            className="w-full px-4 py-3 hover:bg-muted/50 transition-colors flex items-center gap-3 text-left"
+                          >
+                            <div className="flex -space-x-2 shrink-0">
+                              {conversation.isGroup ? (
+                                <div className="w-11 h-11 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center text-white font-bold">
+                                  {conversation.groupName?.[0] || 'G'}
                                 </div>
-                              ))
-                            )}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between mb-0.5">
-                              <h4 className={cn(
-                                "truncate",
-                                conversation.unreadCount > 0 ? "font-bold text-foreground" : "font-medium text-foreground"
-                              )}>
-                                {conversation.isGroup 
-                                  ? conversation.groupName 
-                                  : conversation.participants[0]?.fullName || conversation.participants[0]?.username || 'Unknown'
-                                }
-                              </h4>
-                              <span className="text-xs text-muted-foreground shrink-0 ml-2">
-                                {formatTime(conversation.lastMessageAt)}
-                              </span>
+                              ) : (
+                                conversation.participants.slice(0, 2).map((participant, idx) => (
+                                  <div
+                                    key={participant.userId}
+                                    className={cn(
+                                      "w-11 h-11 rounded-full border-2 border-background flex items-center justify-center text-white font-bold bg-gradient-to-br",
+                                      idx === 0 ? "from-violet-500 to-fuchsia-500" : "from-blue-500 to-cyan-500"
+                                    )}
+                                  >
+                                    {participant.avatarUrl ? (
+                                      <img src={participant.avatarUrl} alt="" className="w-full h-full rounded-full object-cover" />
+                                    ) : (
+                                      participant.fullName?.[0] || participant.username?.[0] || '?'
+                                    )}
+                                  </div>
+                                ))
+                              )}
                             </div>
-                            <p className={cn(
-                              "text-sm truncate",
-                              conversation.unreadCount > 0 ? "text-gray-900 font-medium" : "text-gray-500"
-                            )}>
-                              {conversation.lastMessageText || 'No messages yet'}
-                            </p>
-                          </div>
-                          {conversation.unreadCount > 0 && (
-                            <span className="w-5 h-5 bg-violet-600 text-white text-xs font-bold rounded-full flex items-center justify-center shrink-0">
-                              {conversation.unreadCount > 9 ? '9+' : conversation.unreadCount}
-                            </span>
-                          )}
-                        </button>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between mb-0.5">
+                                <h4 className={cn(
+                                  "truncate",
+                                  conversation.unreadCount > 0 ? "font-bold text-foreground" : "font-medium text-foreground"
+                                )}>
+                                  {conversation.isGroup 
+                                    ? conversation.groupName 
+                                    : conversation.participants[0]?.fullName || conversation.participants[0]?.username || 'Unknown'
+                                  }
+                                </h4>
+                                <span className="text-xs text-muted-foreground shrink-0 ml-2">
+                                  {formatTime(conversation.lastMessageAt)}
+                                </span>
+                              </div>
+                              <p className={cn(
+                                "text-sm truncate pr-6", // Added padding right for delete button
+                                conversation.unreadCount > 0 ? "text-gray-900 font-medium" : "text-gray-500"
+                              )}>
+                                {conversation.lastMessageText || 'No messages yet'}
+                              </p>
+                            </div>
+                            {conversation.unreadCount > 0 && (
+                              <span className="w-5 h-5 bg-violet-600 text-white text-xs font-bold rounded-full flex items-center justify-center shrink-0">
+                                {conversation.unreadCount > 9 ? '9+' : conversation.unreadCount}
+                              </span>
+                            )}
+                          </button>
+                          
+                          <button
+                            onClick={(e) => handleDeleteConversation(e, conversation._id)}
+                            className="absolute right-4 top-[calc(50%+8px)] -translate-y-1/2 p-1.5 bg-card/90 hover:bg-red-50 text-muted-foreground hover:text-red-500 rounded-full shadow-sm opacity-0 group-hover:opacity-100 transition-all z-10"
+                            title="Delete conversation"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       ))}
                     </div>
                   )}
@@ -498,29 +601,6 @@ export function FloatingChat() {
                                         </div>
                                       </div>
                                     )}
-                                    
-                                    {/* Message Actions */}
-                                    {isCurrentUser && editingMessageId !== message._id && (
-                                      <div className="absolute top-0 -right-8 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col gap-1">
-                                        <button
-                                          onClick={() => {
-                                            setEditingMessageId(message._id);
-                                            setEditText(message.text);
-                                          }}
-                                          className="p-1.5 bg-white border border-gray-200 rounded-lg shadow-sm hover:bg-gray-50 text-gray-600"
-                                          title="Edit"
-                                        >
-                                          <Edit3 className="w-3 h-3" />
-                                        </button>
-                                        <button
-                                          onClick={() => handleDeleteMessage(message._id)}
-                                          className="p-1.5 bg-white border border-gray-200 rounded-lg shadow-sm hover:bg-red-50 text-red-500"
-                                          title="Delete"
-                                        >
-                                          <Trash2 className="w-3 h-3" />
-                                        </button>
-                                      </div>
-                                    )}
                                   </div>
                                 </div>
                               </motion.div>
@@ -534,13 +614,46 @@ export function FloatingChat() {
 
                   {/* Input Area */}
                   <div className="p-3 bg-card border-t border-border">
-                    <div className="flex items-center gap-2">
-                      <button className="p-2 hover:bg-muted rounded-full text-muted-foreground hover:text-foreground transition-colors">
-                        <Smile className="w-5 h-5" />
-                      </button>
-                      <button className="p-2 hover:bg-muted rounded-full text-muted-foreground hover:text-foreground transition-colors">
+                    <div className="flex items-center gap-2 relative">
+                      <div className="relative" ref={emojiPickerRef}>
+                        <button 
+                          onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                          className="p-2 hover:bg-muted rounded-full text-muted-foreground hover:text-foreground transition-colors"
+                        >
+                          <Smile className="w-5 h-5" />
+                        </button>
+                        <AnimatePresence>
+                          {showEmojiPicker && (
+                            <motion.div
+                              initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                              animate={{ opacity: 1, y: 0, scale: 1 }}
+                              exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                              className="absolute bottom-12 left-0 z-50 shadow-xl rounded-xl"
+                            >
+                              <EmojiPicker
+                                onEmojiClick={handleEmojiClick}
+                                theme={Theme.AUTO}
+                                width={300}
+                                height={400}
+                              />
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                      
+                      <button 
+                        onClick={() => fileInputRef.current?.click()}
+                        className="p-2 hover:bg-muted rounded-full text-muted-foreground hover:text-foreground transition-colors"
+                      >
                         <Paperclip className="w-5 h-5" />
                       </button>
+                      <input 
+                        type="file"
+                        ref={fileInputRef}
+                        className="hidden"
+                        onChange={handleFileUpload}
+                      />
+                      
                       <input
                         type="text"
                         value={inputValue}

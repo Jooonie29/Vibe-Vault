@@ -23,6 +23,7 @@ export function KanbanBoard() {
   const { user } = useAuthStore();
 
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const isPro = false;
 
   const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return;
@@ -43,6 +44,7 @@ export function KanbanBoard() {
         onOpenProject={(p) => openModal('project-view', p)}
         onOpenUpdates={() => openModal('project-updates')}
         onShareBoard={() => setIsShareModalOpen(true)}
+        isPro={isPro}
       />
 
       {user && (

@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import Lenis from 'lenis';
 import {
   Sparkles,
   Code2,
@@ -97,9 +98,9 @@ const plans = [
     features: [
       '3 Workspaces',
       '200MB Storage',
-      'Community Support',
-      'Basic Analytics',
-      'Single User'
+      'Unlimited Code Snippets',
+      'Unlimited AI Prompts',
+      'Community Support'
     ],
     cta: 'Current Plan',
     popular: false
@@ -109,29 +110,17 @@ const plans = [
     price: '$5',
     description: 'Unlock unlimited potential for growing teams.',
     features: [
-      'Unlimited Workspaces',
-      'Unlimited Storage',
-      'Priority Support',
-      'Advanced Analytics',
-      'Team Collaboration',
-      'Custom Domains'
-    ],
+        'Unlimited Workspaces',
+        '10GB Storage',
+        'Cloud Backup & Sync',
+        'Advanced Search & Filtering',
+        'Unlimited AI Prompts',
+        'Unlimited Code Snippets',
+        'Priority Support',
+        'Shareable Links'
+      ],
     cta: 'Upgrade to Pro',
     popular: true
-  },
-  {
-    name: 'Enterprise',
-    price: 'Custom',
-    description: 'Tailored solutions for large organizations.',
-    features: [
-      'Dedicated Support',
-      'SSO & Security',
-      'Custom Contracts',
-      'SLA Guarantee',
-      'Onboarding Training'
-    ],
-    cta: 'Contact Sales',
-    popular: false
   }
 ];
 
@@ -140,6 +129,21 @@ export function LandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'quarterly'>('monthly');
+
+  useEffect(() => {
+    const lenis = new Lenis();
+
+    function raf(time: number) {
+      lenis.raf(time);
+      requestAnimationFrame(raf);
+    }
+
+    requestAnimationFrame(raf);
+
+    return () => {
+      lenis.destroy();
+    };
+  }, []);
 
   return (
     <div className="min-h-screen bg-white overflow-x-hidden">
@@ -538,7 +542,7 @@ export function LandingPage() {
             </div>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto items-stretch">
+          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto items-stretch">
             {plans.map((plan, index) => (
               <motion.div
                 key={plan.name}
@@ -648,7 +652,7 @@ export function LandingPage() {
       </section>
 
       {/* New Footer Section */}
-      <section className="py-20 bg-white px-4 sm:px-6 lg:px-8">
+      <section className="pt-20 pb-8 bg-white px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
 
           {/* CTA Box */}
@@ -724,7 +728,7 @@ export function LandingPage() {
               <a href={repoUrl} target="_blank" rel="noreferrer" className="text-gray-400 hover:text-gray-900 transition-colors">
                 <Facebook className="w-5 h-5" />
               </a>
-              <a href={repoUrl} target="_blank" rel="noreferrer" className="text-gray-400 hover:text-gray-900 transition-colors">
+              <a href="https://github.com/Jooonie29" target="_blank" rel="noreferrer" className="text-gray-400 hover:text-gray-900 transition-colors">
                 <Github className="w-5 h-5" />
               </a>
             </div>

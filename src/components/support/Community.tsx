@@ -44,7 +44,7 @@ export const Community = () => {
             members="Open Source"
             description="Contribute to the codebase, report bugs, or request features."
             action="Star Repo"
-            href={repoUrl}
+            href="https://github.com/Jooonie29"
         />
       </div>
 

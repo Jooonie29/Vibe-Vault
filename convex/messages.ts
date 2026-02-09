@@ -264,6 +264,46 @@ export const deleteMessage = mutation({
   },
 });
 
+// Delete a conversation
+export const deleteConversation = mutation({
+  args: {
+    conversationId: v.id("conversations"),
+    userId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const conversation = await ctx.db.get(args.conversationId);
+    if (!conversation) throw new Error("Conversation not found");
+    
+    // Verify user is a participant
+    if (!conversation.participantIds.includes(args.userId)) {
+      throw new Error("Not authorized");
+    }
+
+    // If it's a group, only admin/creator might delete? 
+    // For simplicity, allow any participant to "leave/delete" for themselves
+    // We'll remove the user from participants
+    const newParticipants = conversation.participantIds.filter(id => id !== args.userId);
+    
+    if (newParticipants.length === 0) {
+      // If no one left, delete the conversation and messages
+      await ctx.db.delete(args.conversationId);
+      const messages = await ctx.db
+        .query("messages")
+        .withIndex("by_conversationId", (q) => q.eq("conversationId", args.conversationId))
+        .collect();
+      
+      for (const msg of messages) {
+        await ctx.db.delete(msg._id);
+      }
+    } else {
+      // Just remove the user
+      await ctx.db.patch(args.conversationId, {
+        participantIds: newParticipants
+      });
+    }
+  },
+});
+
 // Get available team members for starting conversations
 export const getAvailableTeamMembers = query({
   args: {

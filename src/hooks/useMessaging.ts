@@ -201,3 +201,19 @@ export function useDeleteMessage() {
     [deleteMutation, user]
   );
 }
+
+export function useDeleteConversation() {
+  const { user } = useAuthStore();
+  const deleteMutation = useMutation(api.messages.deleteConversation);
+
+  return useCallback(
+    async (conversationId: string) => {
+      if (!user) throw new Error('Not authenticated');
+      await deleteMutation({
+        conversationId: conversationId as any,
+        userId: user.id,
+      });
+    },
+    [deleteMutation, user]
+  );
+}

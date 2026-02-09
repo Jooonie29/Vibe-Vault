@@ -22,6 +22,7 @@ import { useUIStore } from "@/store/uiStore";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { format, isPast, isToday, startOfDay } from "date-fns";
+import { PricingModal } from "@/components/pricing/PricingModal";
 
 const columns: {
   id: ProjectStatus;
@@ -65,6 +66,7 @@ interface KanbanBoardUIProps {
   onOpenProject?: (project: Project) => void;
   onOpenUpdates?: () => void;
   onShareBoard?: () => void;
+  isPro?: boolean;
 }
 
 export function KanbanBoardUI({
@@ -76,6 +78,7 @@ export function KanbanBoardUI({
   onOpenProject,
   onOpenUpdates,
   onShareBoard,
+  isPro = false,
 }: KanbanBoardUIProps) {
   const { initializedViews, markViewInitialized } = useUIStore();
   const hasInitialized = initializedViews.has("projects");
@@ -117,14 +120,29 @@ export function KanbanBoardUI({
         </div>
         <div className="flex flex-wrap items-center gap-3">
           {!isReadOnly && onShareBoard && (
-            <Button
-              variant="outline"
-              onClick={onShareBoard}
-              icon={<Share2 className="w-4 h-4" />}
-              className="rounded-xl"
-            >
-              Share Board
-            </Button>
+            isPro ? (
+              <Button
+                variant="outline"
+                onClick={onShareBoard}
+                icon={<Share2 className="w-4 h-4" />}
+                className="rounded-xl"
+              >
+                Share Board
+              </Button>
+            ) : (
+              <PricingModal trigger={
+                <Button
+                  variant="outline"
+                  icon={<Share2 className="w-4 h-4" />}
+                  className="rounded-xl relative overflow-hidden group"
+                >
+                  Share Board
+                  <span className="ml-2 bg-gradient-to-r from-violet-600 to-indigo-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded shadow-sm group-hover:shadow-md transition-all">
+                    PRO
+                  </span>
+                </Button>
+              } />
+            )
           )}
 
           {onOpenUpdates && (

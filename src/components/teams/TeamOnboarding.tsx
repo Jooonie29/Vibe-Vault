@@ -23,7 +23,7 @@ import { ImageUpload } from '@/components/ui/ImageUpload';
 import { Switch } from '@/components/ui/switch';
 import { useTheme } from '@/components/theme-provider';
 import { motion } from 'framer-motion';
-import { PricingModal } from '@/components/pricing/PricingModal';
+import { PlanUsageCard } from '@/components/pricing/PlanUsageCard';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -93,6 +93,7 @@ export function TeamOnboarding() {
   const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+  const [isSupportChatOpen, setIsSupportChatOpen] = useState(false);
   const [showLearnMore, setShowLearnMore] = useState(false);
 
   // Management state
@@ -261,9 +262,9 @@ export function TeamOnboarding() {
     }
   };
 
-  const SidebarItem = ({ id, label, icon: Icon, section }: any) => (
+  const SidebarItem = ({ id, label, icon: Icon, onClick }: any) => (
     <button
-      onClick={() => setActiveSection(id)}
+      onClick={onClick || (() => setActiveSection(id))}
       className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${activeSection === id
         ? 'bg-sidebar-accent text-sidebar-foreground'
         : 'text-muted-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
@@ -307,7 +308,6 @@ export function TeamOnboarding() {
           <div>
             <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 px-2">Help and Support</h3>
             <div className="space-y-1">
-              <SidebarItem id="chat" label="Chat with us" icon={MessageCircle} />
               <SidebarItem id="community" label="Community" icon={Users} />
               <SidebarItem id="referral" label="Refer a friend" icon={Heart} />
               <SidebarItem id="help" label="Help" icon={HelpCircle} />
@@ -318,69 +318,13 @@ export function TeamOnboarding() {
         {/* Theme Toggle Footer */}
         <div className="p-4 border-t border-sidebar-border mt-auto bg-sidebar">
           {/* Plan Card */}
-          <div className="bg-gradient-to-br from-black via-violet-950 to-violet-800 rounded-2xl p-4 shadow-xl shadow-black/40 mb-4 border border-violet-500/30 overflow-hidden relative group">
-            {/* Noise texture overlay */}
-            <div
-              className="absolute inset-0 opacity-20 mix-blend-soft-light pointer-events-none"
-              style={{
-                backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-              }}
-            />
-            <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:scale-110 transition-transform duration-500">
-              <Zap className="w-16 h-16 text-violet-400" />
-            </div>
-
-            <div className="relative z-10">
-              <div className="flex items-center gap-2 text-white mb-3">
-                <Crown className="w-4 h-4 text-amber-300" />
-                <h3 className="text-xs font-bold">Free Plan Limits</h3>
-              </div>
-
-              <div className="w-full space-y-3">
-                <div>
-                  <div className="flex justify-between text-[10px] font-medium text-white/90 mb-1">
-                    <span>Workspaces</span>
-                    <span>{workspacesUsed}/{workspacesLimit}</span>
-                  </div>
-                  <div className="h-1.5 w-full bg-black/20 rounded-full overflow-hidden backdrop-blur-sm shadow-inner">
-                    <motion.div
-                      animate={{ width: `${workspacesPercent}%` }}
-                      className="h-full bg-gradient-to-r from-amber-300 to-orange-400 rounded-full"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <div className="flex justify-between text-[10px] font-medium text-white/90 mb-1">
-                    <span>Storage</span>
-                    <span>{storageUsed}MB / {storageLimit}MB</span>
-                  </div>
-                  <div className="h-1.5 w-full bg-black/20 rounded-full overflow-hidden backdrop-blur-sm shadow-inner">
-                    <motion.div
-                      initial={{ width: 0 }}
-                      animate={{ width: `${storagePercent}%` }}
-                      className="h-full bg-gradient-to-r from-emerald-300 to-teal-400 rounded-full"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 gap-2 mt-4 pt-1">
-                <button
-                  onClick={() => setShowLearnMore(true)}
-                  className="w-full py-2 bg-white/10 hover:bg-white/20 text-white text-[10px] font-bold rounded-lg transition-colors border border-white/10 backdrop-blur-sm"
-                >
-                  Learn more
-                </button>
-                <PricingModal trigger={
-                  <button className="w-full py-2 bg-white text-violet-600 text-[10px] font-bold rounded-lg hover:bg-violet-50 transition-colors flex items-center justify-center gap-1 shadow-lg shadow-black/10">
-                    Upgrade plan
-                    <ChevronRight className="w-3 h-3" />
-                  </button>
-                } />
-              </div>
-            </div>
-          </div>
+          <PlanUsageCard
+            workspacesUsed={workspacesUsed}
+            workspacesLimit={workspacesLimit}
+            storageUsed={storageUsed}
+            storageLimit={storageLimit}
+            isPro={false} // This will be dynamic based on user subscription
+          />
 
           <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/50 transition-all duration-200 cursor-pointer mt-4" onClick={() => setActiveSection('settings')}>
             <Settings className="w-4 h-4" />
@@ -676,7 +620,6 @@ export function TeamOnboarding() {
           {activeSection === 'favorites' && <Favorites />}
           {activeSection === 'documentation' && <Documentation />}
           {activeSection === 'video-tutorial' && <VideoTutorial />}
-          {activeSection === 'chat' && <ChatSupport />}
           {activeSection === 'community' && <Community />}
           {activeSection === 'referral' && <Referral />}
           {activeSection === 'help' && <HelpCenter />}
@@ -753,7 +696,7 @@ export function TeamOnboarding() {
           </div>
           <div className="flex justify-end gap-3">
             <Button variant="ghost" onClick={() => setIsEditModalOpen(false)} className="font-bold text-muted-foreground">Cancel</Button>
-            <Button onClick={handleUpdateWorkspace} loading={updating} className="min-w-[160px] font-black py-6 rounded-2xl shadow-lg shadow-violet-500/10">Save Changes</Button>
+            <Button onClick={handleUpdateWorkspace} loading={updating} className="min-w-[160px] font-black py-3 rounded-2xl shadow-lg shadow-violet-500/10">Save Changes</Button>
           </div>
         </div>
       </Modal>
@@ -821,14 +764,14 @@ export function TeamOnboarding() {
             <Button
               variant="secondary"
               onClick={() => setIsJoinModalOpen(false)}
-              className="flex-1 font-bold py-6 rounded-2xl"
+              className="flex-1 font-bold py-3 rounded-2xl"
             >
               Cancel
             </Button>
             <Button
               onClick={handleJoinByCode}
               loading={joining}
-              className="flex-1 font-black py-6 rounded-2xl shadow-xl shadow-violet-500/20"
+              className="flex-1 font-black py-3 rounded-2xl shadow-xl shadow-violet-500/20"
               disabled={!inviteCode.trim() || inviteCode.length < 6}
             >
               Join Workspace
@@ -838,85 +781,24 @@ export function TeamOnboarding() {
       </Modal>
 
       {/* Learn More Dialog */}
-      <Dialog open={showLearnMore} onOpenChange={setShowLearnMore}>
-        <DialogContent className="max-w-md bg-card rounded-[32px] p-0 overflow-hidden shadow-2xl border-0">
-          <DialogHeader className="p-8 pb-4">
-            <DialogTitle className="text-2xl font-bold text-card-foreground tracking-tight flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center">
-                <Info className="w-5 h-5 text-violet-600 dark:text-violet-400" />
-              </div>
-              Free Plan Limits
-            </DialogTitle>
-          </DialogHeader>
-          <div className="p-8 pt-2 space-y-6">
-            <p className="text-muted-foreground leading-relaxed">
-              You're currently on the Free plan. Here's your current usage to help you manage your resources.
-            </p>
+      {/* Dialog code removed as it's now inside PlanUsageCard */}
+      
+      {/* Floating Support Chat */}
+      <motion.button
+        initial={{ scale: 0, opacity: 0 }}
+        animate={{ scale: isSupportChatOpen ? 0 : 1, opacity: isSupportChatOpen ? 0 : 1 }}
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
+        onClick={() => setIsSupportChatOpen(true)}
+        className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-violet-600 hover:bg-violet-700 text-white rounded-full shadow-lg shadow-violet-600/30 flex items-center justify-center transition-colors"
+      >
+        <MessageCircle className="w-6 h-6" />
+      </motion.button>
 
-            <div className="space-y-4">
-              <div className="p-4 bg-muted/50 rounded-2xl border border-border">
-                <div className="flex justify-between items-center mb-3">
-                  <span className="text-sm font-semibold text-muted-foreground">Workspaces</span>
-                  <span className="text-sm font-bold text-foreground">{workspacesUsed}/{workspacesLimit}</span>
-                </div>
-                <div className="h-2 w-full bg-secondary rounded-full overflow-hidden">
-                  <motion.div
-                    animate={{ width: `${workspacesPercent}%` }}
-                    className="h-full bg-gradient-to-r from-amber-300 to-orange-400 rounded-full"
-                  />
-                </div>
-              </div>
-
-              <div className="p-4 bg-muted/50 rounded-2xl border border-border">
-                <div className="flex justify-between items-center mb-3">
-                  <span className="text-sm font-semibold text-muted-foreground">Storage</span>
-                  <span className="text-sm font-bold text-foreground">{storageUsed}MB / {storageLimit}MB</span>
-                </div>
-                <div className="h-2 w-full bg-secondary rounded-full overflow-hidden">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: `${storagePercent}%` }}
-                    className="h-full bg-gradient-to-r from-emerald-300 to-teal-400 rounded-full"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="pt-4 border-t border-border">
-              <h4 className="text-sm font-bold text-foreground mb-4 flex items-center gap-2 uppercase tracking-wider">
-                <Crown className="w-4 h-4 text-amber-500" />
-                Pro Features
-              </h4>
-              <ul className="grid grid-cols-1 gap-3">
-                {[
-                  'Unlimited workspaces',
-                  '10GB cloud storage',
-                  'Advanced team analytics',
-                  '24/7 priority support',
-                  'Enhanced collaboration tools',
-                ].map((feature, i) => (
-                  <li key={i} className="flex items-center gap-3 text-sm text-muted-foreground font-medium">
-                    <div className="w-5 h-5 rounded-full bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center shrink-0">
-                      <Check className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
-                    </div>
-                    {feature}
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <PricingModal trigger={
-              <Button
-                className="w-full h-14 rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white font-bold text-base shadow-xl shadow-violet-600/20 mt-2"
-                onClick={() => setShowLearnMore(false)}
-              >
-                <Zap className="w-4 h-4 mr-2" />
-                Upgrade to Pro
-              </Button>
-            } />
-          </div>
-        </DialogContent>
-      </Dialog>
+      <ChatSupport 
+        isOpen={isSupportChatOpen} 
+        onClose={() => setIsSupportChatOpen(false)} 
+      />
     </div >
   );
 }

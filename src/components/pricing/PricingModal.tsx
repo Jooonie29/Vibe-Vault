@@ -27,9 +27,9 @@ export function PricingModal({ children, trigger }: PricingModalProps) {
       features: [
         '3 Workspaces',
         '200MB Storage',
-        'Community Support',
-        'Basic Analytics',
-        'Single User'
+        'Unlimited Code Snippets',
+        'Unlimited AI Prompts',
+        'Community Support'
       ],
       buttonText: 'Current Plan',
       highlighted: false,
@@ -41,29 +41,17 @@ export function PricingModal({ children, trigger }: PricingModalProps) {
       description: 'Unlock unlimited potential for growing teams.',
       features: [
         'Unlimited Workspaces',
-        'Unlimited Storage',
+        '10GB Storage',
+        'Cloud Backup & Sync',
+        'Advanced Search & Filtering',
+        'Unlimited AI Prompts',
+        'Unlimited Code Snippets',
         'Priority Support',
-        'Advanced Analytics',
-        'Team Collaboration',
-        'Custom Domains'
+        'Shareable Links'
       ],
       buttonText: 'Upgrade to Pro',
       highlighted: true,
-    },
-    {
-      name: 'Enterprise',
-      title: "Custom",
-      description: "Tailored solutions for large organizations.",
-      features: [
-        'Dedicated Support',
-        'SSO & Security',
-        'Custom Contracts',
-        'SLA Guarantee',
-        'Onboarding Training'
-      ],
-      buttonText: 'Contact Sales',
-      highlighted: false,
-    },
+    }
   ];
 
   const handleUpgradeClick = () => {
@@ -111,46 +99,53 @@ export function PricingModal({ children, trigger }: PricingModalProps) {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
             {plans.map((plan) => (
               <div
                 key={plan.name}
                 className={cn(
-                  "rounded-2xl p-5 flex flex-col h-full transition-all duration-300",
+                  "rounded-3xl p-8 flex flex-col h-full transition-all duration-300",
                   plan.highlighted
-                    ? "bg-gradient-to-b from-violet-50 to-white dark:from-violet-900/20 dark:to-[#0f1117] border border-violet-100 dark:border-violet-500/30 shadow-xl scale-105 z-10"
-                    : "bg-white dark:bg-[#0f1117] border border-gray-100 dark:border-white/10 shadow-md hover:shadow-lg scale-100"
+                    ? "bg-violet-50 dark:bg-violet-900/10 border-2 border-violet-500 shadow-xl z-10"
+                    : "bg-white dark:bg-card border border-gray-200 dark:border-white/10 shadow-sm hover:shadow-md"
                 )}
               >
-                <div className="mb-3">
+                <div className="mb-6">
                    <span className={cn(
-                      "px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wider",
-                      plan.highlighted ? "bg-violet-600 text-white" : "bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-300"
+                      "px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider",
+                      plan.highlighted 
+                        ? "bg-violet-600 text-white" 
+                        : "bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-300"
                    )}>
                       {plan.name}
                    </span>
                 </div>
 
-                <div className="mb-2 min-h-[32px] flex items-end">
+                <div className="mb-4 min-h-[40px] flex items-end">
                   {plan.title ? (
-                       <h3 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">{plan.title}</h3>
+                       <h3 className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">{plan.title}</h3>
                   ) : (
                       <div className="flex items-baseline">
-                          <span className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">{plan.price}</span>
-                          <span className="text-gray-500 dark:text-gray-400 ml-1 text-xs font-medium">{plan.period}</span>
+                          <span className="text-5xl font-extrabold text-gray-900 dark:text-white tracking-tight">{plan.price}</span>
+                          <span className="text-gray-500 dark:text-gray-400 ml-2 text-base font-medium">{plan.period}</span>
                       </div>
                   )}
                 </div>
 
-                <p className="text-gray-500 dark:text-gray-400 text-xs leading-relaxed mb-4 flex-grow font-medium">
+                <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed mb-8 font-medium">
                   {plan.description}
                 </p>
 
-                <div className="space-y-2.5 mb-6">
+                <div className="space-y-4 mb-8 flex-grow">
                   {plan.features.map((feature, i) => (
-                    <div key={i} className="flex items-start gap-2.5">
-                      <Check className={cn("w-3.5 h-3.5 flex-shrink-0 mt-0.5", plan.highlighted ? "text-violet-600 dark:text-violet-400" : "text-gray-400 dark:text-gray-500")} strokeWidth={3} />
-                      <span className="text-xs text-gray-700 dark:text-gray-300 font-semibold">{feature}</span>
+                    <div key={i} className="flex items-start gap-3">
+                      <div className={cn(
+                        "mt-0.5 w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0",
+                        plan.highlighted ? "bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400" : "bg-gray-100 dark:bg-white/5 text-gray-500 dark:text-gray-400"
+                      )}>
+                        <Check className="w-3 h-3" strokeWidth={3} />
+                      </div>
+                      <span className="text-sm text-gray-700 dark:text-gray-300 font-medium">{feature}</span>
                     </div>
                   ))}
                 </div>

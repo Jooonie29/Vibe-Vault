@@ -51,6 +51,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { NotificationsPanel } from "@/components/notifications/NotificationsPanel";
+import { PricingModal } from "@/components/pricing/PricingModal";
 import { DashboardStatCard } from "./DashboardStatCard";
 import { ProductivityChart, ProductivityData } from "./ProductivityChart";
 
@@ -569,11 +570,14 @@ export function Dashboard() {
               </h4>
               <ul className="space-y-2">
                 {[
-                  "Unlimited workspaces",
-                  "10GB storage",
-                  "Advanced analytics",
-                  "Priority support",
-                  "Team collaboration",
+                  "Unlimited Workspaces",
+                  "10GB Storage",
+                  "Cloud Backup & Sync",
+                  "Advanced Search & Filtering",
+                  "Unlimited AI Prompts",
+                  "Unlimited Code Snippets",
+                  "Priority Support",
+                  "Shareable Links"
                 ].map((feature, i) => (
                   <li
                     key={i}
@@ -586,16 +590,15 @@ export function Dashboard() {
               </ul>
             </div>
 
-            <Button
-              className="w-full bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700"
-              onClick={() => {
-                setShowLearnMore(false);
-                toast.success("Redirecting to pricing...");
-              }}
-            >
-              <Zap className="w-4 h-4 mr-2" />
-              Upgrade Now
-            </Button>
+            <PricingModal trigger={
+              <Button
+                className="w-full bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700"
+                onClick={() => setShowLearnMore(false)}
+              >
+                <Zap className="w-4 h-4 mr-2" />
+                Upgrade to Pro
+              </Button>
+            } />
           </div>
         </DialogContent>
       </Dialog>
