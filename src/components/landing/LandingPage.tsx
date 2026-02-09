@@ -225,9 +225,9 @@ export function LandingPage() {
               transition={{ delay: 0.1 }}
               className="text-5xl md:text-6xl lg:text-7xl font-bold text-gray-900 mb-6 leading-[1.1] tracking-tight"
             >
-              The Central Vault for your{' '}
+              The Central Vault for every{' '}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-blue-600">
-                Developer Brain
+                Vibe Coder
               </span>
             </motion.h1>
 
@@ -892,9 +892,9 @@ export function LandingPage() {
             <div>
               <h4 className="font-semibold text-gray-900 mb-6">Products</h4>
               <ul className="space-y-4 text-gray-500">
-                <li><a href="#" className="hover:text-violet-600 transition-colors">Features</a></li>
-                <li><a href="#" className="hover:text-violet-600 transition-colors">Pricing</a></li>
-                <li><a href="#" className="hover:text-violet-600 transition-colors">Integrations</a></li>
+                <li><a href="#features" className="hover:text-violet-600 transition-colors">Features</a></li>
+                <li><a href="#pricing" className="hover:text-violet-600 transition-colors">Pricing</a></li>
+                <li><a href="#faq" className="hover:text-violet-600 transition-colors">Integrations</a></li>
               </ul>
             </div>
 

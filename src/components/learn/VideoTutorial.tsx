@@ -70,7 +70,7 @@ export const VideoTutorial = () => {
       {/* Featured Video */}
       <div className="relative rounded-2xl overflow-hidden bg-gray-900 aspect-video md:aspect-[21/9] group cursor-pointer shadow-xl">
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent z-10" />
-        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=2948&auto=format&fit=crop')] bg-cover bg-center opacity-60 group-hover:scale-105 transition-transform duration-700" />
+        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1587620962725-abab7fe55159?q=80&w=2831&auto=format&fit=crop')] bg-cover bg-center opacity-60 group-hover:scale-105 transition-transform duration-700" />
         
         <div className="absolute inset-0 z-20 flex items-center justify-center">
           <div className="w-20 h-20 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
@@ -84,7 +84,7 @@ export const VideoTutorial = () => {
           <Badge className="bg-violet-600 hover:bg-violet-700 text-white border-none mb-4">
             New Arrival
           </Badge>
-          <h2 className="text-3xl font-bold text-white mb-2">Vault Vibe 2.0 Walkthrough</h2>
+          <h2 className="text-3xl font-bold text-white mb-2">Vault Vibe 1.0 Walkthrough</h2>
           <p className="text-gray-200 max-w-2xl mb-4 line-clamp-2">
             Explore the latest features including the new AI assistant, enhanced project management tools, and improved team collaboration workflows.
           </p>
