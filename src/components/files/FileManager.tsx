@@ -302,22 +302,20 @@ export function FileManager() {
           </p>
         </div>
       ) : (
-        <AnimatePresence mode="popLayout">
-          <motion.div
-            layout
-            className={
-              viewMode === "grid"
-                ? "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"
-                : "space-y-4"
-            }
-          >
-            {filteredFiles.map((file, index) => {
-              const FileIcon = getFileIcon(file.fileType);
-              const isImage = file.fileType?.startsWith("image/");
+        <div
+          className={
+            viewMode === "grid"
+              ? "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"
+              : "space-y-4"
+          }
+        >
+          {filteredFiles.map((file, index) => {
+            const FileIcon = getFileIcon(file.fileType);
+            const isImage = file.fileType?.startsWith("image/");
 
-              return (
-                <motion.div key={file.id} layout>
-                  {viewMode === "grid" ? (
+            return (
+              <div key={file.id}>
+                {viewMode === "grid" ? (
                     <div className="group relative bg-card rounded-[24px] p-4 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_20px_40px_-12px_rgba(0,0,0,0.12)] transition-all duration-300 border border-border h-full flex flex-col z-0 hover:z-10">
                       {/* Preview */}
                       <div className="aspect-square bg-muted/50 rounded-2xl mb-5 flex items-center justify-center overflow-hidden relative group-hover:shadow-inner transition-shadow">
@@ -438,12 +436,11 @@ export function FileManager() {
                         </Button>
                       </div>
                     </div>
-                  )}
-                </motion.div>
-              );
-            })}
-          </motion.div>
-        </AnimatePresence>
+                )}
+              </div>
+            );
+          })}
+        </div>
       )}
 
       {/* Preview Modal */}
