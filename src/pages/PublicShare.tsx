@@ -176,7 +176,7 @@ const PublicSharePage = () => {
       <div className="max-w-5xl mx-auto px-6 py-10 space-y-8">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <img src="/logo-black.png" alt="Vault Vibe" className="w-5 h-5" />
+            <img src="/Vault Vibe_black.png" alt="Vault Vibe" className="w-5 h-5" />
             <span className="font-bold text-gray-900">Vault Vibe</span>
           </div>
           <Link className="text-sm font-semibold text-violet-600 hover:underline" to="/">Open Vault Vibe</Link>

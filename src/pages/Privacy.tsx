@@ -10,6 +10,13 @@ const Privacy = () => {
       <Helmet>
         <title>Privacy Policy - Vault Vibe</title>
         <meta name="description" content="Read our Privacy Policy to understand how Vault Vibe collects, uses, and protects your personal data." />
+        <meta property="og:title" content="Privacy Policy - Vault Vibe" />
+        <meta property="og:description" content="Read our Privacy Policy to understand how Vault Vibe collects, uses, and protects your personal data." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://vaultvibe.xyz/privacy" />
+        <meta property="og:image" content="https://vaultvibe.xyz/vibe-vault-logo.png" />
+        <meta property="og:image:alt" content="Vault Vibe logo" />
+        <link rel="canonical" href="https://vaultvibe.xyz/privacy" />
       </Helmet>
       {/* Header */}
       <header className="border-b border-gray-100 bg-white/80 backdrop-blur-md sticky top-0 z-50">
@@ -163,7 +170,7 @@ const Privacy = () => {
       <footer className="border-t border-gray-100 bg-white py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-2">
-            <img src="/logo.png" alt="Vault Vibe" className="w-8 h-8 object-contain" />
+            <img src="/Vault Vibe_black.png" alt="Vault Vibe" className="w-8 h-8 object-contain" />
             <span className="font-bold text-xl text-gray-900 tracking-tight">Vault Vibe</span>
           </div>
           <div className="flex items-center gap-8 text-sm text-gray-500">

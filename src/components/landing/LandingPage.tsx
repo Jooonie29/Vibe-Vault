@@ -154,6 +154,30 @@ export function LandingPage() {
         <meta property="og:title" content="Vault Vibe - The Central Vault for every Vibe Coder" />
         <meta property="og:description" content="Clean infrastructure to organize your prompts, assets, and code snippets. Built for the modern vibe coder who values clarity over noise." />
         <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://vaultvibe.xyz/" />
+        <meta property="og:image" content="https://vaultvibe.xyz/vibe-vault-logo.png" />
+        <meta property="og:image:alt" content="Vault Vibe logo" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Vault Vibe - The Central Vault for every Vibe Coder" />
+        <meta name="twitter:description" content="Clean infrastructure to organize your prompts, assets, and code snippets. Built for the modern vibe coder who values clarity over noise." />
+        <meta name="twitter:image" content="https://vaultvibe.xyz/vibe-vault-logo.png" />
+        <link rel="canonical" href="https://vaultvibe.xyz/" />
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "SoftwareApplication",
+            "name": "Vault Vibe",
+            "url": "https://vaultvibe.xyz/",
+            "applicationCategory": "BusinessApplication",
+            "operatingSystem": "Web",
+            "description": "Clean infrastructure to organize your prompts, assets, and code snippets.",
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "USD"
+            }
+          })}
+        </script>
       </Helmet>
       {/* Header */}
       <header className="absolute top-0 left-0 right-0 z-50 border-b border-transparent">
@@ -161,7 +185,7 @@ export function LandingPage() {
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <div className="flex items-center gap-2">
-              <img src="/logo.png" alt="Vault Vibe" className="w-8 h-8 object-contain" />
+              <img src="/Vault Vibe_black.png" alt="Vault Vibe" className="w-8 h-8 object-contain" />
               <span className="font-bold text-xl text-gray-900">Vault Vibe</span>
             </div>
 
@@ -413,14 +437,14 @@ export function LandingPage() {
           >
             {[...Array(12)].map((_, i) => (
               <div key={i} className="flex items-center gap-4">
-                <img src="/logo.png" alt="" className="w-8 h-8 object-contain opacity-50 grayscale hover:opacity-100 hover:grayscale-0 transition-all cursor-default" />
+                <img src="/Vault Vibe_black.png" alt="" className="w-8 h-8 object-contain opacity-50 grayscale hover:opacity-100 hover:grayscale-0 transition-all cursor-default" />
                 <span className="text-xl font-bold text-gray-400 tracking-tight">Vault Vibe</span>
               </div>
             ))}
             {/* Duplicate for seamless loop */}
             {[...Array(12)].map((_, i) => (
               <div key={`dup-${i}`} className="flex items-center gap-4">
-                <img src="/logo.png" alt="" className="w-8 h-8 object-contain opacity-50 grayscale hover:opacity-100 hover:grayscale-0 transition-all cursor-default" />
+                <img src="/Vault Vibe_black.png" alt="" className="w-8 h-8 object-contain opacity-50 grayscale hover:opacity-100 hover:grayscale-0 transition-all cursor-default" />
                 <span className="text-xl font-bold text-gray-400 tracking-tight">Vibe Vault</span>
               </div>
             ))}
@@ -888,7 +912,7 @@ export function LandingPage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-12 mb-16 px-4">
             <div className="col-span-2">
               <div className="flex items-center gap-2 mb-6">
-                <img src="/logo.png" alt="Vault Vibe" className="w-8 h-8 object-contain" />
+                <img src="/Vault Vibe_black.png" alt="Vault Vibe" className="w-8 h-8 object-contain" />
                 <span className="font-bold text-xl text-gray-900 tracking-tight">Vault Vibe</span>
               </div>
               <p className="text-gray-500 max-w-sm leading-relaxed">

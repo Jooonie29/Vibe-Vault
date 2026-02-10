@@ -88,12 +88,12 @@ export function Sidebar() {
       <div className={`p-4 flex items-center ${sidebarCollapsed ? 'justify-center' : 'justify-between'} border-b border-sidebar-border/50 h-16 relative`}>
         <div className={`flex items-center ${sidebarCollapsed ? 'justify-center' : 'gap-3'}`}>
           <img
-            src="/logo-black.png"
+            src="/Vault Vibe_black.png"
             alt="Vault Vibe"
             className={`${sidebarCollapsed ? 'w-8 h-8' : 'w-10 h-10'} object-contain transition-all duration-300 dark:hidden`}
           />
           <img
-            src="/logo-white.png"
+            src="/Vault Vibe_white.png"
             alt="Vault Vibe"
             className={`${sidebarCollapsed ? 'w-8 h-8' : 'w-10 h-10'} object-contain transition-all duration-300 hidden dark:block`}
           />

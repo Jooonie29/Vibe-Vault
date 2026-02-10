@@ -281,8 +281,8 @@ export function TeamOnboarding() {
       <aside className="w-64 bg-sidebar border-r border-sidebar-border flex flex-col fixed left-0 top-0 bottom-0 z-30 text-sidebar-foreground">
         {/* Logo */}
         <div className="p-6 flex items-center gap-3">
-          <img src="/logo-black.png" alt="Vault Vibe" className="w-8 h-8 object-contain dark:hidden" />
-          <img src="/vibe logo white.png" alt="Vault Vibe" className="w-8 h-8 object-contain hidden dark:block" />
+          <img src="/Vault Vibe_black.png" alt="Vault Vibe" className="w-8 h-8 object-contain dark:hidden" />
+          <img src="/Vault Vibe_white.png" alt="Vault Vibe" className="w-8 h-8 object-contain hidden dark:block" />
           <span className="font-extrabold text-2xl text-sidebar-foreground tracking-tighter">Vault Vibe</span>
         </div>
 

@@ -17,6 +17,13 @@ const Contact = () => {
       <Helmet>
         <title>Contact Us - Vault Vibe</title>
         <meta name="description" content="Get in touch with the Vault Vibe team. We're here to help with support, feedback, and inquiries." />
+        <meta property="og:title" content="Contact Us - Vault Vibe" />
+        <meta property="og:description" content="Get in touch with the Vault Vibe team. We're here to help with support, feedback, and inquiries." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://vaultvibe.xyz/contact" />
+        <meta property="og:image" content="https://vaultvibe.xyz/vibe-vault-logo.png" />
+        <meta property="og:image:alt" content="Vault Vibe logo" />
+        <link rel="canonical" href="https://vaultvibe.xyz/contact" />
       </Helmet>
       <header className="border-b border-gray-100 bg-white/80 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
@@ -175,7 +182,7 @@ const Contact = () => {
       <footer className="border-t border-gray-100 bg-white py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-2">
-            <img src="/logo.png" alt="Vault Vibe" className="w-8 h-8 object-contain" />
+            <img src="/Vault Vibe_black.png" alt="Vault Vibe" className="w-8 h-8 object-contain" />
             <span className="font-bold text-xl text-gray-900 tracking-tight">Vault Vibe</span>
           </div>
           <div className="flex items-center gap-8 text-sm text-gray-500">

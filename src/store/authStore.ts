@@ -3,7 +3,6 @@ import { create } from 'zustand';
 // Supabase removed for Clerk
 import { Profile } from '@/types';
 import { ConvexHttpClient } from "convex/browser";
-// @ts-ignore
 import { api } from '../../convex/_generated/api';
 
 const convex = new ConvexHttpClient(import.meta.env.VITE_CONVEX_URL || "");

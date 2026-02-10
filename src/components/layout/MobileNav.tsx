@@ -25,12 +25,12 @@ export function MobileNav() {
         <div className="flex items-center justify-between px-4 h-14">
           <div className="flex items-center gap-2">
             <img
-              src="/logo-black.png"
+              src="/Vault Vibe_black.png"
               alt="Vault Vibe"
               className="w-9 h-9 object-contain dark:hidden"
             />
             <img
-              src="/logo-white.png"
+              src="/Vault Vibe_white.png"
               alt="Vault Vibe"
               className="w-9 h-9 object-contain hidden dark:block"
             />
@@ -69,12 +69,12 @@ export function MobileNav() {
             <div className="p-4 border-b border-border">
               <div className="flex items-center gap-3">
                 <img
-                  src="/logo-black.png"
+                  src="/Vault Vibe_black.png"
                   alt="Vault Vibe"
                   className="w-11 h-11 object-contain dark:hidden"
                 />
                 <img
-                  src="/logo-white.png"
+                  src="/Vault Vibe_white.png"
                   alt="Vault Vibe"
                   className="w-11 h-11 object-contain hidden dark:block"
                 />
