@@ -14,7 +14,7 @@ export const getConversations = query({
         q.eq("teamId", args.teamId)
       )
       .order("desc")
-      .take(50);
+      .take(100);
 
     // Filter conversations where user is a participant
     const userConversations = conversations.filter((conv) =>
@@ -32,24 +32,33 @@ export const getConversations = query({
                 .query("profiles")
                 .withIndex("by_userId", (q) => q.eq("userId", pid))
                 .unique();
+              
+              if (!profile) return null;
+
               return {
                 userId: pid,
-                username: profile?.username,
-                fullName: profile?.fullName,
-                avatarUrl: profile?.avatarUrl,
+                username: profile.username,
+                fullName: profile.fullName,
+                avatarUrl: profile.avatarUrl,
               };
             })
         );
 
+        const validParticipants = participantProfiles.filter((p): p is NonNullable<typeof p> => p !== null);
+
         return {
           ...conv,
-          participants: participantProfiles,
+          participants: validParticipants,
           unreadCount: conv.unreadCount?.[args.userId] || 0,
         };
       })
     );
 
-    return conversationsWithProfiles;
+    // Filter out direct conversations with no valid participants (e.g. deleted users)
+    // Keep groups even if empty participants (edge case) or handle them separately
+    return conversationsWithProfiles.filter(conv => 
+      conv.isGroup || conv.participants.length > 0
+    );
   },
 });
 

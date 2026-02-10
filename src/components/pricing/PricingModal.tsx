@@ -122,14 +122,10 @@ export function PricingModal({ children, trigger }: PricingModalProps) {
                 </div>
 
                 <div className="mb-4 min-h-[40px] flex items-end">
-                  {plan.title ? (
-                       <h3 className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">{plan.title}</h3>
-                  ) : (
-                      <div className="flex items-baseline">
-                          <span className="text-5xl font-extrabold text-gray-900 dark:text-white tracking-tight">{plan.price}</span>
-                          <span className="text-gray-500 dark:text-gray-400 ml-2 text-base font-medium">{plan.period}</span>
-                      </div>
-                  )}
+                  <div className="flex items-baseline">
+                    <span className="text-5xl font-extrabold text-gray-900 dark:text-white tracking-tight">{plan.price}</span>
+                    <span className="text-gray-500 dark:text-gray-400 ml-2 text-base font-medium">{plan.period}</span>
+                  </div>
                 </div>
 
                 <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed mb-8 font-medium">

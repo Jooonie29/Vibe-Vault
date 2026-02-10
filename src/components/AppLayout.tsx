@@ -137,12 +137,14 @@ const AppLayout: React.FC = () => {
   }, [currentView]);
 
   const isInitializing = !isLoaded || storeLoading;
+  const isWorkspaceReady = isSignedIn && !!activeTeamId;
   
-  // For first visit: wait for both loading AND animation to complete
-  // For refresh: just wait for loading to complete
-  const shouldShowInitLoader = isFirstVisit 
-    ? (isInitializing || (isSignedIn && postAuthLoading) || showLoader) 
-    : isInitializing;
+  // Only show the initial loader when opening a workspace
+  const shouldShowInitLoader = isWorkspaceReady && (
+    isFirstVisit
+      ? (isInitializing || postAuthLoading || showLoader)
+      : isInitializing
+  );
 
   // Helper to render specific view content
   const renderViewContent = (view: string) => {
@@ -220,24 +222,24 @@ const AppLayout: React.FC = () => {
   }
 
   // Show refresh loader for page refreshes (not first visit)
-  if (!isFirstVisit && isInitializing) {
+  if (!isFirstVisit && isWorkspaceReady && isInitializing) {
     return <RefreshLoading message="Refreshing Vault Vibe..." />;
   }
 
   // Show refresh loader for post-auth on refreshes
-  if (!isFirstVisit && isSignedIn && postAuthLoading) {
+  if (!isFirstVisit && isWorkspaceReady && postAuthLoading) {
     return <RefreshLoading message="Preparing your vault..." />;
   }
 
   return (
     <>
       {/* First Visit: Initial Loading Animation - Always completes */}
-      {isFirstVisit && (
+      {isFirstVisit && isWorkspaceReady && (
         <VaultLoading 
           message="Loading Vault Vibe..."
           subMessage="Unlocking your creative assets"
           variant="initialize"
-          isLoading={isInitializing || (isSignedIn && postAuthLoading)}
+          isLoading={isInitializing || postAuthLoading}
           onAnimationComplete={() => setShowLoader(false)}
         />
       )}
