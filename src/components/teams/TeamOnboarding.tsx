@@ -3,7 +3,7 @@ import {
   Users, ArrowRight, Plus, KeyRound, LogOut, Search, Bell, Grid, List,
   MoreHorizontal, Layout, Star, BookOpen, MessageCircle, HelpCircle,
   Video, MessageSquare, Heart, Image as ImageIcon, X, Loader2, Shield, Sun, Moon,
-  Zap, Crown, ChevronRight, Settings, Info, Check
+  Zap, Crown, ChevronRight, Settings, Info, Check, Globe
 } from 'lucide-react';
 import { useMutation, useQuery } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
@@ -417,6 +417,42 @@ export function TeamOnboarding() {
         <div className="flex-1 px-8 pb-8 overflow-y-auto">
           {activeSection === 'all-workspaces' && (
             <div className="max-w-7xl mx-auto space-y-12">
+              {/* Extension Banner */}
+              <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-violet-600 to-indigo-600 p-10 md:p-12 text-white shadow-2xl shadow-violet-500/20">
+                <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none" />
+                <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-black/10 rounded-full blur-3xl translate-y-1/3 -translate-x-1/3 pointer-events-none" />
+                
+                <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
+                  <div className="max-w-2xl">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="p-2 bg-white/20 backdrop-blur-md rounded-xl">
+                        <Globe className="w-5 h-5 text-white" />
+                      </div>
+                      <span className="text-sm font-bold uppercase tracking-wider text-violet-100">Browser Extension</span>
+                    </div>
+                    <h2 className="text-3xl md:text-4xl font-bold mb-4 leading-tight">
+                      Capture Inspiration Instantly
+                    </h2>
+                    <p className="text-lg text-violet-100 leading-relaxed max-w-xl">
+                      Save code snippets, AI prompts, and resources from any website directly to your workspaces with our new Chrome extension.
+                    </p>
+                  </div>
+                  
+                  <div className="shrink-0">
+                    <a
+                      href="https://chromewebstore.google.com/detail/jnccjanpckbocjldchbheeafhbacgljm?utm_source=item-share-cb"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group flex items-center gap-3 bg-white text-violet-600 px-8 py-4 rounded-2xl font-bold text-lg hover:bg-violet-50 transition-all shadow-xl shadow-black/5 hover:scale-105"
+                    >
+                      <img src="/chrome.svg" alt="" className="w-6 h-6" />
+                      Add to Chrome
+                      <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                    </a>
+                  </div>
+                </div>
+              </div>
+
               {/* Create Section */}
               <section>
                 <div className="mb-6">

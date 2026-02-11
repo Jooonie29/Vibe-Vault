@@ -638,10 +638,15 @@ export function LandingPage() {
                 ))}
               </div>
 
-              <button className="bg-gray-200 text-gray-500 px-8 py-3.5 rounded-full text-base font-medium cursor-not-allowed flex items-center gap-2 shadow-none">
+              <a 
+                href="https://chromewebstore.google.com/detail/jnccjanpckbocjldchbheeafhbacgljm?utm_source=item-share-cb"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-gray-900 text-white px-8 py-3.5 rounded-full text-base font-medium hover:bg-gray-800 transition-all flex items-center gap-2 shadow-lg hover:shadow-xl w-fit"
+              >
                 <Globe className="w-4 h-4" />
-                Coming Soon
-              </button>
+                Add Extension
+              </a>
             </motion.div>
 
             {/* Visual */}
