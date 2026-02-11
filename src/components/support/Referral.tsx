@@ -2,11 +2,18 @@ import React, { useMemo, useState } from 'react';
 import { Gift, Copy, Check, Mail, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { useAuthStore } from '@/store/authStore';
+import { useQuery } from 'convex/react';
+import { api } from '../../../convex/_generated/api';
 
 export const Referral = () => {
   const [copied, setCopied] = useState(false);
   const [email, setEmail] = useState('');
   const { user, profile } = useAuthStore();
+  const referrals = useQuery(api.referrals.getReferralsForUser, user?.id ? { userId: user.id } : "skip");
+  const referredProfiles = useQuery(
+    api.profiles.getProfilesByUserIds,
+    referrals?.length ? { userIds: referrals.map((ref) => ref.referredUserId) } : "skip"
+  );
   const referralCode = useMemo(() => {
     if (profile?.referralCode) {
       return profile.referralCode;
@@ -17,10 +24,23 @@ export const Referral = () => {
       user?.emailAddresses?.[0]?.emailAddress ||
       user?.id ||
       'invite';
-    return encodeURIComponent(String(raw).trim().toLowerCase().replace(/\s+/g, ''));
+    const base = String(raw)
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '')
+      .slice(0, 16);
+    const suffix = user?.id ? user.id.slice(-6).toLowerCase() : '';
+    return encodeURIComponent(`${base || 'user'}${suffix ? `-${suffix}` : ''}`);
   }, [profile?.referralCode, user]);
   const referralLink = `${typeof window !== 'undefined' ? window.location.origin : 'https://vaultvibe.xyz'}/r/${referralCode}`;
   const isValidEmail = useMemo(() => /\S+@\S+\.\S+/.test(email), [email]);
+  const referralsList = useMemo(() => referrals || [], [referrals]);
+  const profileMap = useMemo(() => {
+    const map = new Map<string, any>();
+    (referredProfiles || []).forEach((p: any) => map.set(p.userId, p));
+    return map;
+  }, [referredProfiles]);
+  const monthsEarned = Math.min(referralsList.length, 2);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(referralLink);
@@ -108,9 +128,37 @@ export const Referral = () => {
 
             {/* Stats */}
             <div className="grid grid-cols-3 gap-4 pt-8 border-t border-gray-100 dark:border-white/10">
-                <StatBox label="Friends Invited" value="0" />
-                <StatBox label="Clicks" value="0" />
-                <StatBox label="Months Earned" value="0" />
+                <StatBox label="Friends Invited" value={String(referralsList.length)} />
+                <StatBox label="Clicks" value={String(referralsList.length)} />
+                <StatBox label="Months Earned" value={String(monthsEarned)} />
+            </div>
+
+            <div className="space-y-3">
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Recent Signups</h3>
+                {referralsList.length === 0 ? (
+                  <div className="text-sm text-muted-foreground">No referrals yet.</div>
+                ) : (
+                  <div className="space-y-2">
+                    {referralsList.map((ref) => {
+                      const profile = profileMap.get(ref.referredUserId);
+                      const label = profile?.fullName || profile?.username || profile?.email || 'New user';
+                      return (
+                        <div
+                          key={ref._id}
+                          className="flex items-center justify-between bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-xl px-4 py-3"
+                        >
+                          <div className="flex flex-col">
+                            <span className="text-sm font-medium text-gray-900 dark:text-white">{label}</span>
+                            <span className="text-xs text-muted-foreground">
+                              Joined {new Date(ref.createdAt).toLocaleDateString()}
+                            </span>
+                          </div>
+                          <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">+1 month</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
             </div>
         </div>
       </div>

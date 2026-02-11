@@ -45,6 +45,12 @@ const AppLayout: React.FC = () => {
   const navigate = useNavigate();
   
   const [showLoader, setShowLoader] = useState(true);
+  const [showRefreshSplash, setShowRefreshSplash] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    const entries = performance.getEntriesByType('navigation');
+    const nav = entries[0] as PerformanceNavigationTiming | undefined;
+    return nav?.type === 'reload';
+  });
   
   // Detect if this is the first visit or a refresh
   const [isFirstVisit, setIsFirstVisit] = useState(() => {
@@ -63,6 +69,12 @@ const AppLayout: React.FC = () => {
   useEffect(() => {
     initialize();
   }, [initialize]);
+
+  useEffect(() => {
+    if (!showRefreshSplash) return;
+    const timer = setTimeout(() => setShowRefreshSplash(false), 800);
+    return () => clearTimeout(timer);
+  }, [showRefreshSplash]);
 
 
 
@@ -190,6 +202,7 @@ const AppLayout: React.FC = () => {
 
   const isInitializing = !isLoaded || storeLoading;
   const isWorkspaceReady = isSignedIn && !!activeTeamId;
+  const shouldShowRefreshLoader = !isFirstVisit && (showRefreshSplash || isInitializing || postAuthLoading) && (!isLoaded || isSignedIn);
   
   // Only show the initial loader when opening a workspace
   const shouldShowInitLoader = isWorkspaceReady && (
@@ -252,6 +265,14 @@ const AppLayout: React.FC = () => {
       marginRight: 0,
     };
 
+  if (shouldShowRefreshLoader) {
+    return (
+      <RefreshLoading
+        message={postAuthLoading ? "Preparing your vault..." : "Refreshing Vault Vibe..."}
+      />
+    );
+  }
+
   // Show landing page for unauthenticated users
   if (!isSignedIn && !shouldShowInitLoader) {
     return (
@@ -271,16 +292,6 @@ const AppLayout: React.FC = () => {
         <ToastContainer />
       </>
     );
-  }
-
-  // Show refresh loader for page refreshes (not first visit)
-  if (!isFirstVisit && isWorkspaceReady && isInitializing) {
-    return <RefreshLoading message="Refreshing Vault Vibe..." />;
-  }
-
-  // Show refresh loader for post-auth on refreshes
-  if (!isFirstVisit && isWorkspaceReady && postAuthLoading) {
-    return <RefreshLoading message="Preparing your vault..." />;
   }
 
   return (

@@ -26,13 +26,23 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 export function Settings() {
   const { signOut: clerkSignOut } = useAuth();
   const { user: clerkUser } = useUser();
   const { theme, setTheme } = useTheme();
   const { user, profile, updateProfile, signOut: clearAuthStore } = useAuthStore();
-  const { addToast } = useUIStore();
+  const { addToast, setActiveTeamId, setCurrentView } = useUIStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const userId = user?.id || "";
 
@@ -44,6 +54,8 @@ export function Settings() {
   });
   const [isPasswordOpen, setIsPasswordOpen] = useState(false);
   const [passwordLoading, setPasswordLoading] = useState(false);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
   const [passwordForm, setPasswordForm] = useState({
     currentPassword: '',
     newPassword: '',
@@ -70,10 +82,31 @@ export function Settings() {
   const generateUploadUrl = useMutation(api.files.generateUploadUrl);
   const markNotificationRead = useMutation(api.notifications.markNotificationRead);
   const markAllNotificationsRead = useMutation(api.notifications.markAllNotificationsRead);
+  const deleteAccountData = useMutation(api.account.deleteAccountData);
 
   const handleSignOut = async () => {
     await clerkSignOut();
     await clearAuthStore();
+    setActiveTeamId(null);
+    setCurrentView('dashboard');
+  };
+  const handleDeleteAccount = async () => {
+    if (!userId || !clerkUser) return;
+    setDeleteLoading(true);
+    try {
+      await deleteAccountData({ userId });
+      await clerkUser.delete();
+      await clearAuthStore();
+      setActiveTeamId(null);
+      setCurrentView('dashboard');
+      addToast({ type: 'success', title: 'Account deleted', message: 'Your account has been removed.' });
+      window.location.href = '/';
+    } catch (error: any) {
+      addToast({ type: 'error', title: 'Delete failed', message: error?.message || 'Unable to delete account.' });
+    } finally {
+      setDeleteLoading(false);
+      setIsDeleteOpen(false);
+    }
   };
 
   const notifications = useQuery(api.notifications.getNotifications, { userId });
@@ -415,12 +448,40 @@ export function Settings() {
               <h4 className="font-medium text-foreground">Delete Account</h4>
               <p className="text-sm text-muted-foreground">Permanently delete your account and all data</p>
             </div>
-            <Button variant="danger" size="sm">
+            <Button variant="danger" size="sm" onClick={() => setIsDeleteOpen(true)}>
               Delete Account
             </Button>
           </div>
         </div>
       </Card>
+
+      <AlertDialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
+        <AlertDialogContent className="rounded-[32px] p-8 border-none shadow-2xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-2xl font-black tracking-tight text-gray-900 dark:text-white">
+              Delete account
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-base text-gray-500 dark:text-muted-foreground mt-2">
+              This action cannot be undone. Your account and all data will be permanently removed.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="mt-8 gap-3">
+            <AlertDialogCancel disabled={deleteLoading} className="rounded-2xl font-bold py-6 border-gray-200 dark:border-white/10">
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                handleDeleteAccount();
+              }}
+              disabled={deleteLoading}
+              className="rounded-2xl font-black py-6 bg-red-600 hover:bg-red-700 text-white shadow-lg shadow-red-500/20"
+            >
+              {deleteLoading ? 'Deleting...' : 'Delete account'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

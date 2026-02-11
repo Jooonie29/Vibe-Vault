@@ -17,6 +17,15 @@ export default defineSchema({
         .index("by_referralCode", ["referralCode"])
         .searchIndex("search_email", { searchField: "email" }),
 
+    referrals: defineTable({
+        referrerUserId: v.string(),
+        referredUserId: v.string(),
+        referralCode: v.optional(v.string()),
+        createdAt: v.number(),
+    })
+        .index("by_referrerUserId", ["referrerUserId"])
+        .index("by_referredUserId", ["referredUserId"]),
+
     items: defineTable({
         userId: v.string(),
         teamId: v.optional(v.id("teams")),

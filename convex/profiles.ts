@@ -116,10 +116,24 @@ export const applyReferral = mutation({
     },
     handler: async (ctx, args) => {
         const normalizedCode = args.referralCode.trim().toLowerCase();
-        const referrer = await ctx.db
+        let referrer = await ctx.db
             .query("profiles")
             .withIndex("by_referralCode", (q) => q.eq("referralCode", normalizedCode))
             .unique();
+
+        if (!referrer) {
+            const legacyMatch = await ctx.db.query("profiles").collect();
+            referrer = legacyMatch.find((profile) => {
+                if (profile.username && profile.username.toLowerCase() === normalizedCode) {
+                    return true;
+                }
+                if (profile.email) {
+                    const localPart = profile.email.split("@")[0]?.toLowerCase();
+                    return localPart === normalizedCode;
+                }
+                return false;
+            }) || null;
+        }
 
         if (!referrer || referrer.userId === args.userId) {
             return { applied: false, reason: "invalid" };
@@ -149,6 +163,20 @@ export const applyReferral = mutation({
             referredBy: referrer.userId,
             proTrialEndsAt: newTrialEndsAt,
         });
+
+        const existingReferral = await ctx.db
+            .query("referrals")
+            .withIndex("by_referredUserId", (q) => q.eq("referredUserId", args.userId))
+            .first();
+
+        if (!existingReferral) {
+            await ctx.db.insert("referrals", {
+                referrerUserId: referrer.userId,
+                referredUserId: args.userId,
+                referralCode: normalizedCode,
+                createdAt: now,
+            });
+        }
 
         const referrerTrialBase =
             referrer.proTrialEndsAt && referrer.proTrialEndsAt > now
