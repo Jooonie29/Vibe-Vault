@@ -8,6 +8,9 @@ export interface Profile {
   username?: string;
   fullName?: string;
   avatarUrl?: string;
+  referralCode?: string;
+  referredBy?: string;
+  proTrialEndsAt?: number;
   _creationTime: number;
 }
 

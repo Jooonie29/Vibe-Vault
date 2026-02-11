@@ -1,15 +1,41 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Gift, Copy, Check, Mail, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import { useAuthStore } from '@/store/authStore';
 
 export const Referral = () => {
   const [copied, setCopied] = useState(false);
-  const referralLink = "https://vaultvibe.app/r/johndoe123";
+  const [email, setEmail] = useState('');
+  const { user, profile } = useAuthStore();
+  const referralCode = useMemo(() => {
+    if (profile?.referralCode) {
+      return profile.referralCode;
+    }
+    const raw =
+      user?.username ||
+      user?.primaryEmailAddress?.emailAddress ||
+      user?.emailAddresses?.[0]?.emailAddress ||
+      user?.id ||
+      'invite';
+    return encodeURIComponent(String(raw).trim().toLowerCase().replace(/\s+/g, ''));
+  }, [profile?.referralCode, user]);
+  const referralLink = `https://vaulvibe.xyz/r/${referralCode}`;
+  const isValidEmail = useMemo(() => /\S+@\S+\.\S+/.test(email), [email]);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(referralLink);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleEmailInvite = () => {
+    if (!isValidEmail) return;
+    const subject = encodeURIComponent('Join me on Vault Vibe');
+    const body = encodeURIComponent(
+      `I’m using Vault Vibe to save and organize code snippets and AI prompts. Join with this link: ${referralLink}`
+    );
+    window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
+    setEmail('');
   };
 
   return (
@@ -65,9 +91,16 @@ export const Referral = () => {
                 <input 
                     type="email" 
                     placeholder="Enter friend's email address" 
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     className="flex-1 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-violet-500 focus:border-transparent outline-none"
                 />
-                <Button variant="secondary" className="bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100">
+                <Button
+                  variant="secondary"
+                  onClick={handleEmailInvite}
+                  disabled={!isValidEmail}
+                  className="bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100"
+                >
                     <Mail className="w-4 h-4 mr-2" />
                     Send Invite
                 </Button>

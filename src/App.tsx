@@ -10,6 +10,7 @@ import NotFound from "./pages/NotFound";
 import PublicSharePage from "./pages/PublicShare";
 import PublicBoardPage from "./pages/PublicBoard";
 import ExtensionAuthComplete from "./pages/ExtensionAuthComplete";
+import ReferralRedirect from "./pages/ReferralRedirect";
 import Privacy from "./pages/Privacy";
 import AboutUs from "./pages/AboutUs";
 import Blog from "./pages/Blog";
@@ -76,6 +77,7 @@ const App = () => {
               <BrowserRouter>
                 <Routes>
                   <Route path="/" element={<Index />} />
+                  <Route path="/r/:code" element={<ReferralRedirect />} />
                   <Route path="/share/:token" element={<PublicSharePage />} />
                   <Route path="/share/board/:token" element={<PublicBoardPage />} />
                   <Route path="/extension-auth-complete" element={<ExtensionAuthComplete />} />

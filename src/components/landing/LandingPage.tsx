@@ -103,7 +103,7 @@ const plans = [
       'Unlimited AI Prompts',
       'Community Support'
     ],
-    cta: 'Current Plan',
+    cta: 'Get Started Free',
     popular: false
   },
   {
@@ -120,7 +120,7 @@ const plans = [
         'Priority Support',
         'Shareable Links'
       ],
-    cta: 'Upgrade to Pro',
+    cta: 'Choose Pro',
     popular: true
   }
 ];

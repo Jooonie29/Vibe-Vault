@@ -4,6 +4,9 @@ import { Zap, Crown, ChevronRight, Info, Check } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { PricingModal } from '@/components/pricing/PricingModal';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { ClerkLoaded, SignedIn } from '@clerk/clerk-react';
+import { CheckoutProvider } from '@clerk/clerk-react/experimental';
+import { CheckoutDrawer } from '@/components/pricing/CheckoutDrawer';
 
 interface PlanUsageCardProps {
   workspacesUsed: number;
@@ -21,6 +24,7 @@ export function PlanUsageCard({
   isPro = false
 }: PlanUsageCardProps) {
   const [showLearnMore, setShowLearnMore] = useState(false);
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
 
   const workspacesPercent = Math.min((workspacesUsed / workspacesLimit) * 100, 100);
   const storagePercent = Math.min((storageUsed / storageLimit) * 100, 100);
@@ -175,18 +179,41 @@ export function PlanUsageCard({
               </ul>
             </div>
 
-            <PricingModal trigger={
-              <Button
-                className="w-full h-14 rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white font-bold text-base shadow-xl shadow-violet-600/20 mt-2"
-                onClick={() => setShowLearnMore(false)}
-              >
-                <Zap className="w-4 h-4 mr-2" />
-                Upgrade to Pro
-              </Button>
-            } />
+            <Button
+              className="w-full h-14 rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white font-bold text-base shadow-xl shadow-violet-600/20 mt-2"
+              onClick={() => {
+                setShowLearnMore(false);
+                setCheckoutOpen(true);
+              }}
+            >
+              <Zap className="w-4 h-4 mr-2" />
+              Upgrade to Pro
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
+
+      <ClerkLoaded>
+        <SignedIn>
+          <CheckoutProvider
+            for="user"
+            planId="cplan_39IDnSQQbze6jNELLRKP4tXpcLT"
+            planPeriod="month"
+          >
+            <CheckoutDrawer
+              isOpen={checkoutOpen}
+              onClose={() => setCheckoutOpen(false)}
+              planId="cplan_39IDnSQQbze6jNELLRKP4tXpcLT"
+              planPeriod="month"
+              planName="Pro"
+              planPrice="$5.00/month"
+              planDescription="Unlock unlimited potential for growing teams."
+              monthlyPrice={5}
+              isAnnual={false}
+            />
+          </CheckoutProvider>
+        </SignedIn>
+      </ClerkLoaded>
     </>
   );
 }

@@ -152,11 +152,7 @@ function InnerApp() {
               ? clerk.buildSignInUrl({ signInForceRedirectUrl: REDIRECT_URL })
               : undefined;
             if (url) {
-              if (typeof chrome !== 'undefined' && chrome.tabs?.create) {
-                chrome.tabs.create({ url });
-              } else {
-                window.open(url, '_blank');
-              }
+              window.open(url, '_blank');
             } else {
               try {
                 await clerk.redirectToSignIn({ signInForceRedirectUrl: REDIRECT_URL });

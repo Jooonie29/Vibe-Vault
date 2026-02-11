@@ -1,6 +1,18 @@
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
 
+const TRIAL_DURATION_MS = 30 * 24 * 60 * 60 * 1000;
+
+const buildReferralCode = (userId: string, seed?: string) => {
+    const base = (seed || "user")
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9]+/g, "")
+        .slice(0, 16);
+    const suffix = userId.slice(-6).toLowerCase();
+    return `${base || "user"}-${suffix}`;
+};
+
 export const getProfile = query({
     args: { userId: v.string() },
     handler: async (ctx, args) => {
@@ -19,6 +31,9 @@ export const updateProfile = mutation({
             fullName: v.optional(v.string()),
             avatarUrl: v.optional(v.string()),
             email: v.optional(v.string()),
+            referralCode: v.optional(v.string()),
+            referredBy: v.optional(v.string()),
+            proTrialEndsAt: v.optional(v.number()),
         }),
     },
     handler: async (ctx, args) => {
@@ -28,12 +43,26 @@ export const updateProfile = mutation({
             .unique();
 
         if (existing) {
-            await ctx.db.patch(existing._id, args.updates);
+            const referralCode =
+                existing.referralCode ||
+                args.updates.referralCode ||
+                buildReferralCode(
+                    args.userId,
+                    args.updates.username || args.updates.email || existing.username || existing.email
+                );
+            await ctx.db.patch(existing._id, {
+                ...args.updates,
+                referralCode,
+            });
             return existing._id;
         } else {
+            const referralCode =
+                args.updates.referralCode ||
+                buildReferralCode(args.userId, args.updates.username || args.updates.email);
             return await ctx.db.insert("profiles", {
                 userId: args.userId,
                 ...args.updates,
+                referralCode,
             });
         }
     },
@@ -53,22 +82,88 @@ export const syncUser = mutation({
             .unique();
 
         if (existing) {
+            const referralCode =
+                existing.referralCode ||
+                buildReferralCode(args.userId, existing.username || args.email);
             if (existing.email !== args.email || existing.fullName !== args.fullName || existing.avatarUrl !== args.avatarUrl) {
                 await ctx.db.patch(existing._id, {
                     email: args.email,
                     fullName: args.fullName || existing.fullName,
                     avatarUrl: args.avatarUrl || existing.avatarUrl,
+                    referralCode,
                 });
+            } else if (!existing.referralCode) {
+                await ctx.db.patch(existing._id, { referralCode });
             }
             return existing._id;
         } else {
+            const referralCode = buildReferralCode(args.userId, args.email);
             return await ctx.db.insert("profiles", {
                 userId: args.userId,
                 email: args.email,
                 fullName: args.fullName,
                 avatarUrl: args.avatarUrl,
+                referralCode,
             });
         }
+    },
+});
+
+export const applyReferral = mutation({
+    args: {
+        userId: v.string(),
+        referralCode: v.string(),
+    },
+    handler: async (ctx, args) => {
+        const normalizedCode = args.referralCode.trim().toLowerCase();
+        const referrer = await ctx.db
+            .query("profiles")
+            .withIndex("by_referralCode", (q) => q.eq("referralCode", normalizedCode))
+            .unique();
+
+        if (!referrer || referrer.userId === args.userId) {
+            return { applied: false, reason: "invalid" };
+        }
+
+        let profile = await ctx.db
+            .query("profiles")
+            .withIndex("by_userId", (q) => q.eq("userId", args.userId))
+            .unique();
+
+        if (!profile) {
+            const referralCode = buildReferralCode(args.userId, args.userId);
+            const profileId = await ctx.db.insert("profiles", {
+                userId: args.userId,
+                referralCode,
+            });
+            profile = await ctx.db.get(profileId);
+        }
+
+        const now = Date.now();
+        if (profile?.referredBy || (profile?.proTrialEndsAt && profile.proTrialEndsAt > now)) {
+            return { applied: false, reason: "already_applied" };
+        }
+
+        const newTrialEndsAt = now + TRIAL_DURATION_MS;
+        await ctx.db.patch(profile!._id, {
+            referredBy: referrer.userId,
+            proTrialEndsAt: newTrialEndsAt,
+        });
+
+        const referrerTrialBase =
+            referrer.proTrialEndsAt && referrer.proTrialEndsAt > now
+                ? referrer.proTrialEndsAt
+                : now;
+        const referrerMaxEndsAt = now + TRIAL_DURATION_MS * 2;
+        const extendedReferrerEndsAt = Math.min(
+            referrerTrialBase + TRIAL_DURATION_MS,
+            referrerMaxEndsAt
+        );
+        await ctx.db.patch(referrer._id, {
+            proTrialEndsAt: extendedReferrerEndsAt,
+        });
+
+        return { applied: true };
     },
 });
 

@@ -67,6 +67,7 @@ export function Sidebar() {
   const teams = useQuery(api.teams.getTeamsForUser, user ? { userId: user.id } : "skip");
   const { data: projects } = useProjects();
   const usage = useQuery(api.usage.getPlanUsage, user ? { userId: user.id } : "skip");
+  const isPro = Boolean(profile?.proTrialEndsAt && profile.proTrialEndsAt > Date.now());
 
   const workspacesLimit = usage?.workspaces.limit || 3;
   const workspacesUsed = usage?.workspaces.used || 0;
@@ -156,10 +157,6 @@ export function Sidebar() {
               </DropdownMenuItem>
             ))}
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => openModal('team-onboarding')} className="text-violet-600 font-medium">
-              <Plus className="w-4 h-4 mr-2" />
-              Create workspace
-            </DropdownMenuItem>
             <DropdownMenuItem onClick={() => setActiveTeamId(null)} className="text-muted-foreground">
               <LayoutGrid className="w-4 h-4 mr-2" />
               Back to menu
@@ -208,7 +205,7 @@ export function Sidebar() {
             workspacesLimit={workspacesLimit}
             storageUsed={storageUsed}
             storageLimit={storageLimit}
-            isPro={false} // This will be dynamic based on user subscription
+            isPro={isPro}
           />
         )}
 

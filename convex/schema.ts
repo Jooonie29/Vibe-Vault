@@ -8,9 +8,13 @@ export default defineSchema({
         fullName: v.optional(v.string()),
         avatarUrl: v.optional(v.string()),
         email: v.optional(v.string()),
+        referralCode: v.optional(v.string()),
+        referredBy: v.optional(v.string()),
+        proTrialEndsAt: v.optional(v.number()),
     })
         .index("by_userId", ["userId"])
         .index("by_email", ["email"])
+        .index("by_referralCode", ["referralCode"])
         .searchIndex("search_email", { searchField: "email" }),
 
     items: defineTable({

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useCheckout, PaymentElementProvider, PaymentElement, usePaymentElement } from '@clerk/clerk-react/experimental';
-import { X, CreditCard, CheckCircle2, Loader2, Lock, HelpCircle } from 'lucide-react';
+import { X, CreditCard, CheckCircle2, Loader2, Lock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface CheckoutDrawerProps {
@@ -15,17 +15,6 @@ interface CheckoutDrawerProps {
   isAnnual: boolean;
   annualTotal?: number;
   annualSavings?: number;
-}
-
-// Test card info component - compact inline version
-function TestCardInfo() {
-  return (
-    <div className="flex items-center gap-2 p-2 bg-blue-50 border border-blue-100 rounded-lg text-[10px] text-blue-700">
-      <HelpCircle className="w-3 h-3 flex-shrink-0" />
-      <span className="font-medium">Test mode:</span>
-      <span className="text-blue-600">4242 4242 4242 4242 | Any future date | Any CVC</span>
-    </div>
-  );
 }
 
 // Payment form component that uses PaymentElement
@@ -61,9 +50,6 @@ function PaymentForm({ onSuccess }: { onSuccess: () => void }) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-3">
-      {/* Test Card Info - inline */}
-      <TestCardInfo />
-      
       {/* Payment Element Container */}
       <div className="bg-white border border-gray-200 rounded-lg p-3 shadow-sm">
         <PaymentElement 
@@ -114,7 +100,7 @@ function PaymentForm({ onSuccess }: { onSuccess: () => void }) {
 
       <p className="text-[10px] text-gray-400 text-center flex items-center justify-center gap-1">
         <Lock className="w-3 h-3" />
-        Secure payment by Stripe
+        Secure payment by Clerk
       </p>
     </form>
   );

@@ -38,7 +38,7 @@ const AppLayout: React.FC = () => {
   const { isLoaded, isSignedIn, user: clerkUser } = useUser();
   const { getToken } = useAuth();
   const { user: storeUser, loading: storeLoading, initialized, initialize, postAuthLoading, setUser, fetchProfile } = useAuthStore();
-  const { currentView, sidebarCollapsed, activeTeamId, setActiveTeamId, addToast } = useUIStore();
+  const { currentView, sidebarCollapsed, activeTeamId, setActiveTeamId, addToast, openModal } = useUIStore();
   const isMobile = useIsMobile();
   
   const [showLoader, setShowLoader] = useState(true);
@@ -64,6 +64,7 @@ const AppLayout: React.FC = () => {
 
 
   const updateProfile = useMutation(api.profiles.updateProfile);
+  const applyReferral = useMutation(api.profiles.applyReferral);
   const migrateLegacyOwnerItemsToTeam = useMutation(api.items.migrateLegacyOwnerItemsToTeam);
   const migrateLegacyOwnerTagsToTeam = useMutation(api.tags.migrateLegacyOwnerTagsToTeam);
 
@@ -94,6 +95,41 @@ const AppLayout: React.FC = () => {
     };
     syncProfile();
   }, [isLoaded, isSignedIn, clerkUser, setUser, updateProfile, fetchProfile]);
+
+  useEffect(() => {
+    if (!isLoaded || isSignedIn) return;
+    const shouldOpenSignup = sessionStorage.getItem("vaultvibe_referral_signup");
+    if (shouldOpenSignup) {
+      openModal("auth", { view: "register" });
+      sessionStorage.removeItem("vaultvibe_referral_signup");
+    }
+  }, [isLoaded, isSignedIn, openModal]);
+
+  useEffect(() => {
+    if (!isLoaded || !isSignedIn || !clerkUser) return;
+    const referralCode = localStorage.getItem("vaultvibe_referral_code");
+    if (!referralCode) return;
+
+    const runReferral = async () => {
+      try {
+        const result = await applyReferral({ userId: clerkUser.id, referralCode });
+        if (result?.applied) {
+          addToast({
+            type: "success",
+            title: "Referral applied",
+            message: "Your free month of Pro is active.",
+          });
+        }
+        await fetchProfile();
+      } catch (error) {
+        console.error("Failed to apply referral:", error);
+      } finally {
+        localStorage.removeItem("vaultvibe_referral_code");
+      }
+    };
+
+    runReferral();
+  }, [isLoaded, isSignedIn, clerkUser, applyReferral, addToast, fetchProfile]);
 
   useEffect(() => {
     if (!isLoaded || !isSignedIn || !clerkUser || !activeTeamId) return;

@@ -52,6 +52,9 @@ import {
 } from "@/components/ui/dialog";
 import { NotificationsPanel } from "@/components/notifications/NotificationsPanel";
 import { PricingModal } from "@/components/pricing/PricingModal";
+import { CheckoutDrawer } from "@/components/pricing/CheckoutDrawer";
+import { CheckoutProvider } from "@clerk/clerk-react/experimental";
+import { ClerkLoaded, SignedIn } from "@clerk/clerk-react";
 import { DashboardStatCard } from "./DashboardStatCard";
 import { ProductivityChart, ProductivityData } from "./ProductivityChart";
 
@@ -195,6 +198,7 @@ export function Dashboard() {
 
   const [showAllActivity, setShowAllActivity] = useState(false);
   const [showLearnMore, setShowLearnMore] = useState(false);
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
   const selectedTimeOption = timeOptions.find((opt) => opt.value === timePeriod) || timeOptions[1];
 
   const handlePeriodChange = (period: TimePeriod) => {
@@ -590,18 +594,41 @@ export function Dashboard() {
               </ul>
             </div>
 
-            <PricingModal trigger={
-              <Button
-                className="w-full bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700"
-                onClick={() => setShowLearnMore(false)}
-              >
-                <Zap className="w-4 h-4 mr-2" />
-                Upgrade to Pro
-              </Button>
-            } />
+            <Button
+              className="w-full bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700"
+              onClick={() => {
+                setShowLearnMore(false);
+                setCheckoutOpen(true);
+              }}
+            >
+              <Zap className="w-4 h-4 mr-2" />
+              Upgrade to Pro
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
+
+      <ClerkLoaded>
+        <SignedIn>
+          <CheckoutProvider
+            for="user"
+            planId="cplan_39IDnSQQbze6jNELLRKP4tXpcLT"
+            planPeriod="month"
+          >
+            <CheckoutDrawer
+              isOpen={checkoutOpen}
+              onClose={() => setCheckoutOpen(false)}
+              planId="cplan_39IDnSQQbze6jNELLRKP4tXpcLT"
+              planPeriod="month"
+              planName="Pro"
+              planPrice="$5.00/month"
+              planDescription="Unlock unlimited potential for growing teams."
+              monthlyPrice={5}
+              isAnnual={false}
+            />
+          </CheckoutProvider>
+        </SignedIn>
+      </ClerkLoaded>
     </div>
   );
 }

@@ -76,3 +76,21 @@ Built with a clean, dark-mode friendly interface that fits perfectly into your d
 4. Your assets are safe, organized, and ready to use.
 
 **Get started today and turn your scattered discoveries into a powerful personal library.**
+
+---
+
+## 🔒 Privacy Practices (Chrome Web Store)
+
+### Data Handling Summary
+- This extension stores selected text and preferences locally in your browser.
+- Saved items are synced to your Vault Vibe account when you sign in.
+- No data is sold or shared with third parties.
+
+### Data Usage Disclosures
+- **Personal data:** User account data is used only for authentication and syncing.
+- **Website content:** Selected text is captured only when the user explicitly chooses “Save to Vault Vibe”.
+- **Storage:** Local browser storage is used for temporary data (pending selection, cached workspaces).
+
+### Permissions Justification
+- **contextMenus:** Lets you save highlighted text via right‑click.
+- **storage:** Stores pending selections and workspace preferences.

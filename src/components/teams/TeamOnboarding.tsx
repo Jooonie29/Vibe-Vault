@@ -65,6 +65,7 @@ export function TeamOnboarding() {
 
   const teams = useQuery(api.teams.getTeamsForUser, userId ? { userId } : 'skip');
   const usage = useQuery(api.usage.getPlanUsage, userId ? { userId } : "skip");
+  const isPro = Boolean(profile?.proTrialEndsAt && profile.proTrialEndsAt > Date.now());
 
   const workspacesLimit = usage?.workspaces.limit || 3;
   const workspacesUsed = usage?.workspaces.used || 0;
@@ -323,7 +324,7 @@ export function TeamOnboarding() {
             workspacesLimit={workspacesLimit}
             storageUsed={storageUsed}
             storageLimit={storageLimit}
-            isPro={false} // This will be dynamic based on user subscription
+            isPro={isPro}
           />
 
           <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/50 transition-all duration-200 cursor-pointer mt-4" onClick={() => setActiveSection('settings')}>
@@ -656,8 +657,23 @@ export function TeamOnboarding() {
             />
           </div>
           <div className="flex justify-end gap-3">
-            <Button variant="ghost" onClick={() => setIsCreateModalOpen(false)} className="font-bold text-muted-foreground">Cancel</Button>
-            <Button onClick={handleCreateTeam} loading={creating} className="min-w-[160px] font-black py-6 rounded-2xl shadow-lg shadow-violet-500/10">Create Workspace</Button>
+            <Button
+              variant="ghost"
+              size="md"
+              onClick={() => setIsCreateModalOpen(false)}
+              className="font-semibold text-muted-foreground px-4 py-2"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleCreateTeam}
+              loading={creating}
+              disabled={!teamForm.name.trim()}
+              size="md"
+              className="min-w-[140px] font-semibold rounded-xl shadow-lg shadow-violet-500/10 px-5 py-2.5"
+            >
+              Create Workspace
+            </Button>
           </div>
         </div>
       </Modal>

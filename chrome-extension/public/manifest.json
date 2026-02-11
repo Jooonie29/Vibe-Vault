@@ -3,8 +3,7 @@
   "name": "Vault Vibe",
   "version": "1.0",
   "description": "Save code snippets and AI prompts from any webpage directly to your Vault Vibe library. Organize by workspace and sync instantly.",
-  "permissions": ["contextMenus", "storage", "activeTab", "scripting"],
-  "optional_permissions": ["tabs"],
+  "permissions": ["contextMenus", "storage"],
   "background": {
     "service_worker": "background.js",
     "type": "module"
@@ -21,8 +20,5 @@
   "content_security_policy": {
     "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self';"
   },
-  "host_permissions": [
-    "https://*/*",
-    "http://*/*"
-  ]
+  "host_permissions": []
 }

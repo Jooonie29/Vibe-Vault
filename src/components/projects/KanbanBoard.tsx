@@ -20,10 +20,10 @@ export function KanbanBoard() {
   const { data: projects, isLoading } = useProjects();
   const updateStatus = useUpdateProjectStatus();
   const { openModal, activeTeamId } = useUIStore();
-  const { user } = useAuthStore();
+  const { user, profile } = useAuthStore();
 
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
-  const isPro = false;
+  const isPro = Boolean(profile?.proTrialEndsAt && profile.proTrialEndsAt > Date.now());
 
   const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return;

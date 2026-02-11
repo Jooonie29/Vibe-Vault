@@ -9,9 +9,11 @@ import { CheckoutDrawer } from './CheckoutDrawer';
 interface PricingModalProps {
   children?: React.ReactNode;
   trigger?: React.ReactNode;
+  onOpenChange?: (open: boolean) => void;
+  startCheckoutOnOpen?: boolean;
 }
 
-export function PricingModal({ children, trigger }: PricingModalProps) {
+export function PricingModal({ children, trigger, onOpenChange, startCheckoutOnOpen }: PricingModalProps) {
   const [open, setOpen] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'quarterly'>('monthly');
@@ -68,7 +70,19 @@ export function PricingModal({ children, trigger }: PricingModalProps) {
 
   return (
     <>
-      <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog
+        open={open}
+        onOpenChange={(nextOpen) => {
+          if (nextOpen && startCheckoutOnOpen) {
+            setOpen(false);
+            setCheckoutOpen(true);
+            onOpenChange?.(false);
+            return;
+          }
+          setOpen(nextOpen);
+          onOpenChange?.(nextOpen);
+        }}
+      >
         <DialogTrigger asChild>{triggerElement}</DialogTrigger>
         <DialogContent className="max-w-5xl w-[95vw] p-6 bg-[#FDFBFF] dark:bg-[#0a0a0f] border-none shadow-2xl overflow-y-auto max-h-[90vh]" onClick={e => e.stopPropagation()}>
           <div className="flex flex-col items-center text-center mb-6">
