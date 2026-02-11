@@ -25,6 +25,7 @@ import { CommandPalette } from '@/components/command/CommandPalette';
 import { ToastContainer } from '@/components/ui/Toast.tsx';
 import { VaultLoading } from '@/components/loading/VaultLoading';
 import { RefreshLoading } from '@/components/loading/RefreshLoading';
+import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Documentation } from '@/components/learn/Documentation';
 import { VideoTutorial } from '@/components/learn/VideoTutorial';
@@ -247,7 +248,22 @@ const AppLayout: React.FC = () => {
       case 'community':
         return <Community />;
       case 'referral':
-        return <Referral />;
+        return (
+          <ErrorBoundary
+            fallback={
+              <div className="max-w-3xl mx-auto p-6">
+                <div className="bg-card rounded-2xl border border-border p-6 text-center">
+                  <h3 className="text-lg font-semibold text-foreground mb-2">Referral unavailable</h3>
+                  <p className="text-sm text-muted-foreground">
+                    The referral service is updating. Please refresh in a moment.
+                  </p>
+                </div>
+              </div>
+            }
+          >
+            <Referral />
+          </ErrorBoundary>
+        );
       case 'help':
         return <HelpCenter />;
       case 'settings':
