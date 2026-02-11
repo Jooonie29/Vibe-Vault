@@ -1,7 +1,8 @@
 import { useMutation } from 'convex/react';
 import { api } from '../../convex/_generated/api';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useUser, useAuth } from "@clerk/clerk-react";
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/store/authStore';
 import { useUIStore } from '@/store/uiStore';
 import { Sidebar } from '@/components/layout/Sidebar';
@@ -40,6 +41,8 @@ const AppLayout: React.FC = () => {
   const { user: storeUser, loading: storeLoading, initialized, initialize, postAuthLoading, setUser, fetchProfile } = useAuthStore();
   const { currentView, sidebarCollapsed, activeTeamId, setActiveTeamId, addToast, openModal } = useUIStore();
   const isMobile = useIsMobile();
+  const location = useLocation();
+  const navigate = useNavigate();
   
   const [showLoader, setShowLoader] = useState(true);
   
@@ -65,6 +68,12 @@ const AppLayout: React.FC = () => {
 
   const updateProfile = useMutation(api.profiles.updateProfile);
   const applyReferral = useMutation(api.profiles.applyReferral);
+
+  const referralParams = useMemo(() => {
+    const params = new URLSearchParams(location.search);
+    const ref = params.get("ref") || params.get("referral");
+    return ref ? ref.toLowerCase() : "";
+  }, [location.search]);
   const migrateLegacyOwnerItemsToTeam = useMutation(api.items.migrateLegacyOwnerItemsToTeam);
   const migrateLegacyOwnerTagsToTeam = useMutation(api.tags.migrateLegacyOwnerTagsToTeam);
 
@@ -98,12 +107,19 @@ const AppLayout: React.FC = () => {
 
   useEffect(() => {
     if (!isLoaded || isSignedIn) return;
+    if (referralParams) {
+      localStorage.setItem("vaultvibe_referral_code", referralParams);
+      sessionStorage.setItem("vaultvibe_referral_signup", "true");
+      openModal("auth", { view: "register" });
+      navigate("/", { replace: true });
+      return;
+    }
     const shouldOpenSignup = sessionStorage.getItem("vaultvibe_referral_signup");
     if (shouldOpenSignup) {
       openModal("auth", { view: "register" });
       sessionStorage.removeItem("vaultvibe_referral_signup");
     }
-  }, [isLoaded, isSignedIn, openModal]);
+  }, [isLoaded, isSignedIn, openModal, referralParams, navigate]);
 
   useEffect(() => {
     if (!isLoaded || !isSignedIn || !clerkUser) return;

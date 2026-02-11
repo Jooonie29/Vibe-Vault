@@ -19,7 +19,7 @@ export const Referral = () => {
       'invite';
     return encodeURIComponent(String(raw).trim().toLowerCase().replace(/\s+/g, ''));
   }, [profile?.referralCode, user]);
-  const referralLink = `https://vaulvibe.xyz/r/${referralCode}`;
+  const referralLink = `${typeof window !== 'undefined' ? window.location.origin : 'https://vaultvibe.xyz'}/r/${referralCode}`;
   const isValidEmail = useMemo(() => /\S+@\S+\.\S+/.test(email), [email]);
 
   const handleCopy = () => {
