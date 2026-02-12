@@ -445,8 +445,8 @@ export function TeamOnboarding() {
                       rel="noopener noreferrer"
                       className="group flex items-center gap-3 bg-white text-violet-600 px-8 py-4 rounded-2xl font-bold text-lg hover:bg-violet-50 transition-all shadow-xl shadow-black/5 hover:scale-105"
                     >
-                      <img src="/chrome.svg" alt="" className="w-6 h-6" />
-                      Add to Chrome
+                      <Globe className="w-6 h-6" />
+                      Add Extension
                       <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                     </a>
                   </div>
