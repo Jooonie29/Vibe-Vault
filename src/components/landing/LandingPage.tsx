@@ -111,15 +111,15 @@ const plans = [
     price: '$5',
     description: 'Unlock unlimited potential for growing teams.',
     features: [
-        'Unlimited Workspaces',
-        '10GB Storage',
-        'Cloud Backup & Sync',
-        'Advanced Search & Filtering',
-        'Unlimited AI Prompts',
-        'Unlimited Code Snippets',
-        'Priority Support',
-        'Shareable Links'
-      ],
+      'Unlimited Workspaces',
+      '10GB Storage',
+      'Cloud Backup & Sync',
+      'Advanced Search & Filtering',
+      'Unlimited AI Prompts',
+      'Unlimited Code Snippets',
+      'Priority Support',
+      'Shareable Links'
+    ],
     cta: 'Choose Pro',
     popular: true
   }
@@ -130,6 +130,15 @@ export function LandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'quarterly'>('monthly');
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   useEffect(() => {
     const lenis = new Lenis();
@@ -149,16 +158,16 @@ export function LandingPage() {
   return (
     <div className="min-h-screen bg-white overflow-x-hidden">
       <Helmet>
-        <title>Vault Vibe - The Central Vault for every Vibe Coder</title>
+        <title>Vault Vibe - Save AI Prompts & Code Snippets | Vibe Coding Vault</title>
         <meta name="description" content="Clean infrastructure to organize your prompts, assets, and code snippets. Built for the modern vibe coder who values clarity over noise." />
-        <meta property="og:title" content="Vault Vibe - The Central Vault for every Vibe Coder" />
+        <meta property="og:title" content="Vault Vibe - Save AI Prompts & Code Snippets | Vibe Coding Vault" />
         <meta property="og:description" content="Clean infrastructure to organize your prompts, assets, and code snippets. Built for the modern vibe coder who values clarity over noise." />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://vaultvibe.xyz/" />
         <meta property="og:image" content="https://vaultvibe.xyz/vibe-vault-logo.png" />
         <meta property="og:image:alt" content="Vault Vibe logo" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Vault Vibe - The Central Vault for every Vibe Coder" />
+        <meta name="twitter:title" content="Vault Vibe - Save AI Prompts & Code Snippets | Vibe Coding Vault" />
         <meta name="twitter:description" content="Clean infrastructure to organize your prompts, assets, and code snippets. Built for the modern vibe coder who values clarity over noise." />
         <meta name="twitter:image" content="https://vaultvibe.xyz/vibe-vault-logo.png" />
         <link rel="canonical" href="https://vaultvibe.xyz/" />
@@ -180,7 +189,8 @@ export function LandingPage() {
         </script>
       </Helmet>
       {/* Header */}
-      <header className="absolute top-0 left-0 right-0 z-50 border-b border-transparent">
+      <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-white/80 backdrop-blur-md border-b border-gray-100 shadow-sm' : 'bg-transparent border-transparent'
+        }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
@@ -310,14 +320,14 @@ export function LandingPage() {
             >
               <motion.div
                 animate={{ y: [0, -12, 0] }}
-                transition={{ 
-                  duration: 5, 
-                  repeat: Infinity, 
+                transition={{
+                  duration: 5,
+                  repeat: Infinity,
                   ease: "easeInOut",
                   delay: 0
                 }}
-                whileHover={{ 
-                  scale: 1.05, 
+                whileHover={{
+                  scale: 1.05,
                   rotate: -2,
                   boxShadow: "0 20px 40px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)"
                 }}
@@ -350,14 +360,14 @@ export function LandingPage() {
             >
               <motion.div
                 animate={{ y: [0, -15, 0] }}
-                transition={{ 
-                  duration: 6, 
-                  repeat: Infinity, 
+                transition={{
+                  duration: 6,
+                  repeat: Infinity,
                   ease: "easeInOut",
-                  delay: 1 
+                  delay: 1
                 }}
-                whileHover={{ 
-                  scale: 1.05, 
+                whileHover={{
+                  scale: 1.05,
                   rotate: 2,
                   boxShadow: "0 20px 40px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)"
                 }}
@@ -387,13 +397,13 @@ export function LandingPage() {
             >
               <motion.div
                 animate={{ y: [0, -8, 0] }}
-                transition={{ 
-                  duration: 4.5, 
-                  repeat: Infinity, 
+                transition={{
+                  duration: 4.5,
+                  repeat: Infinity,
                   ease: "easeInOut",
-                  delay: 0.5 
+                  delay: 0.5
                 }}
-                whileHover={{ 
+                whileHover={{
                   scale: 1.05,
                   boxShadow: "0 20px 40px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)"
                 }}
@@ -501,7 +511,7 @@ export function LandingPage() {
                             <div className="w-2 h-2 rounded-full bg-violet-200" />
                             <span className="ml-2 font-mono">useAuth.ts</span>
                           </div>
-                          <motion.div 
+                          <motion.div
                             variants={{ hover: { x: 10, scale: 1.02 } }}
                             transition={{ duration: 0.3 }}
                             className="bg-gray-50 border border-gray-100 rounded-xl p-4 font-mono text-xs text-gray-600"
@@ -524,7 +534,7 @@ export function LandingPage() {
                             </div>
                             <div className="text-sm font-semibold text-gray-900">Refactor Code</div>
                           </div>
-                          <motion.div 
+                          <motion.div
                             variants={{ hover: { rotate: -2, scale: 1.05 } }}
                             transition={{ duration: 0.3 }}
                             className="bg-white border border-gray-100 rounded-xl p-4 text-sm text-gray-600 italic"
@@ -546,7 +556,7 @@ export function LandingPage() {
                             <div className="text-sm font-semibold text-gray-900">design-system.fig</div>
                             <div className="text-xs text-gray-400">2.4 MB • Updated yesterday</div>
                             <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-                              <motion.div 
+                              <motion.div
                                 className="h-full bg-violet-600 rounded-full"
                                 initial={{ width: "66%" }}
                                 variants={{ hover: { width: "90%" } }}
@@ -560,7 +570,7 @@ export function LandingPage() {
                         <div className="space-y-4">
                           <div className="flex items-center justify-between mb-2">
                             <div className="text-sm font-semibold text-gray-900">Project Board</div>
-                            <motion.button 
+                            <motion.button
                               variants={{ hover: { scale: 1.05, backgroundColor: "#f5f3ff", borderColor: "#ddd6fe" } }}
                               className="text-[10px] uppercase tracking-wider font-bold bg-violet-50 text-violet-600 border border-violet-100 px-3 py-1 rounded-full transition-colors"
                             >
@@ -570,9 +580,9 @@ export function LandingPage() {
                           <div className="space-y-2">
                             {['Design System', 'API Integration', 'User Testing'].map((task, i) => (
                               <div key={task} className="flex items-center gap-3 p-3 bg-white rounded-xl border border-gray-100 shadow-sm">
-                                <motion.div 
+                                <motion.div
                                   variants={{ hover: { scale: 1.5 } }}
-                                  className={`w-2 h-2 rounded-full ${i === 2 ? 'bg-gray-200' : 'bg-violet-600'}`} 
+                                  className={`w-2 h-2 rounded-full ${i === 2 ? 'bg-gray-200' : 'bg-violet-600'}`}
                                 />
                                 <span className="text-sm font-medium text-gray-700 flex-1">{task}</span>
                                 <span className={`text-[10px] font-bold uppercase transition-colors ${i === 2 ? 'text-gray-400' : 'text-violet-700'}`}>{i === 0 ? 'Done' : i === 1 ? 'In Progress' : 'Todo'}</span>
@@ -607,16 +617,16 @@ export function LandingPage() {
                 </div>
                 <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Browser Extension</span>
               </div>
-              
+
               <h2 className="text-4xl font-bold text-gray-900 mb-6 leading-tight">
                 Save Prompts & Code <br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-blue-600">
                   Directly from your Browser
                 </span>
               </h2>
-              
+
               <p className="text-lg text-gray-600 mb-8 leading-relaxed">
-                Never lose a genius prompt or useful code snippet again. With the Vault Vibe extension, 
+                Never lose a genius prompt or useful code snippet again. With the Vault Vibe extension,
                 you can capture content from ChatGPT, Claude, Stack Overflow, or any website with a single click.
               </p>
 
@@ -638,7 +648,7 @@ export function LandingPage() {
                 ))}
               </div>
 
-              <a 
+              <a
                 href="https://chromewebstore.google.com/detail/jnccjanpckbocjldchbheeafhbacgljm?utm_source=item-share-cb"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -670,47 +680,47 @@ export function LandingPage() {
                   <div className="bg-gray-900 flex-1 rounded-md h-8 mx-4" />
                 </div>
                 <div className="bg-white rounded-lg p-6 h-[400px] relative overflow-hidden flex flex-col justify-center items-center">
-                  
-                    {/* Website Content Placeholder */}
-                    <div className="absolute top-6 left-6 right-6 space-y-4 opacity-20">
-                      <div className="h-8 bg-gray-900 rounded w-3/4" />
-                      <div className="h-4 bg-gray-900 rounded w-full" />
-                      <div className="h-4 bg-gray-900 rounded w-5/6" />
-                      <div className="h-4 bg-gray-900 rounded w-4/5" />
+
+                  {/* Website Content Placeholder */}
+                  <div className="absolute top-6 left-6 right-6 space-y-4 opacity-20">
+                    <div className="h-8 bg-gray-900 rounded w-3/4" />
+                    <div className="h-4 bg-gray-900 rounded w-full" />
+                    <div className="h-4 bg-gray-900 rounded w-5/6" />
+                    <div className="h-4 bg-gray-900 rounded w-4/5" />
+                  </div>
+
+                  {/* Notification/Popup Visual */}
+                  <motion.div
+                    initial={{ scale: 0.9, opacity: 0 }}
+                    whileInView={{ scale: 1, opacity: 1 }}
+                    transition={{ delay: 0.5 }}
+                    className="relative z-10 bg-white rounded-2xl shadow-2xl border border-violet-100 p-6 w-72"
+                  >
+                    <div className="flex items-center gap-4 mb-4">
+                      <div className="w-12 h-12 bg-violet-100 rounded-xl flex items-center justify-center">
+                        <Save className="w-6 h-6 text-violet-600" />
+                      </div>
+                      <div>
+                        <div className="font-bold text-gray-900">Snippet Saved</div>
+                        <div className="text-xs text-gray-500">Added to "Personal Projects"</div>
+                      </div>
                     </div>
 
-                    {/* Notification/Popup Visual */}
-                    <motion.div 
-                      initial={{ scale: 0.9, opacity: 0 }}
-                      whileInView={{ scale: 1, opacity: 1 }}
-                      transition={{ delay: 0.5 }}
-                      className="relative z-10 bg-white rounded-2xl shadow-2xl border border-violet-100 p-6 w-72"
-                    >
-                      <div className="flex items-center gap-4 mb-4">
-                        <div className="w-12 h-12 bg-violet-100 rounded-xl flex items-center justify-center">
-                          <Save className="w-6 h-6 text-violet-600" />
-                        </div>
-                        <div>
-                          <div className="font-bold text-gray-900">Snippet Saved</div>
-                          <div className="text-xs text-gray-500">Added to "Personal Projects"</div>
-                        </div>
+                    <div className="bg-gray-50 rounded-lg p-3 mb-4 border border-gray-100">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Code2 className="w-4 h-4 text-gray-400" />
+                        <span className="text-xs font-mono text-gray-600">helper.ts</span>
                       </div>
-                      
-                      <div className="bg-gray-50 rounded-lg p-3 mb-4 border border-gray-100">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Code2 className="w-4 h-4 text-gray-400" />
-                          <span className="text-xs font-mono text-gray-600">helper.ts</span>
-                        </div>
-                        <div className="space-y-1">
-                          <div className="h-2 bg-gray-200 rounded w-3/4" />
-                          <div className="h-2 bg-gray-200 rounded w-1/2" />
-                        </div>
+                      <div className="space-y-1">
+                        <div className="h-2 bg-gray-200 rounded w-3/4" />
+                        <div className="h-2 bg-gray-200 rounded w-1/2" />
                       </div>
+                    </div>
 
-                      <button className="w-full bg-violet-600 text-white text-xs font-bold py-2 rounded-lg hover:bg-violet-700 transition-colors">
-                        View in Vault
-                      </button>
-                    </motion.div>
+                    <button className="w-full bg-violet-600 text-white text-xs font-bold py-2 rounded-lg hover:bg-violet-700 transition-colors">
+                      View in Vault
+                    </button>
+                  </motion.div>
 
                 </div>
               </div>
@@ -890,7 +900,7 @@ export function LandingPage() {
           <div className="relative overflow-hidden bg-[#0A0C14] rounded-[3rem] p-12 md:p-24 text-center mb-24 group">
             {/* Interactive Code Background */}
             <InteractiveCodeBackground />
-            
+
             <div className="relative z-10 max-w-2xl mx-auto">
               <motion.h2
                 initial={{ opacity: 0, y: 20 }}
