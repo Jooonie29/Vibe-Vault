@@ -8,7 +8,7 @@ import { useMutation, useQuery } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { useDebounce } from '@/hooks/useDebounce';
+
 
 export function InviteModal() {
   const { activeModal, closeModal, activeTeamId, addToast } = useUIStore();
@@ -33,9 +33,16 @@ export function InviteModal() {
 
   const getOrCreateInviteCode = useMutation(api.teams.getOrCreateInviteCode);
   const inviteMember = useMutation(api.teams.inviteMember);
-  
+
   // Using useQuery for search would be reactive. Let's use useQuery.
-  const debouncedEmail = useDebounce(email, 300);
+  const [debouncedEmail, setDebouncedEmail] = useState(email);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedEmail(email);
+    }, 300);
+    return () => clearTimeout(handler);
+  }, [email]);
   const usersQuery = useQuery(api.profiles.searchUsers, { query: debouncedEmail });
 
   const filteredUsers = useMemo(() => {

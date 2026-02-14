@@ -1,5 +1,6 @@
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
+import { api } from "./_generated/api";
 
 const TRIAL_DURATION_MS = 30 * 24 * 60 * 60 * 1000;
 

@@ -75,9 +75,15 @@ export const timeOptions: TimeOption[] = [
 ];
 
 export function Dashboard() {
+  const { user: storeUser } = useAuthStore();
+  const { openModal, initializedViews, markViewInitialized, openFloatingChatWithUser, activeTeamId } =
+    useUIStore();
+  const [projectId] = useState<string | null>(null); // Placeholder if projects are fetched differently
+  const [timePeriod, setTimePeriod] = useState<TimePeriod>("30days");
+
   const { data: stats, isLoading: statsLoading } = useStats();
   // Optimized: Removed heavy useItems calls
-  const [projectId] = useState<string | null>(null); // Placeholder if projects are fetched differently
+
   // const { data: projects } = useProjects(); // Still need projects for count? The chart query handles it.
   // Wait, DashboardStatCard uses stats?.projects which comes from useStats (api.items.getStats).
   // But we need total project count? api.items.getStats returns it.
@@ -97,12 +103,11 @@ export function Dashboard() {
 
   // const { data: teamMembers, isLoading: teamMembersLoading } = useTeamMembers(); // Keep this
   const { data: teamMembers, isLoading: teamMembersLoading } = useTeamMembers();
-  const { user: storeUser } = useAuthStore();
-  const { openModal, initializedViews, markViewInitialized, openFloatingChatWithUser, activeTeamId } =
-    useUIStore();
+
 
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const notificationButtonRef = React.useRef<HTMLButtonElement>(null);
+
 
   const teams = useQuery(api.teams.getTeamsForUser, storeUser ? { userId: storeUser.id } : "skip");
   const activeTeam = teams?.find(t => t._id === activeTeamId);

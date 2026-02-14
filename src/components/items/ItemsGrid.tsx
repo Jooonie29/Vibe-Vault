@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Search,
@@ -24,7 +24,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Select } from "@/components/ui/Select";
 import { CardSkeleton } from "@/components/ui/Skeleton";
 import { format } from "date-fns";
-import { useDebounce } from "@/hooks/useDebounce";
+
 
 interface ItemsGridProps {
   type: ItemType;
@@ -109,7 +109,25 @@ const getCategoriesByType = (type: ItemType) => {
 };
 
 export function ItemsGrid({ type, title, description }: ItemsGridProps) {
-  const debouncedSearchQuery = useDebounce(searchQuery, 300);
+  const { openModal } = useUIStore();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
+  const [sortBy, setSortBy] = useState<"newest" | "oldest" | "title">("newest");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+
+  const Icon = typeIcons[type];
+  const colors = typeColors[type];
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(searchQuery);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 300);
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [searchQuery]);
 
   // Pagination & Filtering
   const {
