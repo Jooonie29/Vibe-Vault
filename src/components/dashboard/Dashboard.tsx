@@ -76,15 +76,31 @@ export const timeOptions: TimeOption[] = [
 
 export function Dashboard() {
   const { data: stats, isLoading: statsLoading } = useStats();
-  const { data: snippets } = useItems("code");
-  const { data: prompts } = useItems("prompt");
-  const { data: files } = useItems("file");
-  const { data: projects } = useProjects();
+  // Optimized: Removed heavy useItems calls
+  const [projectId] = useState<string | null>(null); // Placeholder if projects are fetched differently
+  // const { data: projects } = useProjects(); // Still need projects for count? The chart query handles it.
+  // Wait, DashboardStatCard uses stats?.projects which comes from useStats (api.items.getStats).
+  // But we need total project count? api.items.getStats returns it.
+
+  // New optimized queries
+  const recentItems = useQuery(api.dashboard.getRecentItems, {
+    userId: storeUser?.id || "",
+    teamId: activeTeamId ? (activeTeamId as any) : undefined,
+    limit: 10
+  });
+
+  const chartData = useQuery(api.dashboard.getChartData, {
+    userId: storeUser?.id || "",
+    teamId: activeTeamId ? (activeTeamId as any) : undefined,
+    timePeriod
+  });
+
+  // const { data: teamMembers, isLoading: teamMembersLoading } = useTeamMembers(); // Keep this
   const { data: teamMembers, isLoading: teamMembersLoading } = useTeamMembers();
   const { user: storeUser } = useAuthStore();
   const { openModal, initializedViews, markViewInitialized, openFloatingChatWithUser, activeTeamId } =
     useUIStore();
-  const [timePeriod, setTimePeriod] = useState<TimePeriod>("30days");
+
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const notificationButtonRef = React.useRef<HTMLButtonElement>(null);
 
@@ -98,97 +114,13 @@ export function Dashboard() {
   );
   const unreadCount = notifications?.filter((n) => !n.read).length || 0;
 
-  const recentItems = useMemo(() => {
-    const all = [...(snippets || []), ...(prompts || []), ...(files || [])];
-    return all.sort(
-      (a, b) => (b as any)._creationTime - (a as any)._creationTime,
-    );
-  }, [snippets, prompts, files]);
+  // recentItems is now fetched directly via query
 
-  const itemsLoading = !snippets || !prompts || !files;
+  const itemsLoading = !recentItems || !chartData;
   const hasInitialized = initializedViews.has("dashboard");
 
-  // Calculate chart data based on selected time period
-  const chartData = useMemo<ProductivityData[]>(() => {
-    if (!snippets || !prompts || !files || !projects) return [];
-
-    const allItems = [...snippets, ...prompts, ...files];
-    const dataPoints: ProductivityData[] = [];
-    const now = new Date();
-    
-    // Determine number of points and interval based on timePeriod
-    let points = 6;
-    let interval: 'day' | 'month' = 'month';
-    
-    switch (timePeriod) {
-      case "7days":
-        points = 7;
-        interval = 'day';
-        break;
-      case "30days":
-        points = 30;
-        interval = 'day';
-        break;
-      case "3months":
-        points = 3;
-        interval = 'month';
-        break;
-      case "6months":
-        points = 6;
-        interval = 'month';
-        break;
-      case "1year":
-        points = 12;
-        interval = 'month';
-        break;
-    }
-
-    // Generate data points
-    for (let i = points - 1; i >= 0; i--) {
-      const date = new Date();
-      let label = '';
-      let filterFn: (date: Date) => boolean;
-
-      if (interval === 'month') {
-        date.setMonth(now.getMonth() - i);
-        label = date.toLocaleString('default', { month: 'short' });
-        const monthIndex = date.getMonth();
-        const year = date.getFullYear();
-        filterFn = (d) => d.getMonth() === monthIndex && d.getFullYear() === year;
-      } else {
-        date.setDate(now.getDate() - i);
-        label = date.toLocaleString('default', { weekday: 'short', day: 'numeric' });
-        // For "Last 7 days" specifically, use just the day name if it fits better
-        if (timePeriod === "7days") {
-          label = date.toLocaleString('default', { weekday: 'short' });
-        }
-        const day = date.getDate();
-        const month = date.getMonth();
-        const year = date.getFullYear();
-        filterFn = (d) => d.getDate() === day && d.getMonth() === month && d.getFullYear() === year;
-      }
-
-      // Count items for this period
-      const itemsCount = allItems.filter(item => {
-        const itemDate = new Date((item as any)._creationTime);
-        return filterFn(itemDate);
-      }).length;
-
-      // Count projects for this period
-      const projectsCount = projects.filter(project => {
-        const projectDate = new Date((project as any)._creationTime);
-        return filterFn(projectDate);
-      }).length;
-
-      dataPoints.push({
-        name: label,
-        items: itemsCount,
-        projects: projectsCount
-      });
-    }
-
-    return dataPoints;
-  }, [snippets, prompts, files, projects, timePeriod]);
+  // Chart data is now fetched directly via useQuery (chartData)
+  // const chartData = useMemo<ProductivityData[]>(() => { ...
 
   React.useEffect(() => {
     if (!hasInitialized) {
@@ -237,214 +169,214 @@ export function Dashboard() {
 
   return (
     <div className="space-y-8">
-        {/* Header */}
-        <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-          <div>
-            <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Workspace</p>
-            <h1 className="text-2xl font-bold text-foreground">{workspaceName}</h1>
+      {/* Header */}
+      <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+        <div>
+          <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Workspace</p>
+          <h1 className="text-2xl font-bold text-foreground">{workspaceName}</h1>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <div className="relative" onClick={() => openModal('command')}>
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <input
+              className="pl-10 pr-4 py-2 bg-card border border-border rounded-full text-sm w-56 focus:outline-none focus:ring-2 focus:ring-violet-500/20 placeholder-muted-foreground text-foreground cursor-pointer"
+              placeholder="Search..."
+              type="text"
+              readOnly
+            />
           </div>
 
-          <div className="flex items-center gap-3">
-            <div className="relative" onClick={() => openModal('command')}>
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <input
-                className="pl-10 pr-4 py-2 bg-card border border-border rounded-full text-sm w-56 focus:outline-none focus:ring-2 focus:ring-violet-500/20 placeholder-muted-foreground text-foreground cursor-pointer"
-                placeholder="Search..."
-                type="text"
-                readOnly
-              />
-            </div>
-
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="inline-flex items-center px-4 py-2 bg-card border border-border text-sm text-foreground rounded-full hover:bg-muted/50 transition-colors">
-                  {selectedTimeOption.label}
-                  <ChevronDown className="ml-2 w-4 h-4 text-muted-foreground" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-40 rounded-xl p-1 border-border bg-card">
-                {timeOptions.map((option) => (
-                  <DropdownMenuItem
-                    key={option.value}
-                    onClick={() => handlePeriodChange(option.value)}
-                    className="text-sm rounded-lg cursor-pointer focus:bg-muted focus:text-foreground"
-                  >
-                    {option.label}
-                    {timePeriod === option.value && <Check className="ml-auto w-4 h-4 text-violet-600" />}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            <div className="relative">
-              <button
-                ref={notificationButtonRef}
-                onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
-                className="p-2 bg-card border border-border rounded-full text-muted-foreground hover:text-foreground transition-colors relative"
-              >
-                <Bell className="w-5 h-5" />
-                {unreadCount > 0 && (
-                  <span className="absolute top-0 right-0 min-w-[16px] h-[16px] bg-red-500 rounded-full border-2 border-card flex items-center justify-center text-[10px] font-bold text-white transform translate-x-1 -translate-y-1">
-                    {unreadCount > 9 ? '9+' : unreadCount}
-                  </span>
-                )}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="inline-flex items-center px-4 py-2 bg-card border border-border text-sm text-foreground rounded-full hover:bg-muted/50 transition-colors">
+                {selectedTimeOption.label}
+                <ChevronDown className="ml-2 w-4 h-4 text-muted-foreground" />
               </button>
-
-              <NotificationsPanel
-                isOpen={isNotificationsOpen}
-                onClose={() => setIsNotificationsOpen(false)}
-                anchorRef={notificationButtonRef}
-              />
-            </div>
-          </div>
-        </header>
-
-        {/* Stat Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
-          <DashboardStatCard
-            label="Code Snippets"
-            value={statsLoading ? "..." : (stats?.snippets || 0).toLocaleString()}
-            trend={12}
-            icon={Code2}
-            color="bg-blue-500"
-            history={mockedHistory[0]}
-          />
-          <DashboardStatCard
-            label="AI Prompts"
-            value={statsLoading ? "..." : (stats?.prompts || 0).toLocaleString()}
-            trend={24}
-            icon={MessageSquare}
-            color="bg-purple-500"
-            history={mockedHistory[1]}
-          />
-          <DashboardStatCard
-            label="File Assets"
-            value={statsLoading ? "..." : (stats?.files || 0).toLocaleString()}
-            trend={-5}
-            icon={FolderOpen}
-            color="bg-orange-500"
-            history={mockedHistory[2]}
-          />
-          <DashboardStatCard
-            label="Active Projects"
-            value={statsLoading ? "..." : (stats?.projects || 0).toString()}
-            trend={0}
-            icon={Layout}
-            color="bg-emerald-500"
-            history={mockedHistory[3]}
-          />
-        </div>
-
-        {/* Main Content Areas */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
-          <div className="lg:col-span-2 space-y-8">
-            {/* Productivity Chart Section */}
-            <div className="bg-card rounded-2xl p-6 shadow-sm border border-border">
-              <div className="flex justify-between items-start mb-6">
-                <div>
-                  <h3 className="text-lg font-semibold text-card-foreground">Workspace Activity</h3>
-                  <p className="text-sm text-muted-foreground mt-1">Resources vs Projects created</p>
-                </div>
-                <button className="text-sm text-muted-foreground hover:text-foreground">
-                  {selectedTimeOption.label}
-                </button>
-              </div>
-              <ProductivityChart data={chartData} isLoading={itemsLoading} />
-            </div>
-          </div>
-
-          {/* Sidebar Area */}
-          <div className="space-y-8">
-            {/* Profile Card */}
-            <div className="bg-card rounded-2xl p-6 shadow-sm border border-border text-center">
-              <div className="relative w-20 h-20 mx-auto mb-4">
-                {storeUser?.imageUrl ? (
-                  <img 
-                    alt="Profile" 
-                    className="w-full h-full rounded-full object-cover ring-2 ring-border" 
-                    src={storeUser.imageUrl} 
-                  />
-                ) : (
-                  <div className="w-full h-full rounded-full bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center text-white text-xl font-bold">
-                    {getMemberInitials(storeUser?.fullName || storeUser?.username || "User")}
-                  </div>
-                )}
-                <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-gray-900 rounded-full flex items-center justify-center text-white border-2 border-card">
-                  <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                </div>
-              </div>
-
-              <h3 className="text-lg font-semibold text-card-foreground">
-                {storeUser?.fullName || storeUser?.username || "User"}
-              </h3>
-              <p className="text-sm text-muted-foreground mb-6">Creative Technologist</p>
-
-              <div className="flex justify-center gap-4">
-                <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                  <Users className="w-4 h-4 text-orange-500" />
-                  <span>{teamMembers?.length || 0}</span>
-                </div>
-                <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                  <CheckCircle2 className="w-4 h-4 text-rose-500" />
-                  <span>{stats?.projects || 0}</span>
-                </div>
-                <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                  <Zap className="w-4 h-4 text-yellow-500" />
-                  <span>12</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Team Members List */}
-            <div>
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-semibold text-foreground">Team Members</h3>
-                <button
-                  onClick={() => openModal("invite-member")}
-                  className="w-8 h-8 rounded-lg bg-muted/50 hover:bg-muted flex items-center justify-center transition-colors"
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-40 rounded-xl p-1 border-border bg-card">
+              {timeOptions.map((option) => (
+                <DropdownMenuItem
+                  key={option.value}
+                  onClick={() => handlePeriodChange(option.value)}
+                  className="text-sm rounded-lg cursor-pointer focus:bg-muted focus:text-foreground"
                 >
-                  <Plus className="w-4 h-4 text-muted-foreground" />
-                </button>
-              </div>
+                  {option.label}
+                  {timePeriod === option.value && <Check className="ml-auto w-4 h-4 text-violet-600" />}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
 
-              <div className="space-y-3">
-                {teamMembersLoading ? (
-                  <div className="text-center py-4 text-muted-foreground text-sm">Loading...</div>
-                ) : (
-                  teamMembers?.slice(0, 4).map((member, i) => (
-                    <div key={member.id} className="flex items-center justify-between py-2">
-                      <div className="flex items-center gap-3">
-                        {member.profile?.avatarUrl ? (
-                          <img
-                            alt={member.profile.fullName}
-                            className="w-10 h-10 rounded-xl object-cover"
-                            src={member.profile.avatarUrl}
-                          />
-                        ) : (
-                          <div className={`w-10 h-10 rounded-xl ${getMemberColor(i)} flex items-center justify-center text-sm font-semibold`}>
-                            {getMemberInitials(member.profile?.fullName || "User")}
-                          </div>
-                        )}
-                        <div>
-                          <h4 className="text-sm font-medium text-foreground">{member.profile?.fullName || "Team Member"}</h4>
-                          <p className="text-xs text-muted-foreground">{member.role}</p>
-                        </div>
-                      </div>
-                      {member.userId !== storeUser?.id && (
-                        <button
-                          onClick={() => openFloatingChatWithUser(member.userId)}
-                          className="p-2 rounded-lg text-muted-foreground hover:text-violet-600 hover:bg-violet-50 dark:hover:bg-violet-900/20 transition-colors"
-                        >
-                          <MessageSquare className="w-4 h-4" />
-                        </button>
-                      )}
-                    </div>
-                  ))
-                )}
+          <div className="relative">
+            <button
+              ref={notificationButtonRef}
+              onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
+              className="p-2 bg-card border border-border rounded-full text-muted-foreground hover:text-foreground transition-colors relative"
+            >
+              <Bell className="w-5 h-5" />
+              {unreadCount > 0 && (
+                <span className="absolute top-0 right-0 min-w-[16px] h-[16px] bg-red-500 rounded-full border-2 border-card flex items-center justify-center text-[10px] font-bold text-white transform translate-x-1 -translate-y-1">
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </span>
+              )}
+            </button>
+
+            <NotificationsPanel
+              isOpen={isNotificationsOpen}
+              onClose={() => setIsNotificationsOpen(false)}
+              anchorRef={notificationButtonRef}
+            />
+          </div>
+        </div>
+      </header>
+
+      {/* Stat Cards Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
+        <DashboardStatCard
+          label="Code Snippets"
+          value={statsLoading ? "..." : (stats?.snippets || 0).toLocaleString()}
+          trend={12}
+          icon={Code2}
+          color="bg-blue-500"
+          history={mockedHistory[0]}
+        />
+        <DashboardStatCard
+          label="AI Prompts"
+          value={statsLoading ? "..." : (stats?.prompts || 0).toLocaleString()}
+          trend={24}
+          icon={MessageSquare}
+          color="bg-purple-500"
+          history={mockedHistory[1]}
+        />
+        <DashboardStatCard
+          label="File Assets"
+          value={statsLoading ? "..." : (stats?.files || 0).toLocaleString()}
+          trend={-5}
+          icon={FolderOpen}
+          color="bg-orange-500"
+          history={mockedHistory[2]}
+        />
+        <DashboardStatCard
+          label="Active Projects"
+          value={statsLoading ? "..." : (stats?.projects || 0).toString()}
+          trend={0}
+          icon={Layout}
+          color="bg-emerald-500"
+          history={mockedHistory[3]}
+        />
+      </div>
+
+      {/* Main Content Areas */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
+        <div className="lg:col-span-2 space-y-8">
+          {/* Productivity Chart Section */}
+          <div className="bg-card rounded-2xl p-6 shadow-sm border border-border">
+            <div className="flex justify-between items-start mb-6">
+              <div>
+                <h3 className="text-lg font-semibold text-card-foreground">Workspace Activity</h3>
+                <p className="text-sm text-muted-foreground mt-1">Resources vs Projects created</p>
+              </div>
+              <button className="text-sm text-muted-foreground hover:text-foreground">
+                {selectedTimeOption.label}
+              </button>
+            </div>
+            <ProductivityChart data={chartData || []} isLoading={itemsLoading} />
+          </div>
+        </div>
+
+        {/* Sidebar Area */}
+        <div className="space-y-8">
+          {/* Profile Card */}
+          <div className="bg-card rounded-2xl p-6 shadow-sm border border-border text-center">
+            <div className="relative w-20 h-20 mx-auto mb-4">
+              {storeUser?.imageUrl ? (
+                <img
+                  alt="Profile"
+                  className="w-full h-full rounded-full object-cover ring-2 ring-border"
+                  src={storeUser.imageUrl}
+                />
+              ) : (
+                <div className="w-full h-full rounded-full bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center text-white text-xl font-bold">
+                  {getMemberInitials(storeUser?.fullName || storeUser?.username || "User")}
+                </div>
+              )}
+              <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-gray-900 rounded-full flex items-center justify-center text-white border-2 border-card">
+                <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+              </div>
+            </div>
+
+            <h3 className="text-lg font-semibold text-card-foreground">
+              {storeUser?.fullName || storeUser?.username || "User"}
+            </h3>
+            <p className="text-sm text-muted-foreground mb-6">Creative Technologist</p>
+
+            <div className="flex justify-center gap-4">
+              <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                <Users className="w-4 h-4 text-orange-500" />
+                <span>{teamMembers?.length || 0}</span>
+              </div>
+              <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                <CheckCircle2 className="w-4 h-4 text-rose-500" />
+                <span>{stats?.projects || 0}</span>
+              </div>
+              <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                <Zap className="w-4 h-4 text-yellow-500" />
+                <span>12</span>
               </div>
             </div>
           </div>
+
+          {/* Team Members List */}
+          <div>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold text-foreground">Team Members</h3>
+              <button
+                onClick={() => openModal("invite-member")}
+                className="w-8 h-8 rounded-lg bg-muted/50 hover:bg-muted flex items-center justify-center transition-colors"
+              >
+                <Plus className="w-4 h-4 text-muted-foreground" />
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              {teamMembersLoading ? (
+                <div className="text-center py-4 text-muted-foreground text-sm">Loading...</div>
+              ) : (
+                teamMembers?.slice(0, 4).map((member, i) => (
+                  <div key={member.id} className="flex items-center justify-between py-2">
+                    <div className="flex items-center gap-3">
+                      {member.profile?.avatarUrl ? (
+                        <img
+                          alt={member.profile.fullName}
+                          className="w-10 h-10 rounded-xl object-cover"
+                          src={member.profile.avatarUrl}
+                        />
+                      ) : (
+                        <div className={`w-10 h-10 rounded-xl ${getMemberColor(i)} flex items-center justify-center text-sm font-semibold`}>
+                          {getMemberInitials(member.profile?.fullName || "User")}
+                        </div>
+                      )}
+                      <div>
+                        <h4 className="text-sm font-medium text-foreground">{member.profile?.fullName || "Team Member"}</h4>
+                        <p className="text-xs text-muted-foreground">{member.role}</p>
+                      </div>
+                    </div>
+                    {member.userId !== storeUser?.id && (
+                      <button
+                        onClick={() => openFloatingChatWithUser(member.userId)}
+                        className="p-2 rounded-lg text-muted-foreground hover:text-violet-600 hover:bg-violet-50 dark:hover:bg-violet-900/20 transition-colors"
+                      >
+                        <MessageSquare className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
         </div>
+      </div>
       {/* View All Activity Dialog */}
       <Dialog open={showAllActivity} onOpenChange={setShowAllActivity}>
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-hidden">

@@ -68,6 +68,8 @@ export const updateProfile = mutation({
     },
 });
 
+
+
 export const syncUser = mutation({
     args: {
         userId: v.string(),
@@ -98,13 +100,21 @@ export const syncUser = mutation({
             return existing._id;
         } else {
             const referralCode = buildReferralCode(args.userId, args.email);
-            return await ctx.db.insert("profiles", {
+            const newUserId = await ctx.db.insert("profiles", {
                 userId: args.userId,
                 email: args.email,
                 fullName: args.fullName,
                 avatarUrl: args.avatarUrl,
                 referralCode,
             });
+
+            // Schedule welcome email via Resend
+            await ctx.scheduler.runAfter(0, api.resend.sendWelcomeEmail, {
+                email: args.email,
+                name: args.fullName || args.email.split("@")[0],
+            });
+
+            return newUserId;
         }
     },
 });

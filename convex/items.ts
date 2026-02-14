@@ -1,6 +1,152 @@
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
 
+import { paginationOptsValidator } from "convex/server";
+
+export const getItemsPaginated = query({
+    args: {
+        userId: v.string(),
+        teamId: v.optional(v.id("teams")),
+        type: v.optional(v.union(v.literal("code"), v.literal("prompt"), v.literal("file"))),
+        category: v.optional(v.string()),
+        isFavorite: v.optional(v.boolean()),
+        paginationOpts: paginationOptsValidator,
+    },
+    handler: async (ctx, args) => {
+        const enrichItemsWithUrls = async (items: any[]) => {
+            return await Promise.all(items.map(async (item) => {
+                if (item.type === "file" && item.metadata?.storageId) {
+                    const url = await ctx.storage.getUrl(item.metadata.storageId);
+                    return { ...item, fileUrl: url || undefined };
+                }
+                return item;
+            }));
+        };
+
+        let resultItems: any[] = [];
+        let resultIsDone = false;
+        let resultContinueCursor = "";
+
+        if (args.teamId) {
+            const member = await ctx.db
+                .query("teamMembers")
+                .withIndex("by_teamId_userId", (q) => q.eq("teamId", args.teamId!).eq("userId", args.userId))
+                .first();
+            if (!member) {
+                return { page: [], isDone: true, continueCursor: "" };
+            }
+
+            let teamQ = ctx.db.query("items").withIndex("by_teamId", (q) => q.eq("teamId", args.teamId!));
+            if (args.type) {
+                teamQ = ctx.db
+                    .query("items")
+                    .withIndex("by_teamId_type", (q) => q.eq("teamId", args.teamId!).eq("type", args.type!));
+            }
+
+            // Filtering
+            if (args.category && args.category !== "All") {
+                teamQ = teamQ.filter((q) => q.eq(q.field("category"), args.category));
+            }
+            if (args.isFavorite) {
+                teamQ = teamQ.filter((q) => q.eq(q.field("isFavorite"), true));
+            }
+
+            const result = await teamQ.order("desc").paginate(args.paginationOpts);
+            return {
+                ...result,
+                page: await enrichItemsWithUrls(result.page)
+            };
+        } else {
+            // Personal items
+            let q = ctx.db
+                .query("items")
+                .withIndex("by_userId", (q) => q.eq("userId", args.userId))
+                .filter((q) => q.eq(q.field("teamId"), undefined));
+
+            if (args.type) {
+                q = ctx.db
+                    .query("items")
+                    .withIndex("by_userId_type", (q) =>
+                        q.eq("userId", args.userId).eq("type", args.type!)
+                    )
+                    .filter((q) => q.eq(q.field("teamId"), undefined));
+            }
+
+            if (args.category && args.category !== "All") {
+                q = q.filter((q) => q.eq(q.field("category"), args.category));
+            }
+            if (args.isFavorite) {
+                q = q.filter((q) => q.eq(q.field("isFavorite"), true));
+            }
+
+            const result = await q.order("desc").paginate(args.paginationOpts);
+            return {
+                ...result,
+                page: await enrichItemsWithUrls(result.page)
+            };
+        }
+    },
+});
+
+export const searchItems = query({
+    args: {
+        userId: v.string(),
+        teamId: v.optional(v.id("teams")),
+        query: v.string(),
+        type: v.optional(v.union(v.literal("code"), v.literal("prompt"), v.literal("file"))),
+        limit: v.optional(v.number())
+    },
+    handler: async (ctx, args) => {
+        const limit = args.limit || 20; // Search limit
+
+        // Simple text search logic (filtering client-side logic on server to avoid fetch all)
+        // Ideally we should use search indexes, but without one, we scan limited amount?
+        // No, scanning without index is bad.
+        // We will fetch up to 100 recent items and filter them. 
+        // This is a temporary measure until search index is added.
+
+        let q;
+        if (args.teamId) {
+            q = ctx.db.query("items").withIndex("by_teamId", (q) => q.eq("teamId", args.teamId!));
+        } else {
+            q = ctx.db.query("items").withIndex("by_userId", (q) => q.eq("userId", args.userId))
+                .filter((q) => q.eq(q.field("teamId"), undefined));
+        }
+
+        if (args.type) {
+            // Refine if type index available
+            // Actually, we can use filter on type if we started with generic index
+            q = q.filter((q) => q.eq(q.field("type"), args.type));
+        }
+
+        const items = await q.order("desc").take(200); // Take 200 most recent
+
+        const queryLower = args.query.toLowerCase();
+        const filtered = items.filter(item =>
+            item.title.toLowerCase().includes(queryLower) ||
+            item.description?.toLowerCase().includes(queryLower)
+        ).slice(0, limit);
+
+        return filtered.map(item => ({ ...item, id: item._id }));
+    }
+});
+
+export const getLegacyPersonalItems = query({
+    args: { userId: v.string(), teamId: v.id("teams") },
+    handler: async (ctx, args) => {
+        const team = await ctx.db.get(args.teamId);
+        if (!team?.isPersonal) return [];
+
+        // Return legacy items specifically so UI can handle migration or display
+        return await ctx.db
+            .query("items")
+            .withIndex("by_userId", (q) => q.eq("userId", args.userId))
+            .filter((q) => q.eq(q.field("teamId"), undefined))
+            .order("desc")
+            .collect(); // Still fetch all for legacy check, but should be small ideally
+    }
+});
+
 export const getItems = query({
     args: {
         userId: v.string(),

@@ -1,9 +1,74 @@
 import { useState } from 'react';
-import { useQuery, useMutation } from 'convex/react';
+import { useQuery, useMutation, usePaginatedQuery } from 'convex/react';
 import { api } from '../../convex/_generated/api';
 import { Item, ItemType, Tag } from '@/types';
 import { useAuthStore } from '@/store/authStore';
 import { useUIStore } from '@/store/uiStore';
+
+
+export function usePaginatedItems(
+  type?: ItemType | undefined,
+  pageSize = 20,
+  filters?: { category?: string; isFavorite?: boolean }
+) {
+  const { user } = useAuthStore();
+  const { activeTeamId } = useUIStore();
+  const userId = user?.id || "";
+
+  const { results, status, loadMore } = usePaginatedQuery(
+    api.items.getItemsPaginated,
+    {
+      userId,
+      teamId: activeTeamId ? (activeTeamId as any) : undefined,
+      type,
+      category: filters?.category,
+      isFavorite: filters?.isFavorite,
+    },
+    { initialNumItems: pageSize }
+  );
+
+  return {
+    results: (results as any[])?.map(item => ({ ...item, id: item._id })),
+    status,
+    loadMore,
+    isLoading: status === "LoadingFirstPage",
+    error: null,
+  };
+}
+
+export function useSearchItems(query: string, type?: ItemType) {
+  const { user } = useAuthStore();
+  const { activeTeamId } = useUIStore();
+  const userId = user?.id || "";
+
+  const items = useQuery(api.items.searchItems, query ? {
+    userId,
+    teamId: activeTeamId ? (activeTeamId as any) : undefined,
+    query,
+    type
+  } : "skip");
+
+  return {
+    data: (items as any[])?.map(item => ({ ...item, id: item._id })),
+    isLoading: items === undefined && !!query,
+  };
+}
+
+export function useLegacyPersonalItems() {
+  const { user } = useAuthStore();
+  const { activeTeamId } = useUIStore();
+  const userId = user?.id || "";
+
+  const items = useQuery(api.items.getLegacyPersonalItems, {
+    userId,
+    teamId: activeTeamId ? (activeTeamId as any) : undefined
+  });
+
+  return {
+    data: (items as any[])?.map(item => ({ ...item, id: item._id })),
+    isLoading: items === undefined
+  };
+}
 
 export function useItems(type?: ItemType) {
   const { user } = useAuthStore();

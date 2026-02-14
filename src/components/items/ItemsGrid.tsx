@@ -14,7 +14,7 @@ import {
   MoreVertical,
   Clock,
 } from "lucide-react";
-import { useItems } from "@/hooks/useItems";
+import { usePaginatedItems, useSearchItems, useLegacyPersonalItems } from "@/hooks/useItems";
 import { useUIStore } from "@/store/uiStore";
 import { Item, ItemType } from "@/types";
 import { Card } from "@/components/ui/Card";
@@ -24,6 +24,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Select } from "@/components/ui/Select";
 import { CardSkeleton } from "@/components/ui/Skeleton";
 import { format } from "date-fns";
+import { useDebounce } from "@/hooks/useDebounce";
 
 interface ItemsGridProps {
   type: ItemType;
@@ -108,58 +109,53 @@ const getCategoriesByType = (type: ItemType) => {
 };
 
 export function ItemsGrid({ type, title, description }: ItemsGridProps) {
-  const { data: items, isLoading } = useItems(type);
-  const { openModal, initializedViews, markViewInitialized } = useUIStore();
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("All");
-  const [sortBy, setSortBy] = useState<"newest" | "oldest" | "title">("newest");
-  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
 
-  const hasInitialized = initializedViews.has(type);
+  // Pagination & Filtering
+  const {
+    results: paginatedItems,
+    status,
+    loadMore,
+    isLoading: isPaginationLoading
+  } = usePaginatedItems(type, 20, {
+    category: selectedCategory,
+    isFavorite: showFavoritesOnly
+  });
 
-  React.useEffect(() => {
-    if (!hasInitialized) {
-      const viewMap: Record<string, any> = {
-        code: 'code',
-        prompt: 'prompts',
-        file: 'files'
-      };
-      markViewInitialized(viewMap[type]);
-    }
-  }, [hasInitialized, markViewInitialized, type]);
+  // Search
+  const {
+    data: searchResults,
+    isLoading: isSearchLoading
+  } = useSearchItems(debouncedSearchQuery, type);
 
-  const Icon = typeIcons[type];
-  const colors = typeColors[type];
+  // Legacy Items (for Personal Team context)
+  const { data: legacyItems } = useLegacyPersonalItems();
 
   const filteredItems = useMemo(() => {
-    if (!items) return [];
-
-    let filtered = [...items];
-
-    // Search filter
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(
-        (item) =>
-          item.title.toLowerCase().includes(query) ||
-          item.description?.toLowerCase().includes(query) ||
-          item.content?.toLowerCase().includes(query),
-      );
+    // If searching, use search results exclusively (server-side filtered)
+    if (debouncedSearchQuery) {
+      return searchResults || [];
     }
 
-    // Category filter
-    if (selectedCategory !== "All") {
-      filtered = filtered.filter((item) => item.category === selectedCategory);
+    // Otherwise combine paginated results with legacy items
+    let combined = [...(paginatedItems || [])];
+
+    if (legacyItems) {
+      // Apply client-side filters to legacy items since they are fetched separately
+      let filteredLegacy = legacyItems;
+      if (selectedCategory !== "All") {
+        filteredLegacy = filteredLegacy.filter(item => item.category === selectedCategory);
+      }
+      if (showFavoritesOnly) {
+        filteredLegacy = filteredLegacy.filter(item => item.isFavorite);
+      }
+      combined = [...combined, ...filteredLegacy];
     }
 
-    // Favorites filter
-    if (showFavoritesOnly) {
-      filtered = filtered.filter((item) => item.isFavorite);
-    }
-
-    // Sort
-    filtered.sort((a, b) => {
+    // Sort combined list
+    // Note: Paginated items are already descending. Legacy items are too.
+    // If sorted differently, client-side sort applies to LOADED items only.
+    combined.sort((a, b) => {
       if (sortBy === "newest") {
         return (b as any)._creationTime - (a as any)._creationTime;
       } else if (sortBy === "oldest") {
@@ -169,8 +165,23 @@ export function ItemsGrid({ type, title, description }: ItemsGridProps) {
       }
     });
 
-    return filtered;
-  }, [items, searchQuery, selectedCategory, sortBy, showFavoritesOnly]);
+    return combined;
+  }, [
+    paginatedItems,
+    legacyItems,
+    searchResults,
+    debouncedSearchQuery,
+    selectedCategory,
+    showFavoritesOnly,
+    sortBy
+  ]);
+
+  const isLoading = debouncedSearchQuery ? isSearchLoading : isPaginationLoading;
+  const canLoadMore = status === "CanLoadMore" && !debouncedSearchQuery;
+
+  const handleLoadMore = () => {
+    if (canLoadMore) loadMore(20);
+  };
 
   return (
     <div className="space-y-8">
@@ -215,8 +226,8 @@ export function ItemsGrid({ type, title, description }: ItemsGridProps) {
             <button
               onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
               className={`p-3 rounded-2xl transition-all duration-300 border ${showFavoritesOnly
-                  ? "bg-amber-50 dark:bg-amber-900/20 text-amber-500 border-amber-200 dark:border-amber-800 shadow-sm"
-                  : "bg-card text-muted-foreground border-border hover:bg-muted/50 hover:text-amber-400"
+                ? "bg-amber-50 dark:bg-amber-900/20 text-amber-500 border-amber-200 dark:border-amber-800 shadow-sm"
+                : "bg-card text-muted-foreground border-border hover:bg-muted/50 hover:text-amber-400"
                 }`}
               title="Show Favorites"
             >
@@ -244,8 +255,8 @@ export function ItemsGrid({ type, title, description }: ItemsGridProps) {
               <button
                 onClick={() => setViewMode("grid")}
                 className={`p-2.5 rounded-xl transition-all duration-300 ${viewMode === "grid"
-                    ? "bg-card shadow-sm text-foreground"
-                    : "text-muted-foreground hover:text-foreground"
+                  ? "bg-card shadow-sm text-foreground"
+                  : "text-muted-foreground hover:text-foreground"
                   }`}
               >
                 <Grid3X3 className="w-5 h-5" />
@@ -253,8 +264,8 @@ export function ItemsGrid({ type, title, description }: ItemsGridProps) {
               <button
                 onClick={() => setViewMode("list")}
                 className={`p-2.5 rounded-xl transition-all duration-300 ${viewMode === "list"
-                    ? "bg-card shadow-sm text-foreground"
-                    : "text-muted-foreground hover:text-foreground"
+                  ? "bg-card shadow-sm text-foreground"
+                  : "text-muted-foreground hover:text-foreground"
                   }`}
               >
                 <List className="w-5 h-5" />
@@ -270,8 +281,8 @@ export function ItemsGrid({ type, title, description }: ItemsGridProps) {
               key={cat}
               onClick={() => setSelectedCategory(cat)}
               className={`px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition-all duration-300 ${selectedCategory === cat
-                  ? `bg-gradient-to-r ${colors.gradient} text-white shadow-md shadow-violet-500/25`
-                  : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground border border-transparent hover:border-border"
+                ? `bg-gradient-to-r ${colors.gradient} text-white shadow-md shadow-violet-500/25`
+                : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground border border-transparent hover:border-border"
                 }`}
             >
               {cat === "All"
@@ -283,7 +294,7 @@ export function ItemsGrid({ type, title, description }: ItemsGridProps) {
       </div>
 
       {/* Items Grid/List */}
-      {isLoading ? (
+      {isLoading && filteredItems.length === 0 ? (
         <div
           className={
             viewMode === "grid"
@@ -329,24 +340,44 @@ export function ItemsGrid({ type, title, description }: ItemsGridProps) {
           )}
         </div>
       ) : (
-        <div
-          className={
-            viewMode === "grid"
-              ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-              : "space-y-4"
-          }
-        >
-          {filteredItems.map((item, index) => (
-            <div key={item.id}>
-              <ItemCard
-                item={item}
-                viewMode={viewMode}
-                colors={colors}
-                onOpen={(item) => openModal("item", item)}
-              />
+        <>
+          <div
+            className={
+              viewMode === "grid"
+                ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+                : "space-y-4"
+            }
+          >
+            {filteredItems.map((item, index) => (
+              <div key={item.id}>
+                <ItemCard
+                  item={item}
+                  viewMode={viewMode}
+                  colors={colors}
+                  onOpen={(item) => openModal("item", item)}
+                />
+              </div>
+            ))}
+          </div>
+
+          {canLoadMore && (
+            <div className="flex justify-center mt-8">
+              <Button
+                variant="secondary"
+                onClick={handleLoadMore}
+                className="min-w-[150px]"
+              >
+                Load More
+              </Button>
             </div>
-          ))}
-        </div>
+          )}
+
+          {status === "LoadingMore" && (
+            <div className="flex justify-center mt-4">
+              <span className="text-sm text-muted-foreground animate-pulse">Loading more items...</span>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
