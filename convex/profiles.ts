@@ -182,7 +182,7 @@ export const applyReferral = mutation({
             referrer.proTrialEndsAt && referrer.proTrialEndsAt > now
                 ? referrer.proTrialEndsAt
                 : now;
-        const referrerMaxEndsAt = now + TRIAL_DURATION_MS * 2;
+        const referrerMaxEndsAt = now + TRIAL_DURATION_MS;
         const extendedReferrerEndsAt = Math.min(
             referrerTrialBase + TRIAL_DURATION_MS,
             referrerMaxEndsAt
@@ -199,7 +199,7 @@ export const searchUsers = query({
     args: { query: v.string() },
     handler: async (ctx, args) => {
         if (!args.query) return [];
-        
+
         // Search by email using search index
         let users = await ctx.db
             .query("profiles")
