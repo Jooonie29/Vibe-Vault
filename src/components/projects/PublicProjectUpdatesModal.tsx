@@ -181,6 +181,7 @@ export function PublicProjectUpdatesModal({ isOpen, onClose, token, projects }: 
       isOpen={isOpen}
       onClose={onClose}
       size="full"
+      noPadding={true}
       className="max-w-[95vw] h-[90vh] p-0 flex flex-col overflow-hidden bg-card rounded-3xl border border-border shadow-2xl"
     >
       {/* Top Header */}

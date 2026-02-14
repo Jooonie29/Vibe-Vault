@@ -153,6 +153,7 @@ function BoardShareModal({ open, onOpenChange, userId, teamId }: { open: boolean
               </div>
               <Button
                 type="button"
+                variant="ghost"
                 className="h-12 w-12 rounded-xl bg-violet-100 dark:bg-violet-900/20 text-violet-600 dark:text-violet-400 hover:bg-violet-200 dark:hover:bg-violet-900/40 hover:text-violet-700 dark:hover:text-violet-300 shadow-none p-0 flex items-center justify-center"
                 onClick={copyLink}
               >

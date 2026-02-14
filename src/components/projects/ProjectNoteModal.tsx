@@ -132,7 +132,7 @@ export function ProjectNoteModal() {
             title="Project Progress Note"
             size="lg"
         >
-            <div className="p-6 space-y-4">
+            <div className="space-y-4">
                 {/* Header */}
                 <div className="flex items-start justify-between">
                     <div className="flex items-center gap-2 text-violet-600 dark:text-violet-400">
