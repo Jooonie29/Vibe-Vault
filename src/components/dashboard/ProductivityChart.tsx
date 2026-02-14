@@ -60,7 +60,7 @@ export function ProductivityChart({ data = [], isLoading }: ProductivityChartPro
                         />
                         <YAxis
                             hide={true}
-                            domain={[0, 'auto']}
+                            domain={[0, (dataMax: number) => (dataMax < 10 ? 10 : dataMax)]}
                         />
                         <Tooltip
                             content={({ active, payload }) => {
