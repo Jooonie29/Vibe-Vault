@@ -7,6 +7,14 @@ import { Helmet } from 'react-helmet-async';
 const Blog = () => {
   const posts = [
     {
+      title: "What is Vibe Coding? And How to Save Prompts Easily",
+      date: "Nov 15, 2025",
+      author: "Team Vibe",
+      excerpt: "Discover the new era of vibe coding. Learn how to maintain your flow state by saving prompts easily and organizing your snippets in Vault Vibe.",
+      category: "Vibe Coding",
+      image: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+    },
+    {
       title: "Maximizing Productivity with AI Prompts",
       date: "Oct 24, 2025",
       author: "Alex Chen",
@@ -35,10 +43,10 @@ const Blog = () => {
   return (
     <div className="min-h-screen bg-white selection:bg-violet-100 selection:text-violet-900">
       <Helmet>
-        <title>Blog - Vault Vibe</title>
-        <meta name="description" content="Latest updates, productivity tips, and engineering insights from the Vault Vibe team." />
-        <meta property="og:title" content="Blog - Vault Vibe" />
-        <meta property="og:description" content="Latest updates, productivity tips, and engineering insights from the Vault Vibe team." />
+        <title>Blog - Vault Vibe | Vibe Coding & Prompt Engineering</title>
+        <meta name="description" content="Latest updates, productivity tips, and insights on vibe coding. Learn how to save prompts easily and optimize your workflow." />
+        <meta property="og:title" content="Blog - Vault Vibe | Vibe Coding & Prompt Engineering" />
+        <meta property="og:description" content="Latest updates, productivity tips, and insights on vibe coding. Learn how to save prompts easily and optimize your workflow." />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://vaultvibe.xyz/blog" />
         <meta property="og:image" content="https://vaultvibe.xyz/vibe-vault-logo.png" />

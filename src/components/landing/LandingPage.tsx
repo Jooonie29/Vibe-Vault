@@ -65,12 +65,12 @@ const features = [
   {
     icon: Code2,
     title: 'Smart Code Snippets',
-    description: 'Store and organize reusable code blocks with syntax highlighting for 20+ programming languages.',
+    description: 'Store and organize reusable code blocks for seamless vibe coding with syntax highlighting for 20+ programming languages.',
   },
   {
     icon: MessageSquare,
     title: 'AI Prompt Library',
-    description: 'Build your curated collection of engineered prompts for ChatGPT, Claude, and other LLMs.',
+    description: 'Build your curated collection to save prompts easily for ChatGPT, Claude, and other LLMs.',
   },
   {
     icon: FolderOpen,
@@ -158,17 +158,17 @@ export function LandingPage() {
   return (
     <div className="min-h-screen bg-white overflow-x-hidden">
       <Helmet>
-        <title>Vault Vibe - Save AI Prompts & Code Snippets | Vibe Coding Vault</title>
-        <meta name="description" content="Clean infrastructure to organize your prompts, assets, and code snippets. Built for the modern vibe coder who values clarity over noise." />
-        <meta property="og:title" content="Vault Vibe - Save AI Prompts & Code Snippets | Vibe Coding Vault" />
-        <meta property="og:description" content="Clean infrastructure to organize your prompts, assets, and code snippets. Built for the modern vibe coder who values clarity over noise." />
+        <title>Vault Vibe - Vibe Coding & Saving Prompts Easily</title>
+        <meta name="description" content="The ultimate tool for vibe coding. Start saving prompts easily, organize code snippets, and manage assets in one central vault. Built for the modern developer." />
+        <meta property="og:title" content="Vault Vibe - Vibe Coding & Saving Prompts Easily" />
+        <meta property="og:description" content="The ultimate tool for vibe coding. Start saving prompts easily, organize code snippets, and manage assets in one central vault. Built for the modern developer." />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://vaultvibe.xyz/" />
         <meta property="og:image" content="https://vaultvibe.xyz/vibe-vault-logo.png" />
         <meta property="og:image:alt" content="Vault Vibe logo" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Vault Vibe - Save AI Prompts & Code Snippets | Vibe Coding Vault" />
-        <meta name="twitter:description" content="Clean infrastructure to organize your prompts, assets, and code snippets. Built for the modern vibe coder who values clarity over noise." />
+        <meta name="twitter:title" content="Vault Vibe - Vibe Coding & Saving Prompts Easily" />
+        <meta name="twitter:description" content="The ultimate tool for vibe coding. Start saving prompts easily, organize code snippets, and manage assets in one central vault. Built for the modern developer." />
         <meta name="twitter:image" content="https://vaultvibe.xyz/vibe-vault-logo.png" />
         <link rel="canonical" href="https://vaultvibe.xyz/" />
         <script type="application/ld+json">
@@ -177,9 +177,10 @@ export function LandingPage() {
             "@type": "SoftwareApplication",
             "name": "Vault Vibe",
             "url": "https://vaultvibe.xyz/",
-            "applicationCategory": "BusinessApplication",
+            "applicationCategory": "DeveloperApplication",
             "operatingSystem": "Web",
-            "description": "Clean infrastructure to organize your prompts, assets, and code snippets.",
+            "description": "The ultimate tool for vibe coding. Start saving prompts easily, organize code snippets, and manage assets in one central vault.",
+            "keywords": "vibe coding, saving prompt easily, code snippets, prompt engineering, developer tools",
             "offers": {
               "@type": "Offer",
               "price": "0",
@@ -280,8 +281,8 @@ export function LandingPage() {
               transition={{ delay: 0.2 }}
               className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto leading-relaxed"
             >
-              Clean infrastructure to organize your prompts, assets, and code snippets.
-              Built for the modern vibe coder who values clarity over noise.
+              Clean infrastructure for <strong>vibe coding</strong>. Start <strong>saving prompts easily</strong>, organize assets, and manage code snippets.
+              Built for the modern developer who values clarity over noise.
             </motion.p>
 
             {/* CTA Buttons */}
@@ -469,10 +470,10 @@ export function LandingPage() {
           <div className="text-center mb-16">
             <span className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 block">Features</span>
             <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              All the Tools you need to help
+              All the Tools for Vibe Coding & Saving Prompts
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Empowering you with intelligent features to simplify your development workflow and organize your digital assets.
+              Empowering you with intelligent features to simplify your vibe coding workflow and save prompts easily.
             </p>
           </div>
 

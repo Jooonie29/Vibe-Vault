@@ -8,10 +8,10 @@ const AboutUs = () => {
   return (
     <div className="min-h-screen bg-white selection:bg-violet-100 selection:text-violet-900">
       <Helmet>
-        <title>About Us - Vault Vibe</title>
-        <meta name="description" content="We're on a mission to help developers organize their digital brain. Learn more about Vault Vibe, our values, and the team behind the tool." />
-        <meta property="og:title" content="About Us - Vault Vibe" />
-        <meta property="og:description" content="We're on a mission to help developers organize their digital brain. Learn more about Vault Vibe, our values, and the team behind the tool." />
+        <title>About Us - Vault Vibe | Vibe Coding & Saving Prompts</title>
+        <meta name="description" content="We're on a mission to help developers master vibe coding. Learn how we help you save prompts easily and organize your digital brain." />
+        <meta property="og:title" content="About Us - Vault Vibe | Vibe Coding & Saving Prompts" />
+        <meta property="og:description" content="We're on a mission to help developers master vibe coding. Learn how we help you save prompts easily and organize your digital brain." />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://vaultvibe.xyz/about" />
         <meta property="og:image" content="https://vaultvibe.xyz/vibe-vault-logo.png" />
@@ -63,11 +63,11 @@ const AboutUs = () => {
                 <div className="space-y-4 text-lg text-gray-600 leading-relaxed">
                   <p>
                     Vault Vibe was born from a simple frustration: developers spend too much time searching for that one code snippet 
-                    they wrote three months ago, or that perfect AI prompt that generated amazing results.
+                    they wrote three months ago, or that perfect AI prompt that generated amazing results. This disrupts the <strong>vibe coding</strong> flow.
                   </p>
                   <p>
                     We believe that your personal infrastructure shouldn't be scattered across browser history, random text files, 
-                    and forgotten bookmarks. It should be centralized, searchable, and instantly accessible.
+                    and forgotten bookmarks. It should be centralized, searchable, and instantly accessible so you can start <strong>saving prompts easily</strong>.
                   </p>
                 </div>
               </motion.div>
