@@ -84,12 +84,7 @@ const features = [
   },
 ];
 
-const stats = [
-  { value: '10K+', label: 'Active Users' },
-  { value: '50K+', label: 'Snippets Saved' },
-  { value: '99.9%', label: 'Uptime' },
-  { value: '4.9/5', label: 'User Rating' },
-];
+
 
 const plans = [
   {
@@ -730,26 +725,7 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-violet-50/30" >
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map((stat, index) => (
-              <motion.div
-                key={stat.label}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-                className="text-center"
-              >
-                <div className="text-4xl md:text-5xl font-bold text-violet-600 mb-2">{stat.value}</div>
-                <div className="text-sm text-violet-900/60 font-medium">{stat.label}</div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
+
 
       {/* Pricing Section */}
       <section id="pricing" className="py-24 bg-white px-4 sm:px-6 lg:px-8">
